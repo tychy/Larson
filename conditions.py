@@ -1,0 +1,9 @@
+M_cc = 1  # cloud core
+G = 1
+Rho_init = 10 ** -17  # gcm-3 from 10-17to 10-20
+R_cc = 1000  # AU 1000 to 30000
+TMP_init = 10  # or 5 or 30
+AU = 1.4598 * 10 ** 13  # cm
+GRID = 200
+DT = 0.001  # * 10^13 s
+T_END = 2.0
