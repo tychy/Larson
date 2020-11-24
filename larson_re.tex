@@ -1,0 +1,111 @@
+\documentclass{jsarticle}
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{newtxtt}
+\usepackage[utf8]{inputenc}
+\newcommand{\kakko}[1][]{(#1)}
+\newcommand{\bx}{\bold{x}}
+\newcommand{\bb}{\bold{b}}
+\newcommand{\bd}{\bold{d}}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\dder}[2][]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+\newcommand{\Dder}[2][]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\hpn}{n + \half}
+\newcommand{\hmn}{n - \half}
+\newcommand{\hpj}{j + \half}
+\newcommand{\hml}{j - \half}
+\newcommand{\hpi}{i + \half}
+\newcommand{\hmi}{i - \half}
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\beql}[1]{\begin{equation}\label{#1}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\eeqp}{\;\;\;.\end{equation}}
+\newcommand{\eeqc}{\;\;\;,\end{equation}}
+\newcommand{\xid}{x_i^2}
+\newcommand{\lid}{l_i^2}
+\newcommand{\aid}{a_i^2}
+
+
+\date{\today}
+\author{山田龍}
+\title{Larsonの計算の再現}
+\begin{document}
+\maketitle
+\section{アルゴリズム}
+\cite{RadHy}の議論に沿っている。
+
+一次元の球対称ラグランジアン流体計算において、独立変数は$M_r$である。
+ここで$M_r$は半径$r$の内部にある質量で定義され、媒質を外向きに大きくなる量である。
+（疑似粘性の選択は注意が必要である。）
+いま、解くべき方程式は
+\begin{align}
+    \Dder[v]{t} &= - \frac{GM_r}{r^2} - 4\pi r^2\pder[(p + Q)]{M_r}\\
+    \Dder[r]{t} &= v\\
+    V &= \frac{1}{\rho}=\frac{4}{3}\pder[r^3]{M_r}\\
+    Q &= \frac{4}{3}\rho l^2 (\pder[v]{r})^2\label{eq:q}
+\end{align}
+方程式は$\left\{M_i\right\};i = 1,...,I+1$によって離散化される。
+$i$番目の球殻の中の質量は
+\beq
+    \Delta M_{i+\half} = M_{i+1} - M_i
+\eeq
+陽的な差分方程式は、
+\begin{align}
+    \frac{v^{n+\half}_i - v^{n-\half}_i}{\Delta t^n} &= -\frac{GM_i}{(r^{n+\lambda}_i)^2}
+    -4\pi(r^{n+\lambda}_i)^2
+    \frac{p^{n+\lambda}_{i+\half} - p^{n+\lambda}_{i-\half}+Q^{n-\half}_{i+\half} - Q^{n-\half}_{i-\half}}{\Delta M_i}\\
+    r^{n+1}_i &= r^{n}_i + v^{\hpn}_i \Delta t^{\hpn}\\
+    V^{n+1}_{\hpi} &= \frac{1}{\rho^{n+1}_{\hpi}}=\frac{4}{3}\frac{(r^{n+1}_{i+1})^3 - (r^{n+1}_{i})^3}{\Delta M_{\hpi}}\\
+\end{align}
+途中で、
+\begin{align}
+    r^{n+\lambda}_i &= r^n_i + \frac{1}{4} (\Delta t^{n+\half} - \Delta t^{n-\half})v^{n-\half}_i\\
+    p^{n+\lambda}_{\hpi} &=  p^{n}_{\hpi} + \frac{1}{4} (\Delta t^{n+\half} - \Delta t^{n-\half})
+    \frac{p^{n}_{\hpi} - p^{n-1}_{\hpi}}{\Delta t^{\hmi}}
+\end{align}
+しかし、\eqref{eq:q}を疑似粘性に使うのは、例えば星形成の降着流の計算で重大な問題を引き起こすことがある。
+特に、半径が0に近づく場合に内部への物質の流れはたとえ$\pder[v]{r}>0$であっても圧縮されることがある。？
+この物質は粘性による圧力によって支配されるべきだが、\eqref{eq:q}によれば$Q=0$となってしまう。？
+todo:なんとかする
+
+これらの困難はtensor artificial viscosityを使うことで解決される。
+$T = - pl + Q$と書く。　
+
+中略
+
+運動方程式は、
+\beq
+    \Dder[v]{t} = - \frac{GM_r}{r^2} - 4\pi r^2\pder[p]{M_r} - \frac{4\pi}{r}\pder[r^3Q]{M_r}
+\eeq
+差分化すれば、
+\beq
+    \frac{v^{n+\half}_i - v^{n-\half}_i}{\Delta t^n} =
+    -\frac{GM_i}{(r^{n+\lambda}_i)^2}
+    -4\pi(r^{n+\lambda}_i)^2
+    \frac{p^{n+\lambda}_{i+\half} - p^{n+\lambda}_{i-\half}}{\Delta M_i}
+    -\frac{4\pi}{r^{n}_i}
+    \frac{(r^{n}_{i+\half})^3Q^{n-\half}_{i+\half} - (r^{n}_{i-\half})^3Q^{n-\half}_{i-\half}}{\Delta M_i}
+\eeq
+ここで、$r_{i+\half}$は質量を半分持つように選ばれる。
+\begin{align}
+    r_{i+\half} = (r^3_i + r^3_{i+1})^{\frac{1}{3}}
+\end{align}
+$Q$の更新は、
+\beq
+    Q^{\hmn}_{\hpi} = - 2 (\mu_Q)^{\hmn}_{\hpi}
+     \left[\frac{v^{\hmn}_{i+1}-v^{\hmn}_{i}}{r^{\hmn}_{i+1}-r^{\hmn}_{i}}
+      +\frac{1}{3}\frac{\ln \rho^{n}_{\hpi} - \ln \rho^{n-1}_{\hpi}}{\Delta t^{\hpn}}\right]
+\eeq
+粘性係数は、
+\beq
+    (\mu_Q)^{n-\half}_{i+\half} = 
+    l^2 \frac{\left[ \rho^n_{\hpi} - \rho^{n-1}_{\hpi}\right]}{\Delta t^{\hpn}}
+\eeq
+ここで、$l$は
+\beq
+    l = k_q \Delta r
+\eeq
+\bibliographystyle{junsrt}
+\bibliography{cite}
+\end{document}
