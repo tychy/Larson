@@ -2,7 +2,7 @@ import numpy as np
 
 from conditions import M_cc, G, Rho_init, R_cc
 from conditions import DT, TMP_init, AU, GRID, T_END
-from utils import CFL, vstack_n, get_cs
+from utils import CFL, vstack_n, get_cs, r_init, m_init
 
 
 def next(idx, t_h, deltat, v, r, lnrho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
@@ -22,6 +22,7 @@ def next(idx, t_h, deltat, v, r, lnrho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res))
     r_res = r[idx] + v_res * t_h[idx]
+    print("r", r_res)
     r = np.vstack((r, r_res))
     rho_res = np.zeros(r_res.shape[0] - 1)
     p_res = np.zeros(p.shape[1])
@@ -96,9 +97,9 @@ def main():
     deltat = np.zeros(t_h.shape[0])
     for idx in range(1, deltat.shape[0]):
         deltat[idx] = (t_h[idx] + t_h[idx - 1]) / 2
-    m = np.arange(0, M_cc + M_cc / GRID, M_cc / GRID)
+    m = m_init()
     v = np.zeros([2, GRID + 1])
-    r = vstack_n(np.arange(0, R_cc + R_cc / GRID, R_cc / GRID), 3)
+    r = vstack_n(r_init(), 3)
     p = np.ones([3, GRID])
     rho = np.ones([3, GRID]) * 1.0 / GRID
     tmp = np.ones([3, GRID]) * 10
@@ -114,6 +115,7 @@ def main():
     # main loop
     counter = 2
     cur_t = 0.0
+    print("r_init", r[r.shape[0] - 1])
     while cur_t < T_END:
         print("counter:", counter)
         print("cur_t:{:.8}".format(cur_t))
@@ -129,7 +131,7 @@ def main():
         v, r, rho, p, tmp = next(
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q
         )
-        print(r[idx])
+        print("v", v[idx])
         counter += 1
         cur_t += t_h[idx]
 
