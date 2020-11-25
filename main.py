@@ -1,19 +1,18 @@
 import numpy as np
 
 from conditions import M_cc, G, R_cc
-from conditions import DT, TMP_init, AU, GRID, T_END, M_SUN
+from conditions import DT, TMP_init, AU, GRID, T_END, R_LOG, AVG
+from conditions import KQ, CFL_CONST
 from utils import CFL, vstack_n, get_cs, r_init, m_init
 
 
 def next(idx, t_h, deltat, v, r, lnrho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
     # v, r, rho, p, tmp
-    v_res = v[idx - 1] - deltat[idx] * G * m * M_SUN / (
-        AU * r_l[idx] * r_l[idx] + 0.000001
-    )
-    print("midv", v_res)
-    for i in range(1, v_res.shape[0] - 1):
+    v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx] + 0.000001)
+    v_res_b = np.zeros_like(v_res_a)
+    for i in range(1, v_res_a.shape[0] - 1):
         coef = 4 * np.pi * deltat[idx] / deltam[i]
-        v_res[i] -= (
+        v_res_b[i] -= (
             np.power(r_l[idx][i], 2) * (p_l[idx][i] - p_l[idx][i - 1])
             + (
                 np.power(r_h[idx][i], 3) * Q[idx - 1][i]
@@ -21,17 +20,24 @@ def next(idx, t_h, deltat, v, r, lnrho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
             )
             / r[idx][i]
         ) * coef
+    print("a", v_res_a)
+    print("b", v_res_b)
+
+    v_res = v_res_a + v_res_b
     v_res[0] = 0
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res))
     r_res = r[idx] + v_res * t_h[idx]
     r = np.vstack((r, r_res))
+    tmp = np.vstack((tmp, tmp[0]))
     rho_res = np.zeros(lnrho.shape[1])
     p_res = np.zeros(p.shape[1])
     for i in range(rho_res.shape[0]):
         coef = np.power(r_res[i + 1], 3) - np.power(r_res[i], 3)
-        rho_res[i] = np.log((3 / 4) * deltam[i]) - np.log(coef)
-        p_res[i] = 0  # change here
+        rho_res[i] = np.log((3 / (4 * np.pi)) * deltam[i]) - np.log(coef)
+        p_res[i] = (tmp[idx][i] * deltam[i] / AVG) * np.power(
+            10, rho_res[i] / np.log(10) + R_LOG
+        )
     lnrho = np.vstack((lnrho, rho_res))
     p = np.vstack((p, p_res))
 
@@ -39,7 +45,7 @@ def next(idx, t_h, deltat, v, r, lnrho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
 
 
 def calc_t(idx, r, t, t_h, deltat, tmp):
-    t_diff = CFL(r[idx], tmp.mean(), 0.5)
+    t_diff = CFL(r[idx], tmp.mean(), CFL_CONST)
     t = np.append(t, t[idx] + t_diff)
     t_h = np.append(t_h, t_diff)
     deltat = np.append(deltat, (t_diff + t_h[idx - 1]) / 2)
@@ -77,8 +83,12 @@ def calc_half(idx, r, r_h):
     return r_h
 
 
-def calc_Q(idx, l_const, t_h, v, r, lnrho, Q):
-    mu = l_const * l_const * (lnrho[idx] - lnrho[idx - 1]) / t_h[idx]
+def calc_Q(idx, t_h, v, r, lnrho, Q):
+    dx_min = r[idx][1] - r[idx][0]
+    for i in range(r[idx].shape[0] - 1):
+        dx_min = min(dx_min, r[idx][i + 1] - r[idx][i])
+    dx_min = dx_min * KQ
+    mu = dx_min * dx_min * (lnrho[idx] - lnrho[idx - 1]) / t_h[idx]
     Q_res = (lnrho[idx] - lnrho[idx - 1]) / (t_h[idx] * 3)
     for i in range(Q_res.shape[0]):
         Q_res[i] += (v[idx - 1][i + 1] - v[idx - 1][i]) / (
@@ -102,12 +112,11 @@ def main():
     m = m_init()
     v = np.zeros([2, GRID + 1])
     r = vstack_n(r_init(), 3)
-    p = np.zeros([3, GRID])
-    rho = np.log(np.ones([3, GRID]) / (GRID * np.power(R_cc, 3)))
+    p = np.ones([3, GRID]) / np.power(10, 5)
+    rho = np.log(np.ones([3, GRID]) / (GRID))
     tmp = np.ones([3, GRID]) * 10
 
     # 中間生成物
-    l_const = 1 / AU
     r_l = np.zeros([2, GRID + 1])
     r_h = np.zeros([2, GRID])
     p_l = np.zeros([2, GRID])
@@ -121,17 +130,21 @@ def main():
         if counter % 1000 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
+        if counter == 10:
+            break
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
-        Q = calc_Q(counter, l_const, t_h, v, r, rho, Q)
+        Q = calc_Q(counter, t_h, v, r, rho, Q)
 
         v, r, rho, p, tmp = next(
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q
         )
 
-        print("r", r[idx])
-        print("v", v[idx])
+        print("r", r[counter])
+        print("v", v[counter])
+        # print("p", p[counter])
+
         # print("p", p[idx])
         # print("rho", rho[idx])
         # np.delete(v, 0)
@@ -142,8 +155,6 @@ def main():
 
         cur_t += t_h[counter]
         counter += 1
-    print(r)
-    print(t_h)
 
 
 if __name__ == "__main__":
