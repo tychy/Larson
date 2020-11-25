@@ -7,6 +7,6 @@ def CFL(x):
 
 def vstack_n(v, n):
     x = np.copy(v)
-    for i in range(n - 1):
+    for _ in range(n - 1):
         x = np.vstack([x, v])
     return x
