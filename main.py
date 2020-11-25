@@ -107,6 +107,10 @@ def main():
     # main loop
     counter = 0
     while t < T_END:
+        print("counter:",counter)
+        # debug
+        if counter == 2:
+            break
         calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         calc_deltam(m, deltam)
         calc_half(r, r_h)
