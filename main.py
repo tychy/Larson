@@ -1,10 +1,5 @@
 from conditions import M_cc, G, Rho_init, R_cc
 from conditions import DT, TMP_init, AU, GRID, T_END
-import numpy as np
-
-
-def CFL(x):
-    return 0.01
 
 
 def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
@@ -16,10 +11,10 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
             * np.pi
             * deltat[idx]
             * (
-                np.pow(r_l[idx][i], 2) * (p_l[idx][i] - p_l[idx][i - 1])
+                np.power(r_l[idx][i], 2) * (p_l[idx][i] - p_l[idx][i - 1])
                 + (
-                    np.pow(r_h[idx][i]) * Q[idx - 1][i]
-                    - np.pow(r_h[idx][i - 1], 3) * Q[idx - 1][i - 1]
+                    np.power(r_h[idx][i]) * Q[idx - 1][i]
+                    - np.power(r_h[idx][i - 1], 3) * Q[idx - 1][i - 1]
                 )
                 / r[idx][i]
             )
@@ -36,7 +31,7 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
         rho_res[i] = (
             (3 / 4)
             * deltam[idx][i]
-            / (np.pow(r_res[idx][i + 1], 3) - np.pow(r_res[idx][i], 3))
+            / (np.power(r_res[idx][i + 1], 3) - np.power(r_res[idx][i], 3))
         )
     rho.vstack(rho_res)
     return
@@ -63,7 +58,7 @@ def calc_deltam(m, deltam):
 def calc_half(r, r_h):
     r_res = np.zeros(r.shape[1] - 1)
     for i in range(r_res[0]):
-        r_res[i] = np.pow(np.pow(r[i], 3) + np.pow(r[i], 3), 1 / 3)
+        r_res[i] = np.power(np.power(r[i], 3) + np.power(r[i], 3), 1 / 3)
     r_h.vstack(r_res)
     return
 
