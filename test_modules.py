@@ -1,5 +1,5 @@
-from conditions import R_cc, GRID, T_ORDER
-from utils import CFL, vstack_n, get_cs
+from conditions import R_cc, GRID, T_ORDER, AU
+from utils import CFL, vstack_n, get_cs, r_init, m_init
 import numpy as np
 import unittest
 
@@ -18,9 +18,17 @@ class TestModules(unittest.TestCase):
 
     def test_get_cs(self):
         cs = get_cs(10)
-        self.assertTrue(cs == 30000 * T_ORDER)
+        self.assertTrue(cs == 30000 * T_ORDER / AU)
         cs = get_cs(1000)
-        self.assertTrue(cs == 300000 * T_ORDER)
+        self.assertTrue(cs == 300000 * T_ORDER / AU)
+
+    def test_r_init(self):
+        r = r_init()
+        self.assertTrue(r.shape[0] == GRID + 1)
+
+    def test_m_init(self):
+        m = m_init()
+        self.assertTrue(m.shape[0] == GRID + 1)
 
 
 if __name__ == "__main__":
