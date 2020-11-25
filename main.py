@@ -1,5 +1,8 @@
+import numpy as np
+
 from conditions import M_cc, G, Rho_init, R_cc
 from conditions import DT, TMP_init, AU, GRID, T_END
+from utils import CFL, vstack_n
 
 
 def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
@@ -86,9 +89,9 @@ def main():
     deltat = np.zeros(t.shape)
     for idx in range(t.shape - 1):
         deltat[idx + 1] = (t_h[idx + 1] + t_h[idx]) / 2
-    m = np.repeat(np.arange(0, M_cc + GRID, M_cc / GRID), 3, axis=0)
+    m = vstack_n((np.arange(0, M_cc + GRID, M_cc / GRID),3)
     v = np.zeros([2, GRID + 1])
-    r = np.repeat(np.arange(0, R_cc + GRID, R_cc / GRID), 3, axis=0)
+    r = vstack_n((np.arange(0, R_cc + GRID, R_cc / GRID),3)
     p = np.zeros([3, GRID])
     rho = np.ones([3, GRID]) * 1.0 / GRID
     tmp = np.ones([3, GRID]) * 10
