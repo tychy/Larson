@@ -12,13 +12,15 @@ class TestModules(unittest.TestCase):
     def test_CFL(self):
         r = vstack_n(np.arange(0, R_cc + GRID, R_cc / GRID), 3)
         dt = CFL(r[r.shape[0] - 1])
-        self.assertTrue(dt == 0.01)
+        print("10K", CFL(r[r.shape[0] - 1], 10))
+        print("100K", CFL(r[r.shape[0] - 1], 100))
+        self.assertTrue(dt > 0)
 
     def test_get_cs(self):
         cs = get_cs(10)
-        self.assertTrue(cs == 30000)
+        self.assertTrue(cs == 30000 * T_ORDER)
         cs = get_cs(1000)
-        self.assertTrue(cs == 300000)
+        self.assertTrue(cs == 300000 * T_ORDER)
 
 
 if __name__ == "__main__":
