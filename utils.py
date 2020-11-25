@@ -10,7 +10,6 @@ def CFL(x, tmp=10.0, param=1.0):
     dx_min = x[1] - x[0]
     for i in range(x.shape[0] - 1):
         dx_min = min(dx_min, x[i + 1] - x[i])
-    print("min", dx_min)
     dt = dx_min / get_cs(tmp)
     return dt * param
 
