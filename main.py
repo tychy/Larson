@@ -1,13 +1,16 @@
 import numpy as np
 
-from conditions import M_cc, G, Rho_init, R_cc
-from conditions import DT, TMP_init, AU, GRID, T_END
+from conditions import M_cc, G, R_cc
+from conditions import DT, TMP_init, AU, GRID, T_END, M_SUN
 from utils import CFL, vstack_n, get_cs, r_init, m_init
 
 
 def next(idx, t_h, deltat, v, r, lnrho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
     # v, r, rho, p, tmp
-    v_res = v[idx - 1] - deltat[idx] * G * m[idx] / (r_l[idx] * r_l[idx])
+    v_res = v[idx - 1] - deltat[idx] * G * m * M_SUN / (
+        AU * r_l[idx] * r_l[idx] + 0.000001
+    )
+    print("midv", v_res)
     for i in range(1, v_res.shape[0] - 1):
         coef = 4 * np.pi * deltat[idx] / deltam[i]
         v_res[i] -= (
@@ -22,15 +25,14 @@ def next(idx, t_h, deltat, v, r, lnrho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res))
     r_res = r[idx] + v_res * t_h[idx]
-    print("r", r_res)
     r = np.vstack((r, r_res))
-    rho_res = np.zeros(r_res.shape[0] - 1)
+    rho_res = np.zeros(lnrho.shape[1])
     p_res = np.zeros(p.shape[1])
     for i in range(rho_res.shape[0]):
         coef = np.power(r_res[i + 1], 3) - np.power(r_res[i], 3)
-        rho_res[i] = np.log((3 / 4) * deltam[i] / coef)
-        p_res[i] = 1  # change here
-    lnrho = np.vstack((lnrho, np.log(rho_res)))
+        rho_res[i] = np.log((3 / 4) * deltam[i]) - np.log(coef)
+        p_res[i] = 0  # change here
+    lnrho = np.vstack((lnrho, rho_res))
     p = np.vstack((p, p_res))
 
     return v, r, lnrho, p, tmp
@@ -100,12 +102,12 @@ def main():
     m = m_init()
     v = np.zeros([2, GRID + 1])
     r = vstack_n(r_init(), 3)
-    p = np.ones([3, GRID])
-    rho = np.ones([3, GRID]) * 1.0 / GRID
+    p = np.zeros([3, GRID])
+    rho = np.log(np.ones([3, GRID]) / (GRID * np.power(R_cc, 3)))
     tmp = np.ones([3, GRID]) * 10
 
     # 中間生成物
-    l_const = 1
+    l_const = 1 / AU
     r_l = np.zeros([2, GRID + 1])
     r_h = np.zeros([2, GRID])
     p_l = np.zeros([2, GRID])
@@ -115,14 +117,10 @@ def main():
     # main loop
     counter = 2
     cur_t = 0.0
-    print("r_init", r[r.shape[0] - 1])
     while cur_t < T_END:
-        print("counter:", counter)
-        print("cur_t:{:.8}".format(cur_t))
-
-        # debug
-        if counter == 6:
-            break
+        if counter % 1000 == 0:
+            print("counter:", counter)
+            print("cur_t:{:.8}".format(cur_t))
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
@@ -131,9 +129,21 @@ def main():
         v, r, rho, p, tmp = next(
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q
         )
+
+        print("r", r[idx])
         print("v", v[idx])
+        # print("p", p[idx])
+        # print("rho", rho[idx])
+        # np.delete(v, 0)
+        # np.delete(v, 0)
+        # np.delete(v, 0)
+        # np.delete(v, 0)
+        # np.delete(v, 0)
+
+        cur_t += t_h[counter]
         counter += 1
-        cur_t += t_h[idx]
+    print(r)
+    print(t_h)
 
 
 if __name__ == "__main__":
