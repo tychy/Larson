@@ -1,4 +1,4 @@
-from conditions import R_cc, GRID, T_ORDER, AU
+from conditions import R_cc, GRID, T_ORDER, AU, G
 from utils import CFL, vstack_n, get_cs, r_init, m_init
 import numpy as np
 import unittest
@@ -29,6 +29,9 @@ class TestModules(unittest.TestCase):
     def test_m_init(self):
         m = m_init()
         self.assertTrue(m.shape[0] == GRID + 1)
+
+    def test_G(self):
+        print(G)
 
 
 if __name__ == "__main__":
