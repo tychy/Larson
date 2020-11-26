@@ -1,1 +1,5 @@
 # Larson
+
+```
+python main.py
+```
