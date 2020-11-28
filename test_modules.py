@@ -22,13 +22,16 @@ class TestModules(unittest.TestCase):
         cs = get_cs(1000)
         self.assertTrue(cs == 300000 * T_ORDER / AU)
 
-    def test_r_init(self):
-        r = r_init()
-        self.assertTrue(r.shape[0] == GRID + 1)
-
     def test_m_init(self):
         m = m_init()
         self.assertTrue(m.shape[0] == GRID + 1)
+
+    def test_r_init(self):
+        m = m_init()
+        r = r_init(m)
+        self.assertTrue(r.shape[0] == GRID + 1)
+        self.assertTrue(r[0] == 0)
+        self.assertTrue(r[-1] == R_cc)
 
     def test_G(self):
         print(G)
