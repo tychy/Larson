@@ -111,7 +111,7 @@ def main():
         deltat[idx] = (t_h[idx] + t_h[idx - 1]) / 2
     m = m_init()
     v = np.zeros([2, GRID + 1])
-    r = vstack_n(r_init(), 3)
+    r = vstack_n(r_init(m), 3)
     p = np.ones([3, GRID]) / np.power(10, 5)
     rho = np.log(np.ones([3, GRID]) / (GRID))
     tmp = np.ones([3, GRID]) * 10
