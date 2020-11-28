@@ -28,11 +28,11 @@ def get_cs(tmp):
     return base * coef * T_ORDER / AU
 
 
-def r_init():
-    res = np.linspace(0, R_cc, GRID + 1)
+def m_init():
+    res = np.linspace(0, M_cc, GRID + 1)
     return res
 
 
-def m_init():
-    res = np.linspace(0, M_cc, GRID + 1)
+def r_init(m):
+    res = np.power(m / M_cc, 1 / 3) * R_cc
     return res
