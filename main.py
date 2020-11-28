@@ -82,18 +82,32 @@ def calc_half(idx, r, r_h):
 
 
 def calc_Q(idx, t_h, v, r, rho, Q):
-    dx_min = r[idx][1] - r[idx][0]
-    for i in range(r[idx].shape[0] - 1):
-        dx_min = min(dx_min, r[idx][i + 1] - r[idx][i])
-    dx_min = dx_min * KQ
-    mu = dx_min * dx_min * (np.log(rho[idx]) - np.log(rho[idx - 1])) / t_h[idx]
-    Q_res = (np.log(rho[idx]) - np.log(rho[idx - 1])) / (t_h[idx] * 3)
-    for i in range(Q_res.shape[0]):
-        Q_res[i] += (v[idx - 1][i + 1] - v[idx - 1][i]) / (
-            r[idx - 1][i + 1] - r[idx - 1][i]
-        )
+    # dx_min = r[idx][1] - r[idx][0]
+    # for i in range(r[idx].shape[0] - 1):
+    #    dx_min = min(dx_min, r[idx][i + 1] - r[idx][i])
+    # dx_min = dx_min * KQ
+    # mu = dx_min * dx_min * (rho[idx] - rho[idx - 1]) / t_h[idx]
+    # Q_res = (np.log(rho[idx]) - np.log(rho[idx - 1])) / (t_h[idx] * 3)
+    # for i in range(Q_res.shape[0]):
+    #    Q_res[i] += (v[idx - 1][i + 1] - v[idx - 1][i]) / (
+    #        r[idx - 1][i + 1] - r[idx - 1][i]
+    #    )
+    # Q_res = -2 * mu * Q_res
+    print(np.min(np.diff(r[idx])))
+    l_const = np.min(np.diff(r[idx]))
+    mu = np.power(l_const, 2) * (rho[idx] - rho[idx - 1]) / t_h[idx]
+    mu = np.where(mu < 0, 0, mu)
+    print(mu)
+    print(np.diff(v[idx - 1]) / np.diff((r[idx - 1] + r[idx - 2]) / 2))
+    print((1 / 3) * (np.log(rho[idx]) - np.log(rho[idx] - 1)) / t_h[idx])
+    Q_res = (
+        np.diff(v[idx - 1]) / np.diff((r[idx - 1] + r[idx - 2]) / 2)
+        + (1 / 3) * (np.log(rho[idx]) - np.log(rho[idx] - 1)) / t_h[idx]
+    )
+    print(Q_res)
     Q_res = -2 * mu * Q_res
     Q = np.vstack((Q, Q_res))
+
     return Q
 
 
@@ -128,7 +142,7 @@ def main():
         if counter % 1000 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
-        if counter == 4:
+        if counter == 6:
             break
 
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
