@@ -5,21 +5,23 @@ from conditions import DT, TMP_init, AU, GRID, T_END, R_LOG, AVG
 from conditions import KQ, CFL_CONST
 from utils import CFL, vstack_n, get_cs, r_init, m_init
 
+eps = 0.00000001
+
 
 def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
     # v, r, rho, p, tmp
-    v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx] + 0.000001)
+    v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx] + eps)
     v_res_b = np.zeros_like(v_res_a)
-    for i in range(1, v_res_a.shape[0] - 1):
-        coef = 4 * np.pi * deltat[idx] / deltam[i]
-        v_res_b[i] -= (
-            np.power(r_l[idx][i], 2) * (p_l[idx][i] - p_l[idx][i - 1])
-            + (
-                np.power(r_h[idx][i], 3) * Q[idx - 1][i]
-                - np.power(r_h[idx][i - 1], 3) * Q[idx - 1][i - 1]
-            )
-            / r[idx][i]
-        ) * coef
+    p_diff = np.diff(p_l[idx])
+    p_diff = np.insert(p_diff, [0, p_diff.shape[0]], [0, 0])
+    Q_diff = np.diff(np.power(r_h[idx], 3) * Q[idx - 1])
+    Q_diff = np.insert(Q_diff, [0, Q_diff.shape[0]], [0, 0])
+    m_cur = np.zeros_like(m)
+    for i in range(1, m_cur.shape[0] - 1):
+        m_cur[i] = (deltam[i - 1] + deltam[i]) / 2
+    v_res_b = -(4 * np.pi * deltat[idx] / m_cur) * (
+        np.power(r_l[idx], 2) * p_diff + Q_diff / (r[idx] + eps)
+    )
     print("a", v_res_a)
     print("b", v_res_b)
 
@@ -31,7 +33,7 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
     r = np.vstack((r, r_res))
     tmp = np.vstack((tmp, tmp[0]))
     rho_res = np.zeros(rho.shape[1])
-    rho_res = deltam / ((4 / 3) * np.pi * (np.diff(np.power(r, 3))))
+    rho_res = deltam / ((4 / 3) * np.pi * (np.diff(np.power(r_res, 3))))
 
     p_res = np.zeros(p.shape[1])
     p_res = rho_res * np.power(10, R_LOG) * tmp[idx] / AVG
@@ -126,7 +128,7 @@ def main():
         if counter % 1000 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
-        if counter == 5:
+        if counter == 4:
             break
 
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
