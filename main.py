@@ -93,18 +93,13 @@ def calc_Q(idx, t_h, v, r, rho, Q):
     #        r[idx - 1][i + 1] - r[idx - 1][i]
     #    )
     # Q_res = -2 * mu * Q_res
-    print(np.min(np.diff(r[idx])))
     l_const = np.min(np.diff(r[idx]))
     mu = np.power(l_const, 2) * (rho[idx] - rho[idx - 1]) / t_h[idx]
     mu = np.where(mu < 0, 0, mu)
-    print(mu)
-    print(np.diff(v[idx - 1]) / np.diff((r[idx - 1] + r[idx - 2]) / 2))
-    print((1 / 3) * (np.log(rho[idx]) - np.log(rho[idx] - 1)) / t_h[idx])
     Q_res = (
         np.diff(v[idx - 1]) / np.diff((r[idx - 1] + r[idx - 2]) / 2)
         + (1 / 3) * (np.log(rho[idx]) - np.log(rho[idx] - 1)) / t_h[idx]
     )
-    print(Q_res)
     Q_res = -2 * mu * Q_res
     Q = np.vstack((Q, Q_res))
 
