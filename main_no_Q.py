@@ -1,11 +1,12 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 from conditions import M_cc, G, R_cc
 from conditions import DT, TMP_init, AU, GRID, T_END, R_LOG, AVG
 from conditions import KQ, CFL_CONST
 from utils import CFL, vstack_n, get_cs, r_init, m_init
 
-eps = 0.00000001
+eps = 0.0000000001
 
 
 def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
@@ -17,9 +18,11 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     m_cur = np.zeros_like(m)
     for i in range(1, m_cur.shape[0] - 1):
         m_cur[i] = (deltam[i - 1] + deltam[i]) / 2
-    v_res_b = -(4 * np.pi * deltat[idx] / m_cur) * (np.power(r_l[idx], 2) * p_diff)
-    print("a", v_res_a)
-    print("b", v_res_b)
+    v_res_b = -(4 * np.pi * deltat[idx] / (m_cur + eps)) * (
+        np.power(r_l[idx], 2) * p_diff
+    )
+    # print("a", v_res_a)
+    # print("b", v_res_b)
 
     v_res = v_res_a + v_res_b
     v_res[0] = 0
@@ -43,7 +46,7 @@ def calc_t(idx, r, t, t_h, deltat, tmp):
     t = np.append(t, t[idx] + t_diff)
     t_h = np.append(t_h, t_diff)
     deltat = np.append(deltat, (t_diff + t_h[idx - 1]) / 2)
-    if True:
+    if False:
         print("t_diff:", t_diff)
         print("t:", t)
         print("t_h:", t_h)
@@ -104,11 +107,6 @@ def main():
     counter = 2
     cur_t = 0.0
     while cur_t < T_END:
-        if counter % 1000 == 0:
-            print("counter:", counter)
-            print("cur_t:{:.8}".format(cur_t))
-        if counter == 6:
-            break
 
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
@@ -117,24 +115,41 @@ def main():
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l
         )
 
-        print("r", r[counter + 1])
-        print("r", r.shape)
-        print("v", v[counter])
-        print("v", v.shape)
-        print("p", p[counter + 1])
-        print("p", p.shape)
-        print("Q", Q[counter])
-        print("Q", Q.shape)
-        print("rho", rho[counter + 1])
-        print("rho", rho.shape)
+        # print("r", r[counter + 1])
+        # print("v", v[counter])
+        # print("v", v.shape)
+        # print("p", p[counter + 1])
+        # print("p", p.shape)
+        # print("rho", rho[counter + 1])
+        # print("rho", rho.shape)
         # np.delete(v, 0)
         # np.delete(v, 0)
         # np.delete(v, 0)
         # np.delete(v, 0)
         # np.delete(v, 0)
 
+        if counter % 20000 == 0:
+            print("counter:", counter)
+            print("cur_t:{:.8}".format(cur_t))
+            plt.plot(
+                np.log(r_h[counter]),
+                np.log(rho[counter]),
+                label="{}".format(t[counter]),
+            )
+            np.save("data/step_{}_r.npy".format(counter), r)
+            np.save("data/step_{}_r_h.npy".format(counter), r_h)
+            np.save("data/step_{}_t.npy".format(counter), t)
+            np.save("data/step_{}_rho.npy".format(counter), rho)
+
         cur_t += t_h[counter]
         counter += 1
+    np.save("data/step_{}_r.npy".format(counter), r)
+    np.save("data/step_{}_r_h.npy".format(counter), r_h)
+    np.save("data/step_{}_t.npy".format(counter), t)
+    np.save("data/step_{}_rho.npy".format(counter), rho)
+
+    plt.legend()
+    plt.savefig("results/noQ.png")
 
 
 if __name__ == "__main__":
