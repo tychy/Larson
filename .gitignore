@@ -2,7 +2,12 @@
 *.npy
 *-checkpoint.py
 *-checkpoint.ipynb
-
+*.fls
+*.log
+*.dvi
+*.aux
+*.fdb_latexmk
+__latexindent_temp.tex
 settings.json
 *.png
 data
