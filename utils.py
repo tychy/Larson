@@ -36,3 +36,11 @@ def m_init():
 def r_init(m):
     res = np.power(m / M_cc, 1 / 3) * R_cc
     return res
+
+
+def save(base_dir, idx, r, r_h, t, rho):
+    np.save(base_dir + "/step_{}_r.npy".format(idx), r)
+    np.save(base_dir + "/step_{}_r_h.npy".format(idx), r_h)
+    np.save(base_dir + "/step_{}_t.npy".format(idx), t)
+    np.save(base_dir + "/step_{}_rho.npy".format(idx), rho)
+    return
