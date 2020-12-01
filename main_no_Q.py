@@ -23,8 +23,6 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     v_res_b = -(4 * np.pi * deltat[idx] / (m_cur + eps)) * (
         np.power(r_l[idx], 2) * p_diff
     )
-    # print("a", v_res_a)
-    # print("b", v_res_b)
 
     v_res = v_res_a + v_res_b
     v_res[0] = 0
@@ -120,9 +118,7 @@ def main():
         v, r, rho, p, tmp = next(
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l
         )
-        if counter == 4:
-            break
-        if counter % 20000 == 0:
+        if counter % 50000 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
             plt.plot(
@@ -130,11 +126,10 @@ def main():
                 np.log(rho[counter]),
                 label="{}".format(t[counter]),
             )
-            save(base_dir, counter, r, r_h, t, rho)
-
+            save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
         cur_t += t_h[counter]
         counter += 1
-    save(base_dir, counter, r, r_h, t, rho)
+    save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
     plt.legend()
     plt.savefig("results/step_{}_noQ.png".format(counter))
 
