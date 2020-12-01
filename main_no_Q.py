@@ -1,29 +1,28 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 from conditions import M_cc, G, R_cc
 from conditions import DT, TMP_init, AU, GRID, T_END, R_LOG, AVG
 from conditions import KQ, CFL_CONST
 from utils import CFL, vstack_n, get_cs, r_init, m_init
 
-eps = 0.00000001
+eps = 0.0000000001
 
 
-def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
+def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     # v, r, rho, p, tmp
     v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx] + eps)
     v_res_b = np.zeros_like(v_res_a)
     p_diff = np.diff(p_l[idx])
     p_diff = np.insert(p_diff, [0, p_diff.shape[0]], [0, 0])
-    Q_diff = np.diff(np.power(r_h[idx], 3) * Q[idx - 1])
-    Q_diff = np.insert(Q_diff, [0, Q_diff.shape[0]], [0, 0])
     m_cur = np.zeros_like(m)
     for i in range(1, m_cur.shape[0] - 1):
         m_cur[i] = (deltam[i - 1] + deltam[i]) / 2
-    v_res_b = -(4 * np.pi * deltat[idx] / m_cur) * (
-        np.power(r_l[idx], 2) * p_diff + Q_diff / (r[idx] + eps)
+    v_res_b = -(4 * np.pi * deltat[idx] / (m_cur + eps)) * (
+        np.power(r_l[idx], 2) * p_diff
     )
-    print("a", v_res_a)
-    print("b", v_res_b)
+    # print("a", v_res_a)
+    # print("b", v_res_b)
 
     v_res = v_res_a + v_res_b
     v_res[0] = 0
@@ -47,7 +46,7 @@ def calc_t(idx, r, t, t_h, deltat, tmp):
     t = np.append(t, t[idx] + t_diff)
     t_h = np.append(t_h, t_diff)
     deltat = np.append(deltat, (t_diff + t_h[idx - 1]) / 2)
-    if True:
+    if False:
         print("t_diff:", t_diff)
         print("t:", t)
         print("t_h:", t_h)
@@ -81,31 +80,6 @@ def calc_half(idx, r, r_h):
     return r_h
 
 
-def calc_Q(idx, t_h, v, r, rho, Q):
-    # dx_min = r[idx][1] - r[idx][0]
-    # for i in range(r[idx].shape[0] - 1):
-    #    dx_min = min(dx_min, r[idx][i + 1] - r[idx][i])
-    # dx_min = dx_min * KQ
-    # mu = dx_min * dx_min * (rho[idx] - rho[idx - 1]) / t_h[idx]
-    # Q_res = (np.log(rho[idx]) - np.log(rho[idx - 1])) / (t_h[idx] * 3)
-    # for i in range(Q_res.shape[0]):
-    #    Q_res[i] += (v[idx - 1][i + 1] - v[idx - 1][i]) / (
-    #        r[idx - 1][i + 1] - r[idx - 1][i]
-    #    )
-    # Q_res = -2 * mu * Q_res
-    l_const = np.min(np.diff(r[idx]))
-    mu = np.power(l_const, 2) * (rho[idx] - rho[idx - 1]) / t_h[idx]
-    mu = np.where(mu < 0, 0, mu)
-    Q_res = (
-        np.diff(v[idx - 1]) / np.diff((r[idx - 1] + r[idx - 2]) / 2)
-        + (1 / 3) * (np.log(rho[idx]) - np.log(rho[idx] - 1)) / t_h[idx]
-    )
-    Q_res = -2 * mu * Q_res
-    Q = np.vstack((Q, Q_res))
-
-    return Q
-
-
 def main():
     # v_i+\half = idx[i]
     # 初期化
@@ -119,54 +93,50 @@ def main():
     m = m_init()
     v = np.zeros([2, GRID + 1])
     r = vstack_n(r_init(m), 3)
-    p = np.ones([3, GRID]) / np.power(10, 5)
-    rho = np.ones([3, GRID]) / (GRID)
-    tmp = np.ones([3, GRID]) * 10
-
     # 中間生成物
     r_l = np.zeros([2, GRID + 1])
     r_h = np.zeros([2, GRID])
     p_l = np.zeros([2, GRID])
-    Q = np.zeros([2, GRID])  # わざと2
     deltam = calc_deltam(m)
+
+    p = np.ones([3, GRID]) / np.power(10, 5)
+    rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
+    tmp = np.ones([3, GRID]) * 10
 
     # main loop
     counter = 2
     cur_t = 0.0
     while cur_t < T_END:
-        if counter % 1000 == 0:
-            print("counter:", counter)
-            print("cur_t:{:.8}".format(cur_t))
-        if counter == 6:
-            break
 
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
-        Q = calc_Q(counter, t_h, v, r, rho, Q)
-
         v, r, rho, p, tmp = next(
-            counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q
+            counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l
         )
 
-        print("r", r[counter + 1])
-        print("r", r.shape)
-        print("v", v[counter])
-        print("v", v.shape)
-        print("p", p[counter + 1])
-        print("p", p.shape)
-        print("Q", Q[counter])
-        print("Q", Q.shape)
-        print("rho", rho[counter + 1])
-        print("rho", rho.shape)
-        # np.delete(v, 0)
-        # np.delete(v, 0)
-        # np.delete(v, 0)
-        # np.delete(v, 0)
-        # np.delete(v, 0)
+        if counter % 20000 == 0:
+            print("counter:", counter)
+            print("cur_t:{:.8}".format(cur_t))
+            plt.plot(
+                np.log(r_h[counter]),
+                np.log(rho[counter]),
+                label="{}".format(t[counter]),
+            )
+            np.save("data/step_{}_r.npy".format(counter), r)
+            np.save("data/step_{}_r_h.npy".format(counter), r_h)
+            np.save("data/step_{}_t.npy".format(counter), t)
+            np.save("data/step_{}_rho.npy".format(counter), rho)
 
         cur_t += t_h[counter]
         counter += 1
+    np.save("data/step_{}_r.npy".format(counter), r)
+    np.save("data/step_{}_r_h.npy".format(counter), r_h)
+    np.save("data/step_{}_t.npy".format(counter), t)
+    np.save("data/step_{}_rho.npy".format(counter), rho)
+
+    plt.legend()
+    plt.savefig("results/noQ.png")
 
 
 if __name__ == "__main__":
