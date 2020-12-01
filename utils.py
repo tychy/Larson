@@ -38,9 +38,16 @@ def r_init(m):
     return res
 
 
-def save(base_dir, idx, r, r_h, t, rho):
+def save(base_dir, idx, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t):
+    np.save(base_dir + "/step_{}_t_h.npy".format(idx), t_h)
+    np.save(base_dir + "/step_{}_deltat.npy".format(idx), deltat)
+    np.save(base_dir + "/step_{}_v.npy".format(idx), v)
     np.save(base_dir + "/step_{}_r.npy".format(idx), r)
-    np.save(base_dir + "/step_{}_r_h.npy".format(idx), r_h)
-    np.save(base_dir + "/step_{}_t.npy".format(idx), t)
     np.save(base_dir + "/step_{}_rho.npy".format(idx), rho)
+    np.save(base_dir + "/step_{}_p.npy".format(idx), p)
+    np.save(base_dir + "/step_{}_tmp.npy".format(idx), tmp)
+    np.save(base_dir + "/step_{}_r_h.npy".format(idx), r_h)
+    np.save(base_dir + "/step_{}_r_l.npy".format(idx), r_l)
+    np.save(base_dir + "/step_{}_p_l.npy".format(idx), p_l)
+    np.save(base_dir + "/step_{}_t.npy".format(idx), t)
     return
