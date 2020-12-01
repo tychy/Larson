@@ -1,2 +1,6 @@
 *.pyc
 *.npy
+settings.json
+*.png
+data
+results
