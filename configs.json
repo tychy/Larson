@@ -1,3 +1,6 @@
 {
-    "tag": 1
+    "tag": 1,
+    "pretrained": false,
+    "load_tag": 0,
+    "step": 79118
 }
