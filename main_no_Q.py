@@ -93,15 +93,15 @@ def main():
     m = m_init()
     v = np.zeros([2, GRID + 1])
     r = vstack_n(r_init(m), 3)
-    p = np.ones([3, GRID]) / np.power(10, 5)
-    rho = np.ones([3, GRID]) / (GRID)
-    tmp = np.ones([3, GRID]) * 10
-
     # 中間生成物
     r_l = np.zeros([2, GRID + 1])
     r_h = np.zeros([2, GRID])
     p_l = np.zeros([2, GRID])
     deltam = calc_deltam(m)
+
+    p = np.ones([3, GRID]) / np.power(10, 5)
+    rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
+    tmp = np.ones([3, GRID]) * 10
 
     # main loop
     counter = 2
@@ -114,19 +114,6 @@ def main():
         v, r, rho, p, tmp = next(
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l
         )
-
-        # print("r", r[counter + 1])
-        # print("v", v[counter])
-        # print("v", v.shape)
-        # print("p", p[counter + 1])
-        # print("p", p.shape)
-        # print("rho", rho[counter + 1])
-        # print("rho", rho.shape)
-        # np.delete(v, 0)
-        # np.delete(v, 0)
-        # np.delete(v, 0)
-        # np.delete(v, 0)
-        # np.delete(v, 0)
 
         if counter % 20000 == 0:
             print("counter:", counter)
