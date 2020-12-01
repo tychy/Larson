@@ -1,5 +1,8 @@
 *.pyc
 *.npy
+*-checkpoint.py
+*-checkpoint.ipynb
+
 settings.json
 *.png
 data

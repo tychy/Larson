@@ -1,10 +1,12 @@
+import json
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
 from conditions import M_cc, G, R_cc
 from conditions import DT, TMP_init, AU, GRID, T_END, R_LOG, AVG
 from conditions import KQ, CFL_CONST
-from utils import CFL, vstack_n, get_cs, r_init, m_init
+from utils import CFL, vstack_n, get_cs, r_init, m_init, save
 
 eps = 0.0000000001
 
@@ -81,6 +83,10 @@ def calc_half(idx, r, r_h):
 
 
 def main():
+    with open("configs.json", "r") as f:
+        json_open = json.load(f)
+    base_dir = os.path.join("data", str(json_open["tag"]))
+    os.makedirs(base_dir, exist_ok=True)
     # v_i+\half = idx[i]
     # 初期化
     t = np.array([0, 0.000001, 0.000002])
@@ -114,7 +120,8 @@ def main():
         v, r, rho, p, tmp = next(
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l
         )
-
+        if counter == 4:
+            break
         if counter % 20000 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
@@ -123,20 +130,13 @@ def main():
                 np.log(rho[counter]),
                 label="{}".format(t[counter]),
             )
-            np.save("data/step_{}_r.npy".format(counter), r)
-            np.save("data/step_{}_r_h.npy".format(counter), r_h)
-            np.save("data/step_{}_t.npy".format(counter), t)
-            np.save("data/step_{}_rho.npy".format(counter), rho)
+            save(base_dir, counter, r, r_h, t, rho)
 
         cur_t += t_h[counter]
         counter += 1
-    np.save("data/step_{}_r.npy".format(counter), r)
-    np.save("data/step_{}_r_h.npy".format(counter), r_h)
-    np.save("data/step_{}_t.npy".format(counter), t)
-    np.save("data/step_{}_rho.npy".format(counter), rho)
-
+    save(base_dir, counter, r, r_h, t, rho)
     plt.legend()
-    plt.savefig("results/noQ.png")
+    plt.savefig("results/step_{}_noQ.png".format(counter))
 
 
 if __name__ == "__main__":
