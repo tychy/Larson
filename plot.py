@@ -17,7 +17,7 @@ def main():
     t = np.load(
         "data/" + json_open["plot_tag"] + "/step_{}_t.npy".format(json_open["step"])
     )
-    idx = int(json_open["step"])
+    idx = int(json_open["plot_step"])
     for i in np.linspace(0, idx, 5):
         plt.plot(
             np.log10(r_h[int(i)]),
