@@ -25,16 +25,17 @@ def get_cs(tmp):
     # 10K 0.3km/s
     base = 0.3 * 100 * 1000
     coef = np.sqrt(tmp / 10)
-    return base * coef * T_ORDER / AU
+    return base * coef
 
 
-def m_init():
-    res = np.linspace(0, M_cc, GRID + 1)
+def m_init(r):
+    res = np.power(r / R_cc, 3) * M_cc
     return res
 
 
-def r_init(m):
-    res = np.power(m / M_cc, 1 / 3) * R_cc
+def r_init():
+    res = np.linspace(0, R_cc, GRID + 1)
+    res[0] = 1
     return res
 
 
