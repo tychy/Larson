@@ -7,6 +7,8 @@ from conditions import M_cc, G, R_cc
 from conditions import DT, TMP_init, AU, GRID, T_END, R, AVG
 from conditions import KQ, CFL_CONST
 from utils import CFL, vstack_n, get_cs, r_init, m_init, save
+from file_operator import read_json
+
 
 eps = 0.0000000001
 
@@ -85,8 +87,7 @@ def calc_half(idx, r, r_h):
 
 
 def main():
-    with open("configs.json", "r") as f:
-        json_open = json.load(f)
+    json_open = read_json()
     base_dir = os.path.join("data", str(json_open["tag"]))
     os.makedirs(base_dir, exist_ok=True)
     # v_i+\half = idx[i]

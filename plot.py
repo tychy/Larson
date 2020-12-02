@@ -3,11 +3,11 @@ import numpy as np
 import json
 import os
 
+from file_operator import read_json
+
 
 def main():
-    with open("configs.json", "r") as f:
-        json_open = json.load(f)
-
+    json_open = read_json()
     r_h = np.load(
         "data/" + json_open["plot_tag"] + "/step_{}_r_h.npy".format(json_open["step"])
     )
