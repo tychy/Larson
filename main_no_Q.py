@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from conditions import M_cc, G, R_cc
-from conditions import DT, TMP_init, AU, GRID, T_END, R_LOG, AVG
+from conditions import DT, TMP_init, AU, GRID, T_END, R, AVG
 from conditions import KQ, CFL_CONST
 from utils import CFL, vstack_n, get_cs, r_init, m_init, save
 
@@ -13,7 +13,7 @@ eps = 0.0000000001
 
 def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     # v, r, rho, p, tmp
-    v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx] + eps)
+    v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx])
     v_res_b = np.zeros_like(v_res_a)
     p_diff = np.diff(p_l[idx])
     p_diff = np.insert(p_diff, [0, p_diff.shape[0]], [0, 0])
@@ -27,16 +27,19 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     v_res = v_res_a + v_res_b
     v_res[0] = 0
     v_res[v_res.shape[0] - 1] = 0
-    v = np.vstack((v, v_res))
+    v = np.vstack((v, v_res.astype(np.float64)))
+    print("v", v_res)
+    print("va", v_res_a)
+    print("vb", v_res_b)
+
     r_res = r[idx] + v_res * t_h[idx]
     r = np.vstack((r, r_res))
     tmp = np.vstack((tmp, tmp[0]))
     rho_res = np.zeros(rho.shape[1])
     rho_res = deltam / ((4 / 3) * np.pi * (np.diff(np.power(r_res, 3))))
-
     p_res = np.zeros(p.shape[1])
-    p_res = rho_res * np.power(10, R_LOG) * tmp[idx] / AVG
-    rho = np.vstack((rho, rho_res))
+    p_res = rho_res * R * tmp[idx] / AVG
+    rho = np.vstack((rho, rho_res.astype(np.float64)))
     p = np.vstack((p, p_res))
     return v, r, rho, p, tmp
 
@@ -58,7 +61,7 @@ def calc_lambda(idx, v, r, p, t_h, r_l, p_l):
     t_diff = t_h[idx] - t_h[idx - 1]
     t_coef = t_diff / t_h[idx - 1]
     r_res = r[idx] + t_diff * v[idx - 1] / 4
-    p_res = p[idx] + t_coef * (p[idx] - p[idx - 1]) / 4
+    p_res = p[idx] + t_coef * (p[idx] - p[idx - 2]) / 4
 
     r_l = np.vstack((r_l, r_res))
     p_l = np.vstack((p_l, p_res))
@@ -74,8 +77,9 @@ def calc_deltam(m):
 
 def calc_half(idx, r, r_h):
     r_res = np.zeros(r.shape[1] - 1)
-    for i in range(r_res.shape[0]):
-        r_res[i] = np.power(np.power(r[idx][i], 3) + np.power(r[idx][i], 3), 1 / 3)
+    for i in range(r_res.shape[0] - 1):
+        r_res[i] = (r[idx][i] ** 3 + r[idx][i + 1] ** 3) ** (1 / 3)
+    r_res[-1] = r[idx][-1]
     r_h = np.vstack((r_h, r_res))
     return r_h
 
@@ -94,16 +98,16 @@ def main():
     deltat = np.zeros(t_h.shape[0])
     for idx in range(1, deltat.shape[0]):
         deltat[idx] = (t_h[idx] + t_h[idx - 1]) / 2
-    m = m_init()
+    r = vstack_n(r_init(), 3)
+    m = m_init(r_init())
     v = np.zeros([2, GRID + 1])
-    r = vstack_n(r_init(m), 3)
     # 中間生成物
     r_l = np.zeros([2, GRID + 1])
     r_h = np.zeros([2, GRID])
     p_l = np.zeros([2, GRID])
     deltam = calc_deltam(m)
 
-    p = np.ones([3, GRID]) / np.power(10, 5)
+    p = np.zeros([3, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
     tmp = np.ones([3, GRID]) * 10
 
@@ -118,12 +122,15 @@ def main():
         v, r, rho, p, tmp = next(
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l
         )
-        if counter % 50000 == 0:
+        if counter < 5:
+            print(t_h)
+            print(r)
+        if counter % 50 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
             plt.plot(
-                np.log(r_h[counter]),
-                np.log(rho[counter]),
+                np.log10(r_h[counter]),
+                np.log10(rho[counter]),
                 label="{}".format(t[counter]),
             )
             save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
