@@ -87,8 +87,8 @@ def calc_half(idx, r, r_h):
 
 
 def main():
-    json_open = read_json()
-    base_dir = os.path.join("data", str(json_open["tag"]))
+    config = read_json()
+    base_dir = os.path.join("data", str(config["tag"]))
     os.makedirs(base_dir, exist_ok=True)
     # v_i+\half = idx[i]
     # 初期化

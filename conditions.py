@@ -1,16 +1,16 @@
 from file_operator import read_json
 
-json_open = read_json()
+config = read_json()
 TMP_init = 10  # or 5 or 30
 AU = 1.4598 * 10 ** 13  # cm
-GRID = json_open["GRID"]
+GRID = config["GRID"]
 T_ORDER = 10 ** 13
-T_END = json_open["T_END"] * T_ORDER
+T_END = config["T_END"] * T_ORDER
 M_cc = 10 ** 33  # cloud core
 G = 6.67259 * 10 ** (-8)
-R_cc = json_open["radius"] * AU  # AU 1000 to 30000
+R_cc = config["radius"] * AU  # AU 1000 to 30000
 R = 8 * 10 ** 7
 
 AVG = 2.4
 KQ = 2
-CFL_CONST = json_open["CFL"]
+CFL_CONST = config["CFL"]
