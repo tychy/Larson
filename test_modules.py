@@ -1,4 +1,4 @@
-from conditions import R_cc, GRID, T_ORDER, AU, G, M_SUN_LOG
+from conditions import R_cc, GRID, T_ORDER, AU, G
 from utils import CFL, vstack_n, get_cs, r_init, m_init
 import numpy as np
 import unittest
