@@ -1,7 +1,6 @@
 import json
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
 from conditions import M_cc, G, R_cc
 from conditions import TMP_init, AU, GRID, T_END, R, AVG
@@ -30,9 +29,9 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     v_res[0] = 0
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
-    print("v", v_res)
-    print("va", v_res_a)
-    print("vb", v_res_b)
+    print("v:", v_res)
+    print("v from g:", v_res_a)
+    print("v from p:", v_res_b)
 
     r_res = r[idx] + v_res * t_h[idx]
     r = np.vstack((r, r_res))
@@ -126,17 +125,10 @@ def main():
         if counter % 100 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
-            plt.plot(
-                np.log10(r_h[counter]),
-                np.log10(rho[counter]),
-                label="{}".format(t[counter]),
-            )
             save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
         cur_t += t_h[counter]
         counter += 1
     save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
-    plt.legend()
-    plt.savefig("results/step_{}_noQ.png".format(counter))
 
 
 if __name__ == "__main__":
