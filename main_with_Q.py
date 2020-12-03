@@ -12,7 +12,7 @@ from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
 eps = 0.0000000001
 
 
-def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
+def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
     # v, r, rho, p, tmp
     v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx])
     v_res_b = np.zeros_like(v_res_a)
@@ -24,14 +24,22 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     v_res_b = -(4 * np.pi * deltat[idx] / (m_cur + eps)) * (
         np.power(r_l[idx], 2) * p_diff
     )
+    r_three = np.zeros(r[idx].shape[0] - 1)
+    for i in range(r_three.shape[0]):
+        r_three[i] = (r[idx][i] ** 3 + r[idx][i + 1] ** 3) / 2
+    Q_r_three = r_three / 2 * Q[idx - 1]
+    Q_diff = np.diff(Q_r_three)
+    Q_diff = np.insert(Q_diff, [0, Q_diff.shape[0]], [0, 0])
+    v_res_c = -(4 * np.pi * deltat[idx] / (m_cur + eps)) * Q_diff / r[idx]
 
-    v_res = v_res_a + v_res_b
+    v_res = v_res_a + v_res_b + v_res_c
     v_res[0] = 0
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
     print("v:", v_res)
     print("v from g:", v_res_a)
     print("v from p:", v_res_b)
+    print("v from q:", v_res_c)
 
     r_res = r[idx] + v_res * t_h[idx]
     r = np.vstack((r, r_res))
@@ -43,7 +51,7 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     rho = np.vstack((rho, rho_res.astype(np.float64)))
     p = np.vstack((p, p_res))
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
-    return v, r, rho, p, tmp
+    return v, r, rho, p, tmp, Q
 
 
 def main():
@@ -70,6 +78,7 @@ def main():
 
     p = np.zeros([3, GRID])
     Q = np.zeros([2, GRID])
+
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
     tmp = np.ones([3, GRID]) * 10
 
@@ -81,8 +90,8 @@ def main():
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
-        v, r, rho, p, tmp = next(
-            counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l
+        v, r, rho, p, tmp, Q = next(
+            counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q
         )
         if counter % 100 == 0:
             print("counter:", counter)
