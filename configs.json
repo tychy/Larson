@@ -1,6 +1,9 @@
 {
-    "tag": 1,
-    "pretrained": false,
-    "load_tag": 0,
-    "step": 79118
+    "tag": "12-03-AU10000",
+    "radius": 10000,
+    "T_END": 20,
+    "GRID": 300,
+    "CFL": 0.3,
+    "plot_tag": "12-03-AU10000",
+    "plot_step": 650
 }

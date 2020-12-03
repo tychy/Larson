@@ -1,12 +1,13 @@
 import json
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
 from conditions import M_cc, G, R_cc
-from conditions import DT, TMP_init, AU, GRID, T_END, R, AVG
+from conditions import TMP_init, AU, GRID, T_END, R, AVG
 from conditions import KQ, CFL_CONST
 from utils import CFL, vstack_n, get_cs, r_init, m_init, save
+from file_operator import read_json
+
 
 eps = 0.0000000001
 
@@ -28,9 +29,9 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     v_res[0] = 0
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
-    print("v", v_res)
-    print("va", v_res_a)
-    print("vb", v_res_b)
+    print("v:", v_res)
+    print("v from g:", v_res_a)
+    print("v from p:", v_res_b)
 
     r_res = r[idx] + v_res * t_h[idx]
     r = np.vstack((r, r_res))
@@ -85,9 +86,8 @@ def calc_half(idx, r, r_h):
 
 
 def main():
-    with open("configs.json", "r") as f:
-        json_open = json.load(f)
-    base_dir = os.path.join("data", str(json_open["tag"]))
+    config = read_json()
+    base_dir = os.path.join("data", str(config["tag"]))
     os.makedirs(base_dir, exist_ok=True)
     # v_i+\half = idx[i]
     # 初期化
@@ -122,23 +122,13 @@ def main():
         v, r, rho, p, tmp = next(
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l
         )
-        if counter < 5:
-            print(t_h)
-            print(r)
-        if counter % 50 == 0:
+        if counter % 100 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
-            plt.plot(
-                np.log10(r_h[counter]),
-                np.log10(rho[counter]),
-                label="{}".format(t[counter]),
-            )
             save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
         cur_t += t_h[counter]
         counter += 1
     save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
-    plt.legend()
-    plt.savefig("results/step_{}_noQ.png".format(counter))
 
 
 if __name__ == "__main__":
