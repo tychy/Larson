@@ -45,8 +45,12 @@ def calc_half(idx, r, r_h):
 
 def calc_Q(idx, v, r, rho, t_h, deltat, Q):
     mu_res = L(r[idx]) ** 2 * (rho[idx + 1] - rho[idx]) / t_h[idx]
-    Q_first = (np.dif(v[idx])) / (np.diff(r[idx + 1] + r[idx]) / 2)
-    Q_second = (np.log(rho[idx + 1] - np.log(rho[idx]))) / t_h[idx / 3]
+    for i in range(mu_res.shape[0]):
+        if mu_res[i] < 0:
+            mu_res[i] = 0  # todo np where
+
+    Q_first = (np.diff(v[idx])) / (np.diff(r[idx + 1] + r[idx]) / 2)
+    Q_second = (np.log(rho[idx + 1]) - np.log(rho[idx])) / t_h[idx] / 3
     Q_res = Q_first + Q_second
     Q_res = -2 * mu_res * Q_res
     Q = np.vstack((Q, Q_res))
