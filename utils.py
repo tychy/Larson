@@ -1,6 +1,5 @@
 import numpy as np
-
-from conditions import T_ORDER, GRID, R_cc, M_cc, AU
+from conditions import GRID, R_cc, M_cc
 
 
 def CFL(x, tmp=10.0, param=1.0):
@@ -12,6 +11,14 @@ def CFL(x, tmp=10.0, param=1.0):
         dx_min = min(dx_min, x[i + 1] - x[i])
     dt = dx_min / get_cs(tmp)
     return dt * param
+
+
+def L(x, param=2):
+    dx_min = x[1] - x[0]
+    for i in range(x.shape[0] - 1):
+        dx_min = min(dx_min, x[i + 1] - x[i])
+
+    return dx_min * param
 
 
 def vstack_n(v, n):

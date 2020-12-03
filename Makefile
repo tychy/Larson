@@ -6,6 +6,9 @@ module:
 	python -m unittest test_modules.py
 no_Q:mkdir
 	python main_no_Q.py
+
+with_Q:mkdir
+	python main_with_Q.py
 plot:mkdir
 	python plot.py
 mkdir:

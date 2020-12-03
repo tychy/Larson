@@ -1,5 +1,5 @@
 import numpy as np
-from utils import CFL
+from utils import CFL, L
 from conditions import CFL_CONST
 
 
@@ -41,3 +41,17 @@ def calc_half(idx, r, r_h):
     r_res[-1] = r[idx][-1]
     r_h = np.vstack((r_h, r_res))
     return r_h
+
+
+def calc_Q(idx, v, r, rho, t_h, deltat, Q):
+    mu_res = L(r[idx]) ** 2 * (rho[idx + 1] - rho[idx]) / t_h[idx]
+    for i in range(mu_res.shape[0]):
+        if mu_res[i] < 0:
+            mu_res[i] = 0  # todo np where
+
+    Q_first = (np.diff(v[idx])) / (np.diff(r[idx + 1] + r[idx]) / 2)
+    Q_second = (np.log(rho[idx + 1]) - np.log(rho[idx])) / t_h[idx] / 3
+    Q_res = Q_first + Q_second
+    Q_res = -2 * mu_res * Q_res
+    Q = np.vstack((Q, Q_res))
+    return Q
