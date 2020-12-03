@@ -6,7 +6,7 @@ from conditions import TMP_init, AU, GRID, T_END, R, AVG
 from conditions import KQ
 from utils import vstack_n, get_cs, r_init, m_init, save
 from file_operator import read_json
-from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half
+from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
 
 
 eps = 0.0000000001
@@ -42,6 +42,7 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l):
     p_res = rho_res * R * tmp[idx] / AVG
     rho = np.vstack((rho, rho_res.astype(np.float64)))
     p = np.vstack((p, p_res))
+    Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
     return v, r, rho, p, tmp
 
 
@@ -68,6 +69,7 @@ def main():
     deltam = calc_deltam(m)
 
     p = np.zeros([3, GRID])
+    Q = np.zeros([2, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
     tmp = np.ones([3, GRID]) * 10
 
