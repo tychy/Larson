@@ -1,9 +1,9 @@
 {
-    "tag": "12-03-AU10000",
-    "radius": 10000,
-    "T_END": 20,
+    "tag": "12-04-AU1000-withQ",
+    "radius": 1000,
+    "T_END": 10,
     "GRID": 300,
     "CFL": 0.3,
-    "plot_tag": "12-03-AU10000",
-    "plot_step": 650
+    "plot_tag": "12-04-AU1000-withQ",
+    "plot_step": 900
 }
