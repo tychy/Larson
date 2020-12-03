@@ -2,11 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 import os
+import seaborn as sns
 
 from file_operator import read_json
 
 
 def main():
+    sns.set_theme()
     config = read_json()
     r_h = np.load(
         "data/" + config["plot_tag"] + "/step_{}_r_h.npy".format(config["plot_step"])
