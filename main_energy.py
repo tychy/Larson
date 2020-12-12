@@ -3,7 +3,7 @@ import numpy as np
 
 from conditions import M_cc, G, R_cc
 from conditions import TMP_init, AU, GRID, T_END, R, AVG
-from conditions import KQ
+from conditions import KQ, kb
 from utils import vstack_n, get_cs, r_init, m_init, save
 from file_operator import read_json
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
