@@ -106,6 +106,26 @@ $Q$の更新は、
 \beq
     l = k_q \Delta r
 \eeq
+\section{Sahaの式}
+\section{エネルギー方程式}
+等温の仮定を外してエネルギーを計算入れる。
+放射による効果は、
+\begin{align}
+    l = 4\pi r^2 F\\
+    F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
+\end{align}
+エネルギー方程式は、
+\begin{align}
+    \Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = \dot{q} + \Phi\\
+    \Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi
+\end{align}    
+エネルギーを使って圧力と温度を更新すると、
+\begin{equation}
+    p = (\gamma - 1) e
+\end{equation}
+\begin{equation}
+    e = \frac{5}{2}k_bT
+\end{equation}
 \bibliographystyle{junsrt}
 \bibliography{cite}
 \end{document}
