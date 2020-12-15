@@ -4,7 +4,7 @@ import numpy as np
 from conditions import M_cc, G, R_cc
 from conditions import TMP_init, AU, GRID, T_END, R, AVG
 from conditions import KQ, kb
-from utils import vstack_n, get_cs, r_init, m_init, save
+from utils import vstack_n, get_cs, r_init, m_init, save_with_energy
 from file_operator import read_json
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
 
@@ -12,7 +12,7 @@ from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
 eps = 0.0000000001
 
 
-def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
+def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e, gamma, x):
     # v, r, rho, p, tmp
     v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx])
     v_res_b = np.zeros_like(v_res_a)
@@ -51,7 +51,7 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
     rho = np.vstack((rho, rho_res.astype(np.float64)))
     p = np.vstack((p, p_res))
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
-    return v, r, rho, p, tmp, Q
+    return v, r, rho, p, tmp, Q, e, gamma, x
 
 
 def main():
@@ -79,9 +79,10 @@ def main():
     p = np.zeros([3, GRID])
     Q = np.zeros([2, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
-    tmp = np.ones([3, GRID]) * 10
+    tmp = np.ones([2, GRID]) * 10
     e = 2.5 * kb * tmp
-
+    gamma = np.ones([2, GRID]) * 5 / 3
+    x = np.zeros([2, GRID])
     # main loop
     counter = 2
     cur_t = 0.0
@@ -90,16 +91,35 @@ def main():
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
-        v, r, rho, p, tmp, Q = next(
-            counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q
+        v, r, rho, p, tmp, Q, e, gamma, x = next(
+            counter,
+            t_h,
+            deltat,
+            v,
+            r,
+            rho,
+            p,
+            tmp,
+            m,
+            deltam,
+            r_h,
+            r_l,
+            p_l,
+            Q,
+            e,
+            gamma,
+            x,
         )
         if counter % 100 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
-            save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
+            save_with_energy(
+                base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, gamma, x
+            )
+
         cur_t += t_h[counter]
         counter += 1
-    save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
+    save_with_energy(base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, gamma, x)
 
 
 if __name__ == "__main__":
