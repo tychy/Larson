@@ -15,3 +15,5 @@ AVG = 2.4
 KQ = 2
 CFL_CONST = config["CFL"]
 kb = 1.38 * 10 ** (-16)
+xi_h = 13.4
+m_e = 1
