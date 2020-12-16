@@ -1,7 +1,8 @@
 from file_operator import read_json
 
 config = read_json()
-TMP_init = 10  # or 5 or 30
+TMP_init = config["TMP"]
+ # or 5 or 30
 AU = 1.4598 * 10 ** 13  # cm
 GRID = config["GRID"]
 T_ORDER = 10 ** 13
