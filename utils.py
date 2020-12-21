@@ -61,7 +61,7 @@ def save(base_dir, idx, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t):
     return
 
 
-def save_with_energy(base_dir, idx, v, r, rho, p, tmp, r_h, t, Q, e, gamma, x):
+def save_with_energy(base_dir, idx, v, r, rho, p, tmp, r_h, t, Q, e):
     np.save(base_dir + "/step_{}_v.npy".format(idx), v)
     np.save(base_dir + "/step_{}_r.npy".format(idx), r)
     np.save(base_dir + "/step_{}_rho.npy".format(idx), rho)
@@ -71,7 +71,5 @@ def save_with_energy(base_dir, idx, v, r, rho, p, tmp, r_h, t, Q, e, gamma, x):
     np.save(base_dir + "/step_{}_t.npy".format(idx), t)
     np.save(base_dir + "/step_{}_Q.npy".format(idx), Q)
     np.save(base_dir + "/step_{}_e.npy".format(idx), e)
-    np.save(base_dir + "/step_{}_gamma.npy".format(idx), gamma)
-    np.save(base_dir + "/step_{}_x.npy".format(idx), x)
 
     return
