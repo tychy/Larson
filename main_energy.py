@@ -36,6 +36,7 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     v_res[0] = 0
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
+    print("idx", idx)
     print("v:", v_res)
     print("v from g:", v_res_a)
     print("v from p:", v_res_b)
@@ -50,16 +51,23 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
 
     e_res = (
         e[idx]
-        - p[idx] * (1 / rho[idx] - 1 / rho[idx - 1]) / 2
+        - p[idx] / rho[idx + 1] / 2
+        + p[idx] / rho[idx] / 2
         + deltat[idx] * (-3 / 2 * Q[idx])
     )
+    e_res[-1] = 0
     print("efromp:", -p[idx] * (1 / rho[idx] - 1 / rho[idx - 1]) / 2)
+    print("efrompaaa:", -p[idx] * (1 / rho[idx]) / 2)
     print("efromq:", deltat[idx] * (-3 / 2 * Q[idx]))
+    print("e:", e_res)
     e = np.vstack((e, e_res))
-    tmp_res = e_res / kb * 2 / 5
+    tmp_res = e_res * AVG / R * 2 / 5
+    print("tmp:", tmp_res)
     tmp = np.vstack((tmp, tmp_res))
     p_res = np.zeros(p.shape[1])
     p_res = rho_res * R * tmp[idx] / AVG
+    print("p", p_res)
+
     p = np.vstack((p, p_res))
     return v, r, rho, p, tmp, Q, e
 
@@ -90,7 +98,7 @@ def main():
     Q = np.zeros([2, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
     tmp = np.ones([3, GRID]) * 10
-    e = 2.5 * kb * tmp
+    e = vstack_n(tmp[2] * R / AVG * (5 / 2), 3)
     # main loop
     counter = 2
     cur_t = 0.0
