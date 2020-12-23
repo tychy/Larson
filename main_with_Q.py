@@ -80,7 +80,7 @@ def main():
     Q = np.zeros([2, GRID])
 
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
-    tmp = np.ones([3, GRID]) * 10
+    tmp = np.ones([3, GRID]) * TMP_init
 
     # main loop
     counter = 2
