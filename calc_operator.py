@@ -20,7 +20,7 @@ def calc_lambda(idx, v, r, p, t_h, r_l, p_l):
     t_diff = t_h[idx] - t_h[idx - 1]
     t_coef = t_diff / t_h[idx - 1]
     r_res = r[idx] + t_diff * v[idx - 1] / 4
-    p_res = p[idx] + t_coef * (p[idx] - p[idx - 2]) / 4
+    p_res = p[idx] + t_coef * (p[idx] - p[idx - 1]) / 4
 
     r_l = np.vstack((r_l, r_res))
     p_l = np.vstack((p_l, p_res))
