@@ -15,11 +15,11 @@ def write_index(base_dir, idx):
     return
 
 
-def read_index(base_dir, idx):
+def read_index(base_dir):
     path = base_dir + "/index.txt"
     with open(path) as f:
         s = f.read()
-    return str(s)
+    return int(s)
 
 
 def save(base_dir, idx, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t):
