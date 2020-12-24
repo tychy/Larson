@@ -11,24 +11,27 @@ from conditions import GRID
 def main():
     sns.set_theme()
     config = read_json()
+
+    idx = read_index("data/" + config["plot_tag"])
+    if config["use_custom"]:
+        idx = config["plot_step"]
     r_h = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_r_h.npy".format(config["plot_step"]),
+        "data/" + config["plot_tag"] + "/step_{}_r_h.npy".format(idx),
         allow_pickle=True,
     )
     r = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_r.npy".format(config["plot_step"]),
+        "data/" + config["plot_tag"] + "/step_{}_r.npy".format(idx),
         allow_pickle=True,
     )
 
     rho = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_rho.npy".format(config["plot_step"]),
+        "data/" + config["plot_tag"] + "/step_{}_rho.npy".format(idx),
         allow_pickle=True,
     )
     t = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_t.npy".format(config["plot_step"]),
+        "data/" + config["plot_tag"] + "/step_{}_t.npy".format(idx),
         allow_pickle=True,
     )
-    idx = read_index("data" + config["plot_tag"] + "/index.txt")
     cur_rho = np.max(np.floor(np.log10(rho[0])))
     print(cur_rho)
     i = 10
