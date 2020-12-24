@@ -4,7 +4,7 @@ import json
 import os
 import seaborn as sns
 
-from file_operator import read_json
+from file_operator import read_json, read_index
 from conditions import GRID
 
 
@@ -28,7 +28,7 @@ def main():
         "data/" + config["plot_tag"] + "/step_{}_t.npy".format(config["plot_step"]),
         allow_pickle=True,
     )
-    idx = int(config["plot_step"])
+    idx = read_index("data" + config["plot_tag"] + "/index.txt")
     cur_rho = np.max(np.floor(np.log10(rho[0])))
     print(cur_rho)
     i = 10

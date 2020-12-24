@@ -33,7 +33,8 @@ def main():
         "data/" + config["plot_tag"] + "/step_{}_tmp.npy".format(config["plot_step"]),
         allow_pickle=True,
     )
-    idx = int(config["plot_step"])
+    idx = read_index("data" + config["plot_tag"] + "/index.txt")
+
     i = 2
     rho_ls = []
     tmp_ls = []
