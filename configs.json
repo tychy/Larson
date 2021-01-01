@@ -1,12 +1,12 @@
 {
-    "tag": "12-24-AU1000-Energy",
+    "tag": "01-01-AU1000-Energy",
     "radius": 1000,
     "T_END": 2,
     "M": 1,
     "TMP": 10,
     "GRID": 200,
     "CFL": 0.3,
-    "plot_tag": "12-24-AU1000-Energy",
+    "plot_tag": "01-01-AU1000-Energy",
     "use_custom": false,
     "plot_step": 1200
 }
