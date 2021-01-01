@@ -7,6 +7,8 @@
 *.dvi
 *.aux
 *.fdb_latexmk
+*.bbl
+*.blg
 __latexindent_temp.tex
 settings.json
 *.png

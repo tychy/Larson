@@ -3,19 +3,20 @@ import numpy as np
 
 from conditions import M_cc, G, R_cc
 from conditions import TMP_init, AU, GRID, T_END, R, AVG
-from conditions import KQ
+from conditions import KQ, kb
 from utils import vstack_n, get_cs, r_init, m_init
-from file_operator import read_json, save
+from file_operator import read_json, save_with_energy
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
 
 
 eps = 0.0000000001
 
 
-def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
+def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     # v, r, rho, p, tmp
     v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx])
     v_res_b = np.zeros_like(v_res_a)
+    print("p_l:", p_l[idx])
     p_diff = np.diff(p_l[idx])
     p_diff = np.insert(p_diff, [0, p_diff.shape[0]], [0, 0])
     m_cur = np.zeros_like(m)
@@ -36,22 +37,41 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q):
     v_res[0] = 0
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
+    print("idx", idx)
     print("v:", v_res)
     print("v from g:", v_res_a)
+    print("pdiff", p_diff)
     print("v from p:", v_res_b)
     print("v from q:", v_res_c)
 
     r_res = r[idx] + v_res * t_h[idx]
     r = np.vstack((r, r_res))
-    tmp = np.vstack((tmp, tmp[0]))
     rho_res = np.zeros(rho.shape[1])
     rho_res = deltam / ((4 / 3) * np.pi * (np.diff(np.power(r_res, 3))))
-    p_res = np.zeros(p.shape[1])
-    p_res = rho_res * R * tmp[idx] / AVG
+    print("rho_res", rho_res)
     rho = np.vstack((rho, rho_res.astype(np.float64)))
-    p = np.vstack((p, p_res))
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
-    return v, r, rho, p, tmp, Q
+
+    e_res = (
+        e[idx]
+        - p[idx] / rho[idx + 1] / 2
+        + p[idx] / rho[idx] / 2
+        + deltat[idx] * (-3 / 2 * Q[idx])
+    )
+    print("efromp:", -p[idx] * (1 / rho[idx + 1] - 1 / rho[idx]) / 2)
+    print("efrompaaa:", -p[idx] * (1 / rho[idx]) / 2)
+    print("efromq:", deltat[idx] * (-3 / 2 * Q[idx]))
+    print("e:", e_res)
+    e = np.vstack((e, e_res))
+    p_res = np.zeros(p.shape[1])
+    p_res = 2 / 5 * rho_res * e_res  # rho_res * R * tmp[idx] / AVG
+    print("p", p_res)
+    p = np.vstack((p, p_res))
+
+    tmp_res = AVG * p_res / rho_res / R  # e_res * AVG / R * 2 / 5
+    print("tmp:", tmp_res)
+    tmp = np.vstack((tmp, tmp_res))
+    return v, r, rho, p, tmp, Q, e
 
 
 def main():
@@ -75,31 +95,31 @@ def main():
     r_h = np.zeros([2, GRID])
     p_l = np.zeros([2, GRID])
     deltam = calc_deltam(m)
-
+    print("deltam", deltam)
     p = np.zeros([3, GRID])
     Q = np.zeros([2, GRID])
-
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
-    tmp = np.ones([3, GRID]) * TMP_init
-
+    tmp = np.ones([3, GRID]) * 10
+    e = vstack_n(tmp[2] * R / AVG * (5 / 2), 3)
     # main loop
     counter = 2
     cur_t = 0.0
     while cur_t < T_END:
 
-        t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
+        t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp[counter])
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
-        v, r, rho, p, tmp, Q = next(
-            counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q
+        v, r, rho, p, tmp, Q, e = next(
+            counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e
         )
         if counter % 100 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
-            save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
+            save_with_energy(base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e)
+
         cur_t += t_h[counter]
         counter += 1
-    save(base_dir, counter, t_h, deltat, v, r, rho, p, tmp, r_h, r_l, p_l, t)
+    save_with_energy(base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e)
 
 
 if __name__ == "__main__":

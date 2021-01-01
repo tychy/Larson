@@ -106,6 +106,50 @@ $Q$の更新は、
 \beq
     l = k_q \Delta r
 \eeq
+\section{Sahaの式}
+星の内部と表面ではイオンの割合がちがう。星の表面では温度や圧力は小さくイオン化の度合いは小さい。
+一方で星の深部ではほとんどイオン化しているとみなして良い。
+状態を$s$で表す。状態$s$の状態数は$g_s$であるとする。基底状態からのエネルギーを$\psi_s$と書く。
+\begin{equation}
+    \frac{n_s}{n_0} = \frac{g_s}{g_0} e^{\frac{-\psi_s}{kT}}
+\end{equation}
+このようにボルツマン因子を考えれば書ける。
+両辺に$g_0$をかけて、$n=\sum_sn_s$であることを考えると、
+\begin{align}
+       g_0 \frac{n}{n_0} = g_0 \sum_s\frac{n_s}{n_0} =\sum_s g_s e^{\frac{-\psi_s}{kT}} = u_p
+\end{align}
+最後は分配関数そのものであるという意味で定義した。
+
+Sahaの式は、
+\begin{equation}
+    \frac{n_{r+1}}{n_{r}} = \frac{g_{r+1}}{g_{r}} \frac{8\pi}{n_eh^3} 
+    e^{\frac{\chi_r}{kT}}
+    \int^{\infty}_{0} p_e^2 exp(-\frac{p^2_e}{2m_e kT})
+\end{equation}
+より、ガウス積分を実行して
+\begin{align}
+    \frac{n_{r+1}}{n_{r}} n_e =\frac{g_{r+1}}{g_{r}} f_r(T)\\
+    f_r(T) = 2 \frac{(2\pi m_e kT)^{\frac{3}{2}}}{h^3}e^{-\frac{\chi_r}{kT}}
+\end{align}
+\section{エネルギー方程式}
+等温の仮定を外してエネルギーを計算入れる。
+放射による効果は、
+\begin{align}
+    l = 4\pi r^2 F\\
+    F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
+\end{align}
+エネルギー方程式は、
+\begin{align}
+    \Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = \dot{q} + \Phi\\
+    \Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi
+\end{align}    
+エネルギーを使って圧力と温度を更新すると、
+\begin{equation}
+    p = (\gamma - 1) \rho e
+\end{equation}
+\begin{equation}
+    e = \frac{5}{2}k_bT
+\end{equation}
 \bibliographystyle{junsrt}
 \bibliography{cite}
 \end{document}

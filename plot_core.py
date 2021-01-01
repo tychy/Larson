@@ -11,10 +11,8 @@ from conditions import GRID
 def main():
     sns.set_theme()
     config = read_json()
-
     idx = read_index("data/" + config["plot_tag"])
-    if config["use_custom"]:
-        idx = config["plot_step"]
+
     r_h = np.load(
         "data/" + config["plot_tag"] + "/step_{}_r_h.npy".format(idx),
         allow_pickle=True,
@@ -32,25 +30,28 @@ def main():
         "data/" + config["plot_tag"] + "/step_{}_t.npy".format(idx),
         allow_pickle=True,
     )
-    cur_rho = np.max(np.floor(np.log10(rho[0])))
-    print(cur_rho)
-    i = 10
+
+    tmp = np.load(
+        "data/" + config["plot_tag"] + "/step_{}_tmp.npy".format(idx),
+        allow_pickle=True,
+    )
+
+    i = 2
+    rho_ls = []
+    tmp_ls = []
     while i < idx:
-        if np.max(np.log10(rho[i])) >= cur_rho + 1:
-            print(r_h[i].shape)
-            print(rho[i].shape)
-            plt.plot(
-                np.log10(r_h[i][: GRID - 1]),
-                np.log10((rho[i][: GRID - 1])),
-                label="{:.5f} * 10^13s".format(t[int(i)] / 10 ** 13),
-            )
-            cur_rho = np.max(np.floor(np.log10(rho[i])))
+        if i % 10 == 0:
+            rho_ls.append(np.log10(rho[i][10]))
+            tmp_ls.append(np.log10(tmp[i][10]))
         i += 1
-    plt.xlabel("log10r cgs")
-    plt.ylabel("log10rho cgs")
+    print(rho_ls)
+    print(tmp_ls)
+    plt.plot(rho_ls, tmp_ls)
+    plt.xlabel("log10rho cgs")
+    plt.ylabel("log10T cgs")
     plt.legend()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
-    plt.savefig("results/" + config["plot_tag"] + "/out.png")
+    plt.savefig("results/" + config["plot_tag"] + "/core.png")
 
 
 if __name__ == "__main__":

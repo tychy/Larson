@@ -4,8 +4,8 @@ import numpy as np
 from conditions import M_cc, G, R_cc
 from conditions import TMP_init, AU, GRID, T_END, R, AVG
 from conditions import KQ
-from utils import vstack_n, get_cs, r_init, m_init, save
-from file_operator import read_json
+from utils import vstack_n, get_cs, r_init, m_init
+from file_operator import read_json, save
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half
 
 
@@ -69,7 +69,7 @@ def main():
 
     p = np.zeros([3, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
-    tmp = np.ones([3, GRID]) * 10
+    tmp = np.ones([3, GRID]) * TMP_init
 
     # main loop
     counter = 2
