@@ -2,14 +2,19 @@ import numpy as np
 from conditions import GRID, R_cc, M_cc
 
 
-def CFL(x, tmp=10.0, param=1.0):
+def CFL(x, tmp, param=1.0):
     assert x.ndim == 1, "x must be one dimentional array."
     assert x.shape[0] > 1, "x must be array."
     assert param > 0, "param must be positive."
+    x_diff = np.diff(x)
+    t = x_diff / get_cs(tmp)
+    """
     dx_min = x[1] - x[0]
     for i in range(x.shape[0] - 1):
         dx_min = min(dx_min, x[i + 1] - x[i])
     dt = dx_min / get_cs(tmp)
+    """
+    dt = np.min(t)
     return dt * param
 
 
