@@ -40,15 +40,24 @@ def main():
     figure = plt.figure()
     cur_rho = np.max(np.floor(np.log10(rho[0])))
     i = 10
+    prev = i
+    plt.plot(
+        np.log10(r_h[4][: GRID - 1]),
+        np.log10((rho[4][: GRID - 1])),
+        label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
+    )
+
     while i < idx:
-        if np.max(np.log10(rho[i])) >= cur_rho + 1 or i % 200 == 0:
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 400:
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((rho[i][: GRID - 1])),
                 label="{:.5f} * 10^13s".format(t[int(i)] / 10 ** 13),
             )
             cur_rho = np.max(np.floor(np.log10(rho[i])))
+            prev = i
         i += 1
+
     plt.xlabel("log10r")
     plt.ylabel("log10rho")
     plt.legend()
@@ -56,15 +65,26 @@ def main():
     plt.savefig("results/" + config["plot_tag"] + "/rho_r.png")
 
     figure = plt.figure()
+    cur_tmp = np.max(np.log10(tmp[0]))
     i = 10
+    prev = i
+    plt.plot(
+        np.log10(r_h[4][: GRID - 1]),
+        np.log10((tmp[4][: GRID - 1])),
+        label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
+    )
+
     while i < idx:
-        if i % 200 == 0:
+        if np.abs(np.max(np.log10(tmp[i])) - cur_tmp) >= 0.5 or i - prev >= 500:
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((tmp[i][: GRID - 1])),
                 label="{:.5f} * 10^13s".format(t[int(i)] / 10 ** 13),
             )
-            cur_rho = np.max(np.floor(np.log10(rho[i])))
+            cur_tmp = np.max(np.log10(tmp[i]))
+            print(cur_tmp)
+            prev = i
+
         i += 1
     plt.xlabel("log10 r")
     plt.ylabel("log10 T")
