@@ -36,6 +36,11 @@ def main():
         allow_pickle=True,
     )
 
+    e = np.load(
+        "data/" + config["plot_tag"] + "/step_{}_e.npy".format(idx),
+        allow_pickle=True,
+    )
+
     i = 2
     rho_ls = []
     tmp_ls = []
@@ -44,14 +49,28 @@ def main():
             rho_ls.append(np.log10(rho[i][10]))
             tmp_ls.append(np.log10(tmp[i][10]))
         i += 1
-    print(rho_ls)
-    print(tmp_ls)
+    figure = plt.figure()
     plt.plot(rho_ls, tmp_ls)
     plt.xlabel("log10rho cgs")
     plt.ylabel("log10T cgs")
     plt.legend()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
     plt.savefig("results/" + config["plot_tag"] + "/core.png")
+    i = 2
+    rho_ls = []
+    e_ls = []
+    while i < idx:
+        if i % 10 == 0:
+            rho_ls.append(np.log10(rho[i][10]))
+            e_ls.append(np.log10(e[i][10]))
+        i += 1
+    figure = plt.figure()
+    plt.plot(rho_ls, e_ls)
+    plt.xlabel("log10 rho")
+    plt.ylabel("log10 E")
+    plt.legend()
+    os.makedirs("results/" + config["plot_tag"], exist_ok=True)
+    plt.savefig("results/" + config["plot_tag"] + "/core_energy.png")
 
 
 if __name__ == "__main__":
