@@ -51,24 +51,20 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     print("rho_res", rho_res)
     rho = np.vstack((rho, rho_res.astype(np.float64)))
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
-
-    e_res = (
-        e[idx]
-        - p[idx] / rho[idx + 1] / 2
-        + p[idx] / rho[idx] / 2
-        + deltat[idx] * (-3 / 2 * Q[idx])
-    )
+    coef_inv_rho = (1 / rho[idx + 1] - 1 / rho[idx]) / 2
+    e_res = e[idx] - coef_inv_rho * p[idx] + deltat[idx] * (-3 / 2 * Q[idx])
+    e_res = e_res / (1 + 0.4 * coef_inv_rho * rho_res)
+    print("hosei", 0.4 * coef_inv_rho * rho_res)
     print("efromp:", -p[idx] * (1 / rho[idx + 1] - 1 / rho[idx]) / 2)
     print("efrompaaa:", -p[idx] * (1 / rho[idx]) / 2)
     print("efromq:", deltat[idx] * (-3 / 2 * Q[idx]))
     print("e:", e_res)
     e = np.vstack((e, e_res))
-    p_res = np.zeros(p.shape[1])
-    p_res = 2 / 5 * rho_res * e_res  # rho_res * R * tmp[idx] / AVG
+    p_res = 0.4 * rho_res * e_res  # rho_res * R * tmp[idx] / AVG
     print("p", p_res)
     p = np.vstack((p, p_res))
 
-    tmp_res = AVG * p_res / rho_res / R  # e_res * AVG / R * 2 / 5
+    tmp_res = 0.4 * e_res / R  # e_res * AVG / R * 2 / 5
     print("tmp:", tmp_res)
     tmp = np.vstack((tmp, tmp_res))
     return v, r, rho, p, tmp, Q, e
@@ -100,7 +96,7 @@ def main():
     Q = np.zeros([2, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
     tmp = np.ones([3, GRID]) * 10
-    e = vstack_n(tmp[2] * R / AVG * (5 / 2), 3)
+    e = vstack_n(tmp[-1] * R / 0.4, 3)
     # main loop
     counter = 2
     cur_t = 0.0
