@@ -1,8 +1,8 @@
 import os
 import numpy as np
 
-from conditions import M_cc, G, R_cc
-from conditions import TMP_init, AU, GRID, T_END, R, AVG
+from conditions import M_cc, G, R_CC
+from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
 from conditions import KQ, kb
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_energy
