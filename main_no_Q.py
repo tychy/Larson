@@ -5,7 +5,7 @@ from conditions import M_cc, G, R_cc
 from conditions import TMP_init, AU, GRID, T_END, R, AVG
 from conditions import KQ
 from utils import vstack_n, get_cs, r_init, m_init
-from file_operator import read_json, save
+from file_operator import read_json, copy_json, save
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half
 
 
@@ -49,7 +49,8 @@ def main():
     config = read_json()
     base_dir = os.path.join("data", str(config["tag"]))
     os.makedirs(base_dir, exist_ok=True)
-    # v_i+\half = idx[i]
+    copy_json(base_dir)
+
     # 初期化
     t = np.array([0, 0.000001, 0.000002])
     t_h = np.zeros(t.shape[0] - 1)
