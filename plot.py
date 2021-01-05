@@ -52,7 +52,7 @@ def main():
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 500:
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 1000:
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((rho[i][: GRID - 1])),
