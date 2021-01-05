@@ -19,11 +19,7 @@ def CFL(x, tmp, param=1.0):
 
 
 def L(x):
-    dx_min = x[1] - x[0]
-    for i in range(x.shape[0] - 1):
-        dx_min = min(dx_min, x[i + 1] - x[i])
-
-    return dx_min * KQ
+    return np.diff(x) * KQ
 
 
 def vstack_n(v, n):
