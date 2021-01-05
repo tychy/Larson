@@ -60,11 +60,11 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     print("efromq:", deltat[idx] * (-3 / 2 * Q[idx]))
     print("e:", e_res)
     e = np.vstack((e, e_res))
-    p_res = 0.4 * rho_res * e_res  # rho_res * R * tmp[idx] / AVG
+    p_res = 0.4 * rho_res * e_res
     print("p", p_res)
     p = np.vstack((p, p_res))
 
-    tmp_res = 0.4 * e_res / R  # e_res * AVG / R * 2 / 5
+    tmp_res = 0.4 * e_res / R
     print("tmp:", tmp_res)
     tmp = np.vstack((tmp, tmp_res))
     return v, r, rho, p, tmp, Q, e
