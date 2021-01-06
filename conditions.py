@@ -15,9 +15,10 @@ if config["isLarson"]:
 else:
     TMP_INIT = config["TMP"]
     R_CC = config["radius"] * AU  #  AU 1000 to 30000
-R = 8 * 10 ** 7
 
 AVG = 2.4
+R = 8 * 10 ** 7 / AVG
+
 KQ = config["KQ"]
 CFL_CONST = config["CFL"]
 kb = 1.38 * 10 ** (-16)
