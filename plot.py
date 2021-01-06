@@ -81,8 +81,8 @@ def main():
     while i < idx:
         if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 500:
             plt.plot(
-                np.log10(r_h[i][: GRID - 1]),
-                v[i][: GRID - 1],
+                np.log10(r[i]),
+                v[i],
                 label="{:.5f} * 10^13s".format(t[int(i)] / 10 ** 13),
             )
             cur_rho = np.max(np.floor(np.log10(rho[i])))
