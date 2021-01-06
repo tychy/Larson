@@ -1,11 +1,17 @@
 import json
 import numpy as np
+import os
+import shutil
 
 
 def read_json():
     with open("configs.json", "r") as f:
         config = json.load(f)
     return config
+
+
+def copy_json(base_dir):
+    shutil.copy("configs.json", os.path.join(base_dir, "configs.json"))
 
 
 def write_index(base_dir, idx):

@@ -1,12 +1,14 @@
 {
-    "tag": "01-01-AU1000-Energy",
-    "radius": 1000,
-    "T_END": 2,
+    "tag": "01-05-AU2000-withQ-kq2",
+    "isLarson": false,
+    "radius": 2000,
+    "T_END": 0.065,
     "M": 1,
     "TMP": 10,
     "GRID": 200,
     "CFL": 0.3,
-    "plot_tag": "01-01-AU1000-Energy",
+    "KQ": 2,
+    "plot_tag": "01-05-AU2000-withQ-kq2",
     "use_custom": false,
     "plot_step": 1200
 }

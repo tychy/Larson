@@ -4,7 +4,7 @@ from conditions import CFL_CONST
 
 
 def calc_t(idx, r, t, t_h, deltat, tmp):
-    t_diff = CFL(r[idx], tmp.mean(), CFL_CONST)
+    t_diff = CFL(r[idx], tmp, CFL_CONST)
     t = np.append(t, t[idx] + t_diff)
     t_h = np.append(t_h, t_diff)
     deltat = np.append(deltat, (t_diff + t_h[idx - 1]) / 2)

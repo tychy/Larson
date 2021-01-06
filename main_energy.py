@@ -1,11 +1,11 @@
 import os
 import numpy as np
 
-from conditions import M_cc, G, R_cc
-from conditions import TMP_init, AU, GRID, T_END, R, AVG
+from conditions import M_cc, G, R_CC
+from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
 from conditions import KQ, kb
 from utils import vstack_n, get_cs, r_init, m_init
-from file_operator import read_json, save_with_energy
+from file_operator import read_json, copy_json, save_with_energy
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
 
 
@@ -51,24 +51,20 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     print("rho_res", rho_res)
     rho = np.vstack((rho, rho_res.astype(np.float64)))
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
-
-    e_res = (
-        e[idx]
-        - p[idx] / rho[idx + 1] / 2
-        + p[idx] / rho[idx] / 2
-        + deltat[idx] * (-3 / 2 * Q[idx])
-    )
+    coef_inv_rho = (1 / rho[idx + 1] - 1 / rho[idx]) / 2
+    e_res = e[idx] - coef_inv_rho * p[idx] + deltat[idx] * (-3 / 2 * Q[idx])
+    e_res = e_res / (1 + 0.4 * coef_inv_rho * rho_res)
+    print("hosei", 0.4 * coef_inv_rho * rho_res)
     print("efromp:", -p[idx] * (1 / rho[idx + 1] - 1 / rho[idx]) / 2)
     print("efrompaaa:", -p[idx] * (1 / rho[idx]) / 2)
     print("efromq:", deltat[idx] * (-3 / 2 * Q[idx]))
     print("e:", e_res)
     e = np.vstack((e, e_res))
-    p_res = np.zeros(p.shape[1])
-    p_res = 2 / 5 * rho_res * e_res  # rho_res * R * tmp[idx] / AVG
+    p_res = 0.4 * rho_res * e_res
     print("p", p_res)
     p = np.vstack((p, p_res))
 
-    tmp_res = AVG * p_res / rho_res / R  # e_res * AVG / R * 2 / 5
+    tmp_res = 0.4 * e_res / R
     print("tmp:", tmp_res)
     tmp = np.vstack((tmp, tmp_res))
     return v, r, rho, p, tmp, Q, e
@@ -78,7 +74,7 @@ def main():
     config = read_json()
     base_dir = os.path.join("data", str(config["tag"]))
     os.makedirs(base_dir, exist_ok=True)
-    # v_i+\half = idx[i]
+    copy_json(base_dir)
     # 初期化
     t = np.array([0, 0.000001, 0.000002])
     t_h = np.zeros(t.shape[0] - 1)
@@ -100,7 +96,7 @@ def main():
     Q = np.zeros([2, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
     tmp = np.ones([3, GRID]) * 10
-    e = vstack_n(tmp[2] * R / AVG * (5 / 2), 3)
+    e = vstack_n(tmp[-1] * R / 0.4, 3)
     # main loop
     counter = 2
     cur_t = 0.0
