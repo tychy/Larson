@@ -70,14 +70,15 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
 
     # T^nの位置微分
     pder = np.zeros_like(tmp[idx])
-    for j in range(pder.shape[0] - 1):
-        pder[j] = (tmp[idx][j + 1] - tmp[idx][j]) / deltar[j]
+    for j in range(1, pder.shape[0] - 1):
+        pder[j] = (tmp[idx][j + 1] - tmp[idx][j - 1]) / deltar[j] / 2
     pder[-1] = pder[-2]  # b.c.
+    pder[0] = pder[1]
     ppder = np.zeros_like(tmp[idx])
     for j in range(1, ppder.shape[0] - 1):
         ppder[j] = (
             (tmp[idx][j + 1] - tmp[idx][j]) / deltar[j]
-            - (tmp[idx][j] - tmp[idx][j - 1]) / deltar[j]
+            - (tmp[idx][j] - tmp[idx][j - 1]) / deltar[j - 1]
         ) / deltar[j]
     ppder[0] = ppder[1]
     ppder[-1] = ppder[-2]
@@ -95,13 +96,12 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
         cur_c = t_n * coef_c[j] * 24 * tmp_two[j] * pder[j] / deltar_res[j]
         cur_d = t_n * coef_c[j] * (pder[j] ** 2)
 
-        a_j = cur_a
+        a_j = cur_a - cur_b * 4 * tmp_three[j] / deltar_res[j] - cur_c
+
         b_j = (
             +R / 0.4
             + R * rho_res[j] * coef_inv_rho[j]
-            + cur_b * 4 * tmp_three[j] / deltar_res[j]
             + 2 * cur_a
-            + cur_c
             - 24 * cur_d * tmp[idx][j]
             - cur_b * 12 * tmp_two[j] * pder[j]
         )
