@@ -24,3 +24,5 @@ CFL_CONST = config["CFL"]
 kb = 1.38 * 10 ** (-16)
 xi_h = 13.4
 m_e = 1
+Kapper = 0.15  # cm^2/g
+SB = 5.67 * 10 ** (-8)  # stefanboltzmann
