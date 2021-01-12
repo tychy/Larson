@@ -1,5 +1,5 @@
 {
-    "tag": "01-10-Larson-radiation",
+    "tag": "01-12-Larson-radiation",
     "isLarson": true,
     "radius": 2000,
     "T_END": 2,
@@ -7,8 +7,8 @@
     "TMP": 10,
     "GRID": 200,
     "CFL": 0.3,
-    "KQ": 1.5,
-    "plot_tag": "01-10-Larson-radiation",
+    "KQ": 3,
+    "plot_tag": "01-12-Larson-radiation",
     "use_custom": false,
-    "plot_step": 1200
+    "plot_step": 3300
 }
