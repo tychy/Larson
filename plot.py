@@ -50,9 +50,10 @@ def main():
         np.log10((rho[4][: GRID - 1])),
         label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
     )
-
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 1000:
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= max(
+            500, prev
+        ):
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((rho[i][: GRID - 1])),
@@ -73,13 +74,13 @@ def main():
     i = 10
     prev = i
     plt.plot(
-        np.log10(r_h[4][: GRID - 1]),
-        v[4][: GRID - 1],
+        np.log10(r[4]),
+        v[4],
         label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 500:
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= max(500, prev):
             plt.plot(
                 np.log10(r[i]),
                 v[i],
@@ -106,7 +107,7 @@ def main():
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(tmp[i])) - cur_tmp) >= 0.5 or i - prev >= 500:
+        if np.abs(np.max(np.log10(tmp[i])) - cur_tmp) >= 0.5 or i - prev >= max(500, prev):
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((tmp[i][: GRID - 1])),
