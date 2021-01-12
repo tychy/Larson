@@ -1,6 +1,6 @@
 import numpy as np
 from utils import CFL, L
-from conditions import CFL_CONST
+from conditions import CFL_CONST, planck, m_e, xi_h, kb
 
 
 def calc_t(idx, r, t, t_h, deltat, tmp):
@@ -55,3 +55,26 @@ def calc_Q(idx, v, r, rho, t_h, deltat, Q):
     Q_res = -2 * mu_res * Q_res
     Q = np.vstack((Q, Q_res))
     return Q
+
+
+def calc_gamma(fh):
+    molecular = 7 / 5
+    monoatomic = 5 / 3
+    gamma_res = molecular * (1 - fh) + monoatomic * fh
+    return gamma_res
+
+
+def calc_fh(tmp, p):
+    coef_a = ((2 * np.pi * m_e) ** 0.5 / planck) ** 3
+
+    kbt = kb * tmp
+    kbt_quad = kbt ** 2.5
+    exp_xi = np.exp(-xi_h / kbt)
+    print("coef_a", coef_a)
+    print("exp inside", -xi_h / kbt)
+    print("exp", exp_xi)
+    kh = coef_a / p * kbt_quad * exp_xi
+    print("kh", kh)
+    fh = np.sqrt(kh / (1 + kh))
+    print("fh", fh)
+    return fh
