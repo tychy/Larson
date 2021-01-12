@@ -65,8 +65,8 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     f = np.zeros_like(tmp[idx])
     tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
     deltatmp = np.zeros_like(tmp[idx])
-    deltar = np.diff(r[idx])
-    deltar_res = np.diff(r_res)
+    deltar = np.diff(r_h[idx])
+    deltar_res = np.diff(r_h[idx + 1])
     pder = np.zeros_like(tmp[idx])
     for j in range(pder.shape[0] - 1):
         pder[j] = (tmp[idx][j + 1] - tmp[idx][j]) / deltar[j]
@@ -80,14 +80,13 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     ppder[0] = ppder[1]
     ppder[-1] = ppder[-2]
     for j in range(tmp[idx].shape[0] - 1):
-        tmp_three = tmp[idx]
         cur_a = deltat[idx] * 4 * tmp_three[j] * coef_a
         cur_b = deltat[idx] * 4 * tmp_three[j] * coef_b[j]
 
         a_j = cur_b * coef_c[j] / (deltar_res[j] ** 2)
         b_j = (
             -cur_a / deltar_res[j] * (coef_c[j + 1] - coef_c[j])
-            + 0.4 / R
+            + R / 0.4
             + R * rho_res[j] * coef_inv_rho[j]
             + cur_b * 2 / (deltar_res[j] ** 2)
         )
