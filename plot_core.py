@@ -12,6 +12,8 @@ def main():
     sns.set_theme()
     config = read_json()
     idx = read_index("data/" + config["plot_tag"])
+    if config["use_custom"]:
+        idx = config["plot_step"]
 
     r_h = np.load(
         "data/" + config["plot_tag"] + "/step_{}_r_h.npy".format(idx),
