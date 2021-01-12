@@ -3,7 +3,7 @@ import numpy as np
 
 from conditions import M_cc, G, R_CC
 from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
-from conditions import KQ, kb
+from conditions import KQ, kb, Kapper, SB
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_energy
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
@@ -46,27 +46,80 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
 
     r_res = r[idx] + v_res * t_h[idx]
     r = np.vstack((r, r_res))
+    r_h = calc_half(idx + 1, r, r_h)
+
     rho_res = np.zeros(rho.shape[1])
     rho_res = deltam / ((4 / 3) * np.pi * (np.diff(np.power(r_res, 3))))
     print("rho_res", rho_res)
     rho = np.vstack((rho, rho_res.astype(np.float64)))
+
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
+    efromq = deltat[idx] * (-3 / 2 * Q[idx])
     coef_inv_rho = (1 / rho[idx + 1] - 1 / rho[idx]) / 2
-    e_res = e[idx] - coef_inv_rho * p[idx] + deltat[idx] * (-3 / 2 * Q[idx])
-    e_res = e_res / (1 + 0.4 * coef_inv_rho * rho_res)
-    print("hosei", 0.4 * coef_inv_rho * rho_res)
-    print("efromp:", -p[idx] * (1 / rho[idx + 1] - 1 / rho[idx]) / 2)
-    print("efrompaaa:", -p[idx] * (1 / rho[idx]) / 2)
-    print("efromq:", deltat[idx] * (-3 / 2 * Q[idx]))
+    coef_a = 4 / 3 * SB / Kapper
+    coef_b = coef_a / rho_res / (r_h[idx] ** 2)
+    coef_c = r_h[idx] ** 2 / rho_res
+    tmp_three = tmp[idx] ** 3
+
+    d = np.zeros_like(tmp[idx])
+    f = np.zeros_like(tmp[idx])
+    tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
+    deltatmp = np.zeros_like(tmp[idx])
+    deltar = np.diff(r[idx])
+    deltar_res = np.diff(r_res)
+    pder = np.zeros_like(tmp[idx])
+    for j in range(pder.shape[0] - 1):
+        pder[j] = (tmp[idx][j + 1] - tmp[idx][j]) / deltar[j]
+    pder[-1] = pder[-2]  # b.c.
+    ppder = np.zeros_like(tmp[idx])
+    for j in range(1, ppder.shape[0] - 1):
+        ppder[j] = (
+            (tmp[idx][j + 1] - tmp[idx][j]) / deltar[j]
+            - (tmp[idx][j] - tmp[idx][j - 1]) / deltar[j]
+        ) / deltar[j]
+    ppder[0] = ppder[1]
+    ppder[-1] = ppder[-2]
+    for j in range(tmp[idx].shape[0] - 1):
+        tmp_three = tmp[idx]
+        cur_a = deltat[idx] * 4 * tmp_three[j] * coef_a
+        cur_b = deltat[idx] * 4 * tmp_three[j] * coef_b[j]
+
+        a_j = cur_b * coef_c[j] / (deltar_res[j] ** 2)
+        b_j = (
+            -cur_a / deltar_res[j] * (coef_c[j + 1] - coef_c[j])
+            + 0.4 / R
+            + R * rho_res[j] * coef_inv_rho[j]
+            + cur_b * 2 / (deltar_res[j] ** 2)
+        )
+        c_j = a_j + cur_a / deltar_res[j] * (coef_c[j + 1] - coef_c[j])
+        r_j = (
+            -R * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
+            + efromq[j]
+            + deltat[idx]
+            * (
+                coef_a * (coef_c[j + 1] - coef_c[j]) * pder[j] / deltar_res[j]
+                + coef_b[j] * ppder[j]
+            )
+        )
+        d[j] = c_j / (b_j - a_j * d[j - 1])
+        f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
+    for j in reversed(range(tmp[idx].shape[0])):
+        if j == tmp[idx].shape[0] - 1:
+            deltatmp[j] = 10 * d[j] + f[j]
+        else:
+            deltatmp[j] = deltatmp[j + 1] * d[j] + f[j]
+    tmp_res = tmp[idx] + deltatmp
+    print("delta_tmp:", deltatmp)
+    print("tmp:", tmp_res)
+    tmp = np.vstack((tmp, tmp_res))
+
+    e_res = tmp_res * R / 0.4
     print("e:", e_res)
     e = np.vstack((e, e_res))
     p_res = 0.4 * rho_res * e_res
     print("p", p_res)
     p = np.vstack((p, p_res))
 
-    tmp_res = 0.4 * e_res / R
-    print("tmp:", tmp_res)
-    tmp = np.vstack((tmp, tmp_res))
     return v, r, rho, p, tmp, Q, e
 
 
