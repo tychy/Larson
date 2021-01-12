@@ -1,14 +1,14 @@
 {
-    "tag": "01-05-AU2000-withQ-kq2",
-    "isLarson": false,
+    "tag": "01-10-Larson-radiation",
+    "isLarson": true,
     "radius": 2000,
-    "T_END": 0.065,
+    "T_END": 2,
     "M": 1,
     "TMP": 10,
     "GRID": 200,
     "CFL": 0.3,
-    "KQ": 2,
-    "plot_tag": "01-05-AU2000-withQ-kq2",
+    "KQ": 1.5,
+    "plot_tag": "01-10-Larson-radiation",
     "use_custom": false,
     "plot_step": 1200
 }
