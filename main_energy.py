@@ -55,18 +55,20 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
 
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
     efromq = deltat[idx] * (-3 / 2 * Q[idx])
+
+    # 計算を先に済ませておく
     coef_inv_rho = (1 / rho[idx + 1] - 1 / rho[idx]) / 2
     coef_a = 4 / 3 * SB / Kapper
     coef_b = coef_a / rho_res / (r_h[idx] ** 2)
-    coef_c = r_h[idx] ** 2 / rho_res
+    coef_c = coef_a / (rho_res ** 2)
+    coef_d = r_h[idx] ** 2 / rho_res
+    tmp_two = tmp[idx] ** 2
     tmp_three = tmp[idx] ** 3
 
-    d = np.zeros_like(tmp[idx])
-    f = np.zeros_like(tmp[idx])
-    tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
-    deltatmp = np.zeros_like(tmp[idx])
     deltar = np.diff(r_h[idx])
     deltar_res = np.diff(r_h[idx + 1])
+
+    # T^nの位置微分
     pder = np.zeros_like(tmp[idx])
     for j in range(pder.shape[0] - 1):
         pder[j] = (tmp[idx][j + 1] - tmp[idx][j]) / deltar[j]
@@ -79,26 +81,38 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
         ) / deltar[j]
     ppder[0] = ppder[1]
     ppder[-1] = ppder[-2]
-    for j in range(tmp[idx].shape[0] - 1):
-        cur_a = deltat[idx] * 4 * tmp_three[j] * coef_a
-        cur_b = deltat[idx] * 4 * tmp_three[j] * coef_b[j]
 
-        a_j = cur_b * coef_c[j] / (deltar_res[j] ** 2)
+    # TMPの更新
+    d = np.zeros_like(tmp[idx])
+    f = np.zeros_like(tmp[idx])
+    tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
+    deltatmp = np.zeros_like(tmp[idx])
+    t_n = deltat[idx]
+
+    for j in range(tmp[idx].shape[0] - 1):
+        cur_a = t_n * coef_c[j] * 4 * tmp_three[j] / (deltar_res[j] ** 2)
+        cur_b = t_n * coef_b[j] * (coef_d[j + 1] - coef_d[j])
+        cur_c = t_n * coef_c[j] * 24 * tmp_two[j] * pder[j] / deltar_res[j]
+        cur_d = t_n * coef_c[j] * (pder[j] ** 2)
+
+        a_j = cur_a
         b_j = (
-            -cur_a / deltar_res[j] * (coef_c[j + 1] - coef_c[j])
-            + R / 0.4
+            +R / 0.4
             + R * rho_res[j] * coef_inv_rho[j]
-            + cur_b * 2 / (deltar_res[j] ** 2)
+            + cur_b * 4 * tmp_three[j] / deltar_res[j]
+            + 2 * cur_a
+            + cur_c
+            - 24 * cur_d * tmp[idx][j]
+            - cur_b * 12 * tmp_two[j] * pder[j]
         )
-        c_j = a_j + cur_a / deltar_res[j] * (coef_c[j + 1] - coef_c[j])
+        c_j = cur_b * 4 * tmp_three[j] / deltar_res[j] + cur_a + cur_c
+
         r_j = (
             -R * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
             + efromq[j]
-            + deltat[idx]
-            * (
-                coef_a * (coef_c[j + 1] - coef_c[j]) * pder[j] / deltar_res[j]
-                + coef_b[j] * ppder[j]
-            )
+            + 12 * cur_d * tmp_two[j]
+            + t_n * coef_c[j] * 4 * tmp_three[j] * ppder[j]
+            + cur_b * 4 * tmp_three[j] * pder[j]
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
         f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
