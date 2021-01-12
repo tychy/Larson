@@ -180,7 +180,7 @@ def main():
         v, r, rho, p, tmp, Q, e, fh = next(
             counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e, fh
         )
-        if counter % 100 == 0:
+        if counter % 1000 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
             save_with_ionization(base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh)

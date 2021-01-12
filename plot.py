@@ -16,28 +16,28 @@ def main():
     if config["use_custom"]:
         idx = config["plot_step"]
     r_h = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_r_h.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_r_h.npy",
         allow_pickle=True,
     )
     r = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_r.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_r.npy",
         allow_pickle=True,
     )
     v = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_v.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_v.npy",
         allow_pickle=True,
     )
 
     rho = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_rho.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_rho.npy",
         allow_pickle=True,
     )
     t = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_t.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_t.npy",
         allow_pickle=True,
     )
     tmp = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_tmp.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_tmp.npy",
         allow_pickle=True,
     )
 
@@ -80,7 +80,9 @@ def main():
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= max(500, prev):
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= max(
+            500, prev
+        ):
             plt.plot(
                 np.log10(r[i]),
                 v[i],
@@ -107,7 +109,9 @@ def main():
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(tmp[i])) - cur_tmp) >= 0.5 or i - prev >= max(500, prev):
+        if np.abs(np.max(np.log10(tmp[i])) - cur_tmp) >= 0.5 or i - prev >= max(
+            500, prev
+        ):
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((tmp[i][: GRID - 1])),

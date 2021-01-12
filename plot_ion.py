@@ -16,30 +16,30 @@ def main():
         idx = config["plot_step"]
 
     r_h = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_r_h.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_r_h.npy",
         allow_pickle=True,
     )
     r = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_r.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_r.npy",
         allow_pickle=True,
     )
 
     rho = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_rho.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_rho.npy",
         allow_pickle=True,
     )
     t = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_t.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_t.npy",
         allow_pickle=True,
     )
 
     tmp = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_tmp.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_tmp.npy",
         allow_pickle=True,
     )
 
     fh = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_fh.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_fh.npy",
         allow_pickle=True,
     )
 
