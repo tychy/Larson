@@ -17,6 +17,11 @@ energy:mkdir
 	python plot.py
 	python plot_core.py
 
+adiabatic:mkdir
+	python main_adiabatic.py
+	python plot.py
+	python plot_core.py
+
 plot:mkdir
 	python plot.py
 mkdir:

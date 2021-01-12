@@ -90,34 +90,23 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     deltatmp = np.zeros_like(tmp[idx])
     t_n = deltat[idx]
 
-    for j in range(1, tmp[idx].shape[0] - 1):
+    for j in range(tmp[idx].shape[0] - 1):
         cur_a = t_n * coef_c[j] * 4 * tmp_three[j] / (deltar_res[j] ** 2)
-        cur_b = t_n * coef_b[j] * (coef_d[j + 1] - coef_d[j - 1]) / 2 / deltar_res[j]
-        cur_c = t_n * coef_c[j] * 24 * tmp_two[j] * pder[j] / 2 / deltar_res[j]
+        cur_b = t_n * coef_b[j] * (coef_d[j + 1] - coef_d[j])
+        cur_c = t_n * coef_c[j] * 24 * tmp_two[j] * pder[j] / deltar_res[j]
         cur_d = t_n * coef_c[j] * (pder[j] ** 2)
 
-        a_j = cur_a - cur_b * 4 * tmp_three[j] / 2 / deltar_res[j] - cur_c
+        a_j = 0  # cur_a - cur_b * 4 * tmp_three[j] / deltar_res[j] - cur_c
 
-        b_j = (
-            +R / 0.4
-            + R * rho_res[j] * coef_inv_rho[j]
-            + 2 * cur_a
-            - 24 * cur_d * tmp[idx][j]
-            - cur_b * 12 * tmp_two[j] * pder[j]
-        )
-        c_j = cur_b * 4 * tmp_three[j] / 2 / deltar_res[j] + cur_a + cur_c
+        b_j = +R / 0.4 + R * rho_res[j] * coef_inv_rho[j]
+        c_j = 0  # cur_b * 4 * tmp_three[j] / deltar_res[j] + cur_a + cur_c
 
         r_j = (
             -R * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
             + efromq[j]
-            + 12 * cur_d * tmp_two[j]
-            + t_n * coef_c[j] * 4 * tmp_three[j] * ppder[j]
-            + cur_b * 4 * tmp_three[j] * pder[j]
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
         f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
-    d[0] = d[1]
-    f[0] = f[1]
     for j in reversed(range(tmp[idx].shape[0])):
         if j == tmp[idx].shape[0] - 1:
             deltatmp[j] = 10 * d[j] + f[j]
