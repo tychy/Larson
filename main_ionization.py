@@ -3,7 +3,7 @@ import numpy as np
 
 from conditions import M_cc, G, R_CC
 from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
-from conditions import KQ, kb, Kapper, SB
+from conditions import KQ, kb, Kapper, SB, xi_d
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_ionization
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
@@ -13,7 +13,9 @@ from calc_operator import calc_gamma, calc_fh
 eps = 0.0000000001
 
 
-def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e, fh):
+def next(
+    idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e, fh, fht, fion
+):
     # v, r, rho, p, tmp
     v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx])
     v_res_b = np.zeros_like(v_res_a)
@@ -91,6 +93,14 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e, fh
     tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
     deltatmp = np.zeros_like(tmp[idx])
     t_n = deltat[idx]
+    if idx <= 10:
+        pderfht = np.zeros_like(tmp[idx])
+    else:
+        pderfht = (
+            calc_fh(tmp[idx] * 1.001, p[idx])[1] - calc_fh(tmp[idx], p[idx])[1]
+        ) / (0.001 * tmp[idx])
+    print("pderfht", pderfht)
+    na = 6 * 10 ** 23
 
     for j in range(1, tmp[idx].shape[0] - 1):
         cur_a = t_n * coef_c[j] * 4 * tmp_three[j] / (deltar_res[j] ** 2)
@@ -106,6 +116,7 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e, fh
             + 2 * cur_a
             - 24 * cur_d * tmp[idx][j]
             - cur_b * 12 * tmp_two[j] * pder[j]
+            - xi_d * pderfht[j] * rho_res[j] * na / 2  # 2は修正必要かも
         )
         c_j = cur_b * 4 * tmp_three[j] / 2 / deltar_res[j] + cur_a + cur_c
 
@@ -136,9 +147,11 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e, fh
     p_res = (gamma[j] - 1) * rho_res * e_res
     print("p", p_res)
     p = np.vstack((p, p_res))
-    fh_res = calc_fh(tmp_res, p_res)
+    fh_res, fht_res, fion_res = calc_fh(tmp_res, p_res)
     fh = np.vstack((fh, fh_res))
-    return v, r, rho, p, tmp, Q, e, fh
+    fht = np.vstack((fht, fht_res))
+    fion = np.vstack((fion, fion_res))
+    return v, r, rho, p, tmp, Q, e, fh, fht, fion
 
 
 def main():
@@ -169,6 +182,9 @@ def main():
     tmp = np.ones([3, GRID]) * 10
     e = vstack_n(tmp[-1] * R / 0.4, 3)
     fh = np.zeros([3, GRID])
+    fht = np.zeros([3, GRID])
+    fion = np.zeros([3, GRID])
+
     # main loop
     counter = 2
     cur_t = 0.0
@@ -177,17 +193,38 @@ def main():
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp[counter])
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
-        v, r, rho, p, tmp, Q, e, fh = next(
-            counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e, fh
+        v, r, rho, p, tmp, Q, e, fh, fht, fion = next(
+            counter,
+            t_h,
+            deltat,
+            v,
+            r,
+            rho,
+            p,
+            tmp,
+            m,
+            deltam,
+            r_h,
+            r_l,
+            p_l,
+            Q,
+            e,
+            fh,
+            fht,
+            fion,
         )
-        if counter % 1000 == 0:
+        if counter % 500 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
-            save_with_ionization(base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh)
+            save_with_ionization(
+                base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
+            )
 
         cur_t += t_h[counter]
         counter += 1
-    save_with_ionization(base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh)
+    save_with_ionization(
+        base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
+    )
 
 
 if __name__ == "__main__":
