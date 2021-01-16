@@ -55,9 +55,7 @@ def main():
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= max(
-            500, prev
-        ):
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 10000:
             if not np.all(np.abs(fh[prev] - fh[i]) < 0.000001):
                 plt.plot(
                     np.log10(r_h[i]),
