@@ -58,7 +58,7 @@ def save_with_energy(base_dir, idx, v, r, rho, p, tmp, r_h, t, Q, e):
     return
 
 
-def save_with_ionization(base_dir, idx, v, r, rho, p, tmp, r_h, t, Q, e, fh):
+def save_with_ionization(base_dir, idx, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion):
     np.save(base_dir + "/step_v.npy".format(idx), v)
     np.save(base_dir + "/step_r.npy".format(idx), r)
     np.save(base_dir + "/step_rho.npy".format(idx), rho)
@@ -69,5 +69,8 @@ def save_with_ionization(base_dir, idx, v, r, rho, p, tmp, r_h, t, Q, e, fh):
     np.save(base_dir + "/step_Q.npy".format(idx), Q)
     np.save(base_dir + "/step_e.npy".format(idx), e)
     np.save(base_dir + "/step_fh.npy".format(idx), fh)
+    np.save(base_dir + "/step_fht.npy".format(idx), fht)
+    np.save(base_dir + "/step_fion.npy".format(idx), fion)
+
     write_index(base_dir, idx)
     return
