@@ -57,10 +57,10 @@ def calc_Q(idx, v, r, rho, t_h, deltat, Q):
     return Q
 
 
-def calc_gamma(fh):
+def calc_gamma(fht):
     molecular = 7 / 5
     monoatomic = 5 / 3
-    gamma_res = molecular * (1 - fh) + monoatomic * fh
+    gamma_res = molecular * fht * 2 + monoatomic * (0.5 - fht) * 2
     return gamma_res
 
 
