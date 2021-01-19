@@ -56,7 +56,8 @@ def next(
     print("rho_res", rho_res)
     rho = np.vstack((rho, rho_res.astype(np.float64)))
 
-    gamma = calc_gamma(fh[idx])
+    gamma = calc_gamma(fht[idx])
+    print("gamma", gamma)
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
     efromq = deltat[idx] * (-3 / 2 * Q[idx])
 
@@ -116,7 +117,7 @@ def next(
             + 2 * cur_a
             - 24 * cur_d * tmp[idx][j]
             - cur_b * 12 * tmp_two[j] * pder[j]
-            - xi_d * pderfht[j] * deltam[j] * na / 2  # 2は修正必要かも
+            - xi_d * pderfht[j] * rho_res[j] * na / 2  # 2は修正必要かも
         )
         c_j = cur_b * 4 * tmp_three[j] / 2 / deltar_res[j] + cur_a + cur_c
 
