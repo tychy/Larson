@@ -80,8 +80,8 @@ def main():
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= max(
-            500, prev
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 2 or i - prev >= max(
+            700, prev
         ):
             plt.plot(
                 np.log10(r[i]),
