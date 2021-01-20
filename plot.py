@@ -51,8 +51,8 @@ def main():
         label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
     )
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= max(
-            500, prev
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 2 or i - prev >= max(
+            10000, prev
         ):
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
@@ -110,7 +110,7 @@ def main():
 
     while i < idx:
         if np.abs(np.max(np.log10(tmp[i])) - cur_tmp) >= 0.5 or i - prev >= max(
-            500, prev
+            2500, prev
         ):
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
