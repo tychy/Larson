@@ -7,7 +7,7 @@ from conditions import KQ, kb, Kapper, SB, xi_d
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_ionization
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
-from calc_operator import calc_gamma, calc_fh
+from calc_operator import calc_gamma, calc_fh, calc_fh_rho
 
 
 eps = 0.0000000001
@@ -102,6 +102,9 @@ def next(
         ) / (0.001 * tmp[idx])
     print("pderfht", pderfht)
     na = 6 * 10 ** 23
+    fht_rho = (
+        calc_fh_rho(tmp[idx], rho[idx + 1])[1] - calc_fh_rho(tmp[idx], rho[idx])[1]
+    )
 
     for j in range(1, tmp[idx].shape[0] - 1):
         cur_a = t_n * coef_c[j] * 4 * tmp_three[j] / (deltar_res[j] ** 2)
@@ -127,6 +130,7 @@ def next(
             + 12 * cur_d * tmp_two[j]
             + t_n * coef_c[j] * 4 * tmp_three[j] * ppder[j]
             + cur_b * 4 * tmp_three[j] * pder[j]
+            + xi_d * fht_rho[j] * na / 2
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
         f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
