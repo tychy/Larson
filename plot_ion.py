@@ -44,25 +44,27 @@ def main():
     )
 
     figure = plt.figure()
-    cur_rho = np.max(np.floor(np.log10(rho[0])))
+    cur_fh = np.max(fh[0])
 
     i = 10
     prev = i
     plt.plot(
         np.log10(r_h[4]),
         fh[4],
-        label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
+        label="{:.5f} * 10^13s,core={:.1f}K".format(t[int(4)] / 10 ** 13, tmp[4][10]),
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 10000:
+        if np.abs(np.max(fh[i]) - cur_fh) >= 0.2 or i - prev >= 10000:
             if not np.all(np.abs(fh[prev] - fh[i]) < 0.000001):
                 plt.plot(
                     np.log10(r_h[i]),
                     fh[i],
-                    label="{:.5f} * 10^13s".format(t[int(i)] / 10 ** 13),
+                    label="{:.5f} * 10^13s,core={:.5f}K".format(
+                        t[i] / 10 ** 13, tmp[i][10]
+                    ),
                 )
-                cur_rho = np.max(np.floor(np.log10(rho[i])))
+                cur_fh = np.max(fh[i])
             prev = i
         i += 1
 

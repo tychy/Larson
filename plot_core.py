@@ -48,8 +48,8 @@ def main():
     tmp_ls = []
     while i < idx:
         if i % 10 == 0:
-            rho_ls.append(np.log10(rho[i][10]))
-            tmp_ls.append(np.log10(tmp[i][10]))
+            rho_ls.append(np.log10(rho[i][1]))
+            tmp_ls.append(np.log10(tmp[i][1]))
         i += 1
     figure = plt.figure()
     plt.plot(rho_ls, tmp_ls)
@@ -63,8 +63,8 @@ def main():
     e_ls = []
     while i < idx:
         if i % 10 == 0:
-            rho_ls.append(np.log10(rho[i][10]))
-            e_ls.append(np.log10(e[i][10]))
+            rho_ls.append(np.log10(rho[i][1]))
+            e_ls.append(np.log10(e[i][1]))
         i += 1
     figure = plt.figure()
     plt.plot(rho_ls, e_ls)
