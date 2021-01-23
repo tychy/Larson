@@ -8,7 +8,9 @@ from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_ionization
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
 from calc_operator import calc_gamma, calc_fh, calc_fh_rho
-
+from logging import getLogger, StreamHandler, DEBUG
+import os
+from contextlib import redirect_stdout
 
 eps = 0.0000000001
 
@@ -233,4 +235,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    with redirect_stdout(open(os.devnull, "w")):
+        main()
