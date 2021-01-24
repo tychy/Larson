@@ -36,14 +36,80 @@
 \subsection{星形成の概要}
 \subsection{課題}
 \section{Related Work}
-\section{一次元計算}
+\section{基礎理論}
 \subsection{基礎方程式}
+この論文では、自己重力と放射を入れた方程式を解く。
+支配方程式は以下のようになる :\\
+連続の式
+\begin{equation}
+    \pder[\rho]{t} = - \pder[\rho v_i]{x_i}    
+\end{equation}
+運動方程式
+\begin{equation}
+    \Dder[v_i]{t} = - \frac{1}{\rho}\pder[p]{x_i} - \pder[\Phi]{x_i}
+\end{equation}
+エネルギー方程式
+\begin{equation}
+    \Dder[e]{t} = - \frac{p}{\rho} \pder[v_j]{x_j} + \Gamma - \lambda
+\end{equation}
+\subsubsection{連続の式の導出}
+\subsubsection{運動方程式の導出}
+\subsubsection{エネルギー方程式の導出}
+\subsection{ビリアル定理}
+
+\subsubsection{ビリアル定理の導出}
+
+\subsubsection{負の比熱}
+\subsection{エムデン方程式}
+球対称ガス球の平衡状態はエムデン方程式によって記述される。
+\subsection{等温球の崩壊}
+\subsection{逃走的収縮}
 \subsection{重力不安定性}
-\subsection{CFL}
-\subsection{人工粘性}
-\subsection{差文化}
-\subsection{陰的計算}
+中心部分の進化はどんどん速くなる。
+周囲が取り残されて中心だけが逃走的に収縮する。
+中心部分の大きさはジーンズ長程度。
+中心部分の質量。
+\subsection{放射}
+\subsection{1stコアの形成}
 \subsection{解離と電離の効果}
+\subsection{2nd}
+\section{衝撃波}
+\subsection{衝撃波}
+\subsubsection{ランキンユゴニオ}
+\subsection{衝撃波の性質}
+\subsection{エントロピージャンプ}
+\subsection{衝撃波の大きさ}
+\section{計算手法}
+\subsection{差分方程式についての一般論}
+\subsection{クーラン条件}
+\begin{equation}
+    \pder[u]{t} + c\pder[u]{x} = 0\label{eq:advection}
+\end{equation}
+波の伝播を表す線形移流方程式について考える。
+移流速度を$c$として方程式は\eqref{eq:advection}のようになる。
+この方程式の解は、$u = f(x -ct)$の形で得られ、
+$c>0$ならば$x$の正の方向に、$c<0$ならば$x$の負の方向に伝播する解になる。
+この方程式を$c>0$のときに風上差分法で差分化して数値的に解くことを考える。
+上付き添字を時刻、下付き添字を座標に関するインデックスとおいて、
+\begin{align}
+    \frac{u^{n+1}_j - u^{n}_j}{\Delta t} = c \frac{u^n_{j} - u^n_{j-1}}{\Delta x}
+\end{align}
+と書ける。したがって、$u$は時間方向において
+\begin{align}
+    u^{n+1}_j  =  u^{n}_j+ c \Delta t\frac{u^n_{j} - u^n_{j-1}}{\Delta x}
+\end{align}
+と更新される。
+クーラン条件と呼ばれ、Courant-Friedrichs-Lewy条件の略称としてCFL条件と書かれることもある。
+これは$1$ステップの情報の伝達距離が格子幅を超えないという条件である。%todo:言い換え
+4次中心差分法でのCFL条件
+\subsubsection{フォン・ノイマンの安定性解析}
+クーラン条件が満たされていることは、数値計算が安定であることを保障しない。
+中心差分法、風上差分法において、安定性を考える。
+
+%todo:波数空間の描画
+\subsection{人工粘性}
+\subsection{差分化}
+\subsection{陰的計算}
 \section{結果}
 \section{結論}
 \end{document}
