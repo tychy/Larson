@@ -22,8 +22,22 @@ adiabatic:mkdir
 	python plot.py
 	python plot_core.py
 
+ionization:mkdir
+	python main_ionization.py
+	python plot.py
+	python plot_core.py
+
 plot:mkdir
 	python plot.py
+
+plot_core:mkdir
+	python plot.py
+	python plot_core.py
+plot_ion:mkdir
+	python plot.py
+	python plot_core.py
+	python plot_ion.py
+
 mkdir:
 	mkdir -p $(DATA)
 	mkdir -p $(RESULT)
