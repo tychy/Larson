@@ -26,6 +26,10 @@
 \newcommand{\lid}{l_i^2}
 \newcommand{\aid}{a_i^2}
 
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\makeatletter
+\@addtoreset{equation}{section}
+\makeatother
 
 \date{\today}
 \author{山田龍}
@@ -58,7 +62,6 @@
 \subsection{ビリアル定理}
 
 \subsubsection{ビリアル定理の導出}
-
 \subsubsection{負の比熱}
 \subsection{エムデン方程式}
 球対称ガス球の平衡状態はエムデン方程式によって記述される。
@@ -105,10 +108,9 @@ $c>0$ならば$x$の正の方向に、$c<0$ならば$x$の負の方向に伝播�
 \subsubsection{フォン・ノイマンの安定性解析}
 クーラン条件が満たされていることは、数値計算が安定であることを保障しない。
 中心差分法、風上差分法において、安定性を考える。
-
 %todo:波数空間の描画
 \subsection{人工粘性}
-\subsection{差分化}
+\subsection{基礎方程式の差分化}
 \subsection{陰的計算}
 \section{結果}
 \section{結論}
