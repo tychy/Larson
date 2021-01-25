@@ -210,9 +210,20 @@ $c>0$ならば$x$の正の方向に、$c<0$ならば$x$の負の方向に伝播�
     u^{n+1}_j  =  u^{n}_j+ c \Delta t\frac{u^n_{j} - u^n_{j-1}}{\Delta x}
 \end{align}
 と更新される。
-クーラン条件と呼ばれ、Courant-Friedrichs-Lewy条件の略称としてCFL条件と書かれることもある。
-これは$1$ステップの情報の伝達距離が格子幅を超えないという条件である。%todo:言い換え
-4次中心差分法でのCFL条件
+時刻$n$での情報のみから次のステップでの物理量を計算する陽的な解法では、
+$1$ステップの情報の伝達距離が格子幅を超えないという条件が課される。%todo:言い換え
+したがって、情報が伝播する速さは$\frac{\Delta x}{\Delta t}$で、波の速さが$c$であるから条件は
+\begin{equation}
+    \frac{\Delta x}{\Delta t} \geq c
+\end{equation}
+これはクーラン条件と呼ばれ、Courant-Friedrichs-Lewy条件の略称としてCFL条件と書かれることもある。
+クーラン数が1より小さい条件$c\frac{\Delta t}{\Delta x} \leq 1$とも言える。
+例えば4次中心差分法ではクーラン条件は
+%図を乗せる
+\begin{equation}
+  c\frac{\Delta t}{\Delta x} \leq 2
+\end{equation}
+となることからわかるように、条件は必ずしも$1$ではないが$1$を使えば十分である。
 \subsubsection{フォン・ノイマンの安定性解析}
 クーラン条件が満たされていることは、数値計算が安定であることを保障しない。
 中心差分法、風上差分法において、安定性を考える。
