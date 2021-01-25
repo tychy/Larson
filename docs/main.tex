@@ -3,9 +3,10 @@
 \usepackage{newtxtt}
 \usepackage[utf8]{inputenc}
 \newcommand{\kakko}[1][]{(#1)}
-\newcommand{\bx}{\bold{x}}
-\newcommand{\bb}{\bold{b}}
-\newcommand{\bd}{\bold{d}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bd}{\mathbf{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\dder}[2][]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
 \newcommand{\Dder}[2][]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
@@ -38,7 +39,10 @@
 \maketitle
 \section{Introduction}
 \subsection{星形成の概要}
+
 \subsection{課題}
+初期条件と観測される星のあいだのシナリオを検証する。
+
 \section{Related Work}
 \section{基礎理論}
 \subsection{基礎方程式}
@@ -46,28 +50,132 @@
 支配方程式は以下のようになる :\\
 連続の式
 \begin{equation}
-    \pder[\rho]{t} = - \pder[\rho v_i]{x_i}    
+    \pder[\rho]{t} = - \nabla \bv
 \end{equation}
 運動方程式
 \begin{equation}
-    \Dder[v_i]{t} = - \frac{1}{\rho}\pder[p]{x_i} - \pder[\Phi]{x_i}
+    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\mathbf{\Phi}
 \end{equation}
+
 エネルギー方程式
 \begin{equation}
     \Dder[e]{t} = - \frac{p}{\rho} \pder[v_j]{x_j} + \Gamma - \lambda
 \end{equation}
 \subsubsection{連続の式の導出}
+微小体積要素$\delta V = \delta x \delta y \delta z$を取ると、流れに沿って質量が保存する。
+\begin{equation}
+    \Dder[]{t} (\rho\delta V)= 0\label{eq:mass}
+\end{equation}
+ここで、ラグランジュ微分は、流れに沿った微分で
+\begin{equation}
+    \Dder[]{t} = \pder[]{t} + \bv\pder[]{\bx}
+\end{equation}
+である。
+\eqref{eq:mass}より、
+\begin{align}
+    %\rho\Dder[]{t} \delta V &+ \delta V\Dder[]{t} \rho= 0\\
+    \Dder[\rho]{t} &= -\frac{\rho}{\delta V}\Dder[]{t} \delta V \\
+    % &= -\frac{\rho}{ \delta x \delta y \delta z}\Dder[]{t}( \delta x \delta y \delta z)\\
+     %&= -\rho(\frac{1}{\delta x}\Dder[\delta x]{t} + \frac{1}{\delta y}\Dder[\delta y]{t} + \frac{1}{\delta z}\Dder[\delta z]{t})\\
+     %&= -\rho(\frac{1}{\delta x}\Dder[\delta x]{t} + \frac{1}{\delta y}\Dder[\delta y]{t} + \frac{1}{\delta z}\Dder[\delta z]{t})\\
+     %&= -\rho(\frac{\delta u}{\delta x} + \frac{\delta v}{\delta y} + \frac{\delta w}{\delta z})\\
+     &= - \rho \nabla \cdot \bv\\
+    \pder[\rho]{t} &= -  \nabla \cdot (\rho\bv)\label{eq:continuous}
+\end{align}
+\label{eq:continuous}が連続の式である。
+また、非圧縮性流体では$\nabla \cdot \bv = 0$であるから、連続の式は
+\begin{equation}
+    \pder[\rho]{t} = -  \rho \nabla \cdot \bv
+\end{equation}
+となる。
 \subsubsection{運動方程式の導出}
+微小体積要素に働く力は、重力ポテンシャルによる力と応力を考えて、
+\begin{equation}
+     \Dder[(\rho \delta V \bv)]{t} = - (\nabla p) \delta V - p \delta V \nabla \Phi
+\end{equation}
+左辺に質量保存則\eqref{eq:mass}を用いれば、運動方程式が導かれる。
+\begin{equation}
+    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla\mathbf{\Phi}
+\end{equation}
 \subsubsection{エネルギー方程式の導出}
 \subsection{ビリアル定理}
-
 \subsubsection{ビリアル定理の導出}
 \subsubsection{負の比熱}
-\subsection{エムデン方程式}
-球対称ガス球の平衡状態はエムデン方程式によって記述される。
+\subsection{重力不安定性}
+%天体物理の基礎
+%kipp 26.2
+\subsubsection{ジーンズ不安定性}
+\subsubsection{等温球の重力不安定性}
+
+\subsection{Lane-Emden方程式}
+星は主系列星への進化の過程で星全体での対流を経るので、星の内部の組成は主系列星に至った際には一様である。
+また、星間ガスから自己重力収縮している過程も内部の組成は一様である。
+%ほんと？
+そこで、ここでは組成が一様な星の内部構造を調べる。まず、星が静水圧平衡にあり、ポアソン方程式が成り立つとする。
+\begin{equation}
+    \dder[p]{r} = - \rho\dder[\Phi]{r}\label{eq:static}
+\end{equation}
+\begin{equation}
+    \frac{1}{r^2}\dder[]{r}(r^2\dder[\Phi]{r}) = 4\pi G\rho\label{eq:poisson}
+\end{equation}
+力学平衡をここまで考えたが、星の内部での電離状態を考えるには温度が必要である。
+温度を与えるために、ここではエネルギー保存やエネルギー輸送の効果を考えずに、系の力学的平衡状態の性質を調べるためにポリトロープ関係式を用いる。
+$K = R_{gas}T/\mu$として、
+\begin{equation}
+    P = K \rho^\gamma = K\rho^{1+1/n}\label{eq:polytropic}
+\end{equation}
+と書く。$\gamma$を比熱比、$n$をポリトロープ指数と呼ぶ。
+静水圧平衡の式\eqref{eq:static}にポリトロープ関係式を代入して、
+\begin{align}
+    \dder[\Phi]{r} &= - \gamma K \rho^{\gamma -2} \dder[\rho]{r}\label{eq:staticpoly}
+\end{align}
+\subsubsection{non isothermal}
+$\gamma \neq 1, n\neq \infty$のときに\eqref{eq:staticpoly}を積分して、
+\begin{align}
+    \Phi = \rho^{\gamma -1} (- \frac{\gamma}{\gamma -1}K)\\
+    \rho = \left(- \frac{1}{n+1}\frac{\Phi}{K}\right)^n
+\end{align}
+を得る。$\rho =0$となるような表面では$\Phi=0$、星の内部では$\Phi < 0$であるとした。
+この式を、\eqref{eq:poisson}に代入して
+\begin{equation}
+    \frac{1}{r^2}\dder[]{r}(r^2\dder[\Phi]{r}) = 4\pi G\left(- \frac{1}{n+1}\frac{\Phi}{K}\right)^n
+\end{equation}
+$\rho_c,\Phi_c$を中心密度、中心での重力ポテンシャルとして、
+\begin{align}
+    \rho = \rho_c \theta^n = \rho_c (\frac{\Phi}{\Phi_c})^n\\
+r = a\xi, a = \left(\frac{4\pi G}{(n+1)^n K^n}(-\Phi_c)^{n-1}\right)^{1/2}
+\end{align}
+を使って無次元化すれば、Lane-Emden方程式\eqref{eq:laneemden}を得る。
+\begin{equation}
+    \frac{1}{\xi^2}\dder[]{\xi}\left(\xi^2\dder[\theta]{\xi}\right) = - \theta^n\label{eq:laneemden}
+\end{equation}
+この方程式の解はEmden解と呼ばれ、$\theta(\xi)$を与える。
+\subsubsection{isothermal}
+$\gamma=1,n=\infty$の等温の場合
+%&= -  K \rho^{-1} \dder[\rho]{r}
+\eqref{eq:staticpoly}を$\Phi=0$での密度を$\rho_c$として積分する。
+\begin{align}
+    - \frac{\Phi}{K} = \ln \rho - \ln \rho_c\\
+    \rho = \rho_ce^{-\Phi/K}
+\end{align}
+これをポアソン方程式\eqref{eq:poisson}に代入すれば、
+\begin{equation}
+    \frac{1}{r^2}\dder[]{r}(r^2\dder[\Phi]{r}) = 4\pi G\rho_c e^{-\Phi/K}
+\end{equation}
+\begin{equation}
+    \xi = ar, a = \left( \frac{4\pi G \rho_c}{K}\right)^{1/2}, \theta = \frac{\Phi}{K}
+\end{equation}
+と無次元化すると等温過程のLane-Emden方程式を得る。
+\begin{equation}
+    \frac{1}{\xi^2}\dder[]{\xi}\left(\xi^2\dder[\theta]{\xi}\right) = e^{-\theta}
+\end{equation}
+中心で密度が有限で、圧力勾配が$0$になるから、境界条件を例えば
+\begin{equation}
+    \theta(0) = 0,    \theta'(0) = 0
+\end{equation}
+とおけば、Lane-Emden方程式は解ける。
 \subsection{等温球の崩壊}
 \subsection{逃走的収縮}
-\subsection{重力不安定性}
 中心部分の進化はどんどん速くなる。
 周囲が取り残されて中心だけが逃走的に収縮する。
 中心部分の大きさはジーンズ長程度。
@@ -114,4 +222,6 @@ $c>0$ならば$x$の正の方向に、$c<0$ならば$x$の負の方向に伝播�
 \subsection{陰的計算}
 \section{結果}
 \section{結論}
+\bibliographystyle{junsrt}
+\bibliography{cite}
 \end{document}
