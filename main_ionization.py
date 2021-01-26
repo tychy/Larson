@@ -65,31 +65,15 @@ def next(
 
     # 計算を先に済ませておく
     coef_inv_rho = (1 / rho[idx + 1] - 1 / rho[idx]) / 2
-    coef_a = 4 / 3 * SB / Kapper
-    coef_b = coef_a / rho_res / (r_h[idx] ** 2)
-    coef_c = coef_a / (rho_res ** 2)
-    coef_d = r_h[idx] ** 2 / rho_res
-    tmp_two = tmp[idx] ** 2
-    tmp_three = tmp[idx] ** 3
 
-    deltar = np.diff(r_h[idx])
     deltar_res = np.diff(r_h[idx + 1])
-
-    # T^nの位置微分
-    pder = np.zeros_like(tmp[idx])
-    for j in range(1, pder.shape[0] - 1):
-        pder[j] = (tmp[idx][j + 1] - tmp[idx][j - 1]) / deltar[j] / 2
-    pder[-1] = pder[-2]  # b.c.
-    pder[0] = pder[1]
-    ppder = np.zeros_like(tmp[idx])
-    for j in range(1, ppder.shape[0] - 1):
-        ppder[j] = (
-            (tmp[idx][j + 1] - tmp[idx][j]) / deltar[j]
-            - (tmp[idx][j] - tmp[idx][j - 1]) / deltar[j - 1]
-        ) / deltar[j]
-    ppder[0] = ppder[1]
-    ppder[-1] = ppder[-2]
-
+    deltar_res = np.insert(deltar_res, [0], [r_h[idx][0] * 2])
+    deltar_mid = np.zeros_like(r_res)
+    for i in range(1, len(deltar_mid) - 1):
+        deltar_mid[i] = (deltar_res[i - 1] + deltar_res[i]) / 2
+    coef_base = 4 / 3 * SB / Kapper / rho_res / (r_h[idx + 1] ** 2)
+    tmp_three = tmp[idx] ** 3
+    tmp_four = tmp[idx] ** 4
     # TMPの更新
     d = np.zeros_like(tmp[idx])
     f = np.zeros_like(tmp[idx])
@@ -109,29 +93,26 @@ def next(
     )
 
     for j in range(1, tmp[idx].shape[0] - 1):
-        cur_a = t_n * coef_c[j] * 4 * tmp_three[j] / (deltar_res[j] ** 2)
-        cur_b = t_n * coef_b[j] * (coef_d[j + 1] - coef_d[j - 1]) / 2 / deltar_res[j]
-        cur_c = t_n * coef_c[j] * 24 * tmp_two[j] * pder[j] / 2 / deltar_res[j]
-        cur_d = t_n * coef_c[j] * (pder[j] ** 2)
+        cur_am = (
+            t_n * r_res[j - 1] ** 2 / rho_res[j - 1] / deltar_res[j - 1] / deltar_mid[j]
+        )
+        cur_ap = t_n * r_res[j] ** 2 / rho_res[j] / deltar_res[j] / deltar_mid[j]
 
-        a_j = cur_a - cur_b * 4 * tmp_three[j] / 2 / deltar_res[j] - cur_c
-
+        a_j = coef_base[j - 1] * cur_am * 4 * tmp_three[j - 1]
         b_j = (
             +R / (gamma[j] - 1)
             + R * rho_res[j] * coef_inv_rho[j]
-            + 2 * cur_a
-            - 24 * cur_d * tmp[idx][j]
-            - cur_b * 12 * tmp_two[j] * pder[j]
+            + 4 * cur_ap * tmp_three[j]
+            + 4 * cur_am * tmp_three[j]
             - xi_d * pderfht[j] * na / 2  # 2は修正必要かも
         )
-        c_j = cur_b * 4 * tmp_three[j] / 2 / deltar_res[j] + cur_a + cur_c
+        c_j = coef_base[j] * cur_ap * 4 * tmp_three[j]
 
         r_j = (
             -R * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
             + efromq[j]
-            + 12 * cur_d * tmp_two[j]
-            + t_n * coef_c[j] * 4 * tmp_three[j] * ppder[j]
-            + cur_b * 4 * tmp_three[j] * pder[j]
+            + cur_ap * (tmp_four[j + 1] - tmp_four[j])
+            + cur_am * (tmp_four[j - 1] - tmp_four[j])
             + xi_d * fht_rho[j] * na / 2
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
@@ -235,5 +216,8 @@ def main():
 
 
 if __name__ == "__main__":
-    with redirect_stdout(open(os.devnull, "w")):
+    if True:
         main()
+    else:
+        with redirect_stdout(open(os.devnull, "w")):
+            main()
