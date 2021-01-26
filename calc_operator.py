@@ -87,27 +87,8 @@ def calc_fh(tmp, p):
 
 
 def calc_fh_rho(tmp, rho):
-    coef_b = ((2 * np.pi * m_e) ** 0.5 / planck) ** 3
-    coef_a = ((2 * np.pi * m_p) ** 0.5 / planck) ** 3
-
-    kbt = kb * tmp
-    kbt_quad = kbt ** 2.5
     p = rho * R * tmp
-
-    exp_xi_d = np.exp(-xi_d / kbt)
-    exp_xi_h = np.exp(-xi_h / kbt)
-    kh_d = coef_a * kbt_quad * exp_xi_d
-    kh_h = coef_b / p * kbt_quad * exp_xi_h
-
-    fh_d = np.sqrt(kh_d / (1 + kh_d))
-    fh_h = np.sqrt(kh_h / (1 + kh_h))
-
-    fht = (1 - fh_d) / 2
-    fh = fh_d * (1 - fh_h)
-    fion = fh_d * fh_h
-
-    return fh, fht, fion
-
+    return calc_fh(tmp, p)
 
 def fh_two(tmp_idx, rho_idx):
     coef_b = ((2 * np.pi * m_e) ** 0.5 / planck) ** 3
