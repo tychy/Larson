@@ -45,14 +45,8 @@ def main():
 
     figure = plt.figure()
     cur_fh = np.max(fh[0])
-
     i = 10
-    prev = i
-    plt.plot(
-        np.log10(r_h[4]),
-        fh[4],
-        label="{:.5f} * 10^13s,core={:.1f}K".format(t[int(4)] / 10 ** 13, tmp[4][10]),
-    )
+    prev = i 
 
     while i < idx:
         if np.abs(np.max(fh[i]) - cur_fh) >= 0.2 or i - prev >= 10000:
@@ -67,7 +61,13 @@ def main():
                 cur_fh = np.max(fh[i])
             prev = i
         i += 1
-
+    plt.plot(
+        np.log10(r_h[i-10]),
+        fh[i-10],
+        label="{:.5f} * 10^13s,core={:.5f}K".format(
+            t[i-10] / 10 ** 13, tmp[i-10][10]
+        ),
+    )
     plt.ylim(-0.1, 1.2)
 
     plt.xlabel("log10r")
