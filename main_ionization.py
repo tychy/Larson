@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from conditions import M_cc, G, R_CC,DISPLAY
+from conditions import M_cc, G, R_CC, DISPLAY
 from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
 from conditions import KQ, kb, Kapper, SB, xi_d
 from utils import vstack_n, get_cs, r_init, m_init
@@ -138,7 +138,7 @@ def next(
     tmp = np.vstack((tmp, tmp_res))
 
     e_res = tmp_res * R / (gamma[j] - 1)
-    
+
     e = np.vstack((e, e_res))
     p_res = (gamma[j] - 1) * rho_res * e_res
     p = np.vstack((p, p_res))
@@ -177,7 +177,8 @@ def main():
     r_h = np.zeros([2, GRID])
     p_l = np.zeros([2, GRID])
     deltam = calc_deltam(m)
-    print("deltam", deltam)
+    if DISPLAY:
+        print("deltam", deltam)
     p = np.zeros([3, GRID])
     Q = np.zeros([2, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
