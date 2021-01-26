@@ -141,7 +141,7 @@ def next(
     
     e = np.vstack((e, e_res))
     p_res = (gamma[j] - 1) * rho_res * e_res
-        p = np.vstack((p, p_res))
+    p = np.vstack((p, p_res))
 
     if DISPLAY:
         print("delta_tmp:", deltatmp)
