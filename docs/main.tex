@@ -1,0 +1,238 @@
+\documentclass{jsarticle}
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{newtxtt}
+\usepackage[utf8]{inputenc}
+\newcommand{\kakko}[1][]{(#1)}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bd}{\mathbf{d}}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\dder}[2][]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+\newcommand{\Dder}[2][]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\hpn}{n + \half}
+\newcommand{\hmn}{n - \half}
+\newcommand{\hpj}{j + \half}
+\newcommand{\hml}{j - \half}
+\newcommand{\hpi}{i + \half}
+\newcommand{\hmi}{i - \half}
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\beql}[1]{\begin{equation}\label{#1}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\eeqp}{\;\;\;.\end{equation}}
+\newcommand{\eeqc}{\;\;\;,\end{equation}}
+\newcommand{\xid}{x_i^2}
+\newcommand{\lid}{l_i^2}
+\newcommand{\aid}{a_i^2}
+
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\makeatletter
+\@addtoreset{equation}{section}
+\makeatother
+
+\date{\today}
+\author{山田龍}
+\title{原始星形成の1次元数値計算}
+\begin{document}
+\maketitle
+\section{Introduction}
+\subsection{星形成の概要}
+
+\subsection{課題}
+初期条件と観測される星のあいだのシナリオを検証する。
+
+\section{Related Work}
+\section{基礎理論}
+\subsection{基礎方程式}
+この論文では、自己重力と放射を入れた方程式を解く。
+支配方程式は以下のようになる :\\
+連続の式
+\begin{equation}
+    \pder[\rho]{t} = - \nabla \bv
+\end{equation}
+運動方程式
+\begin{equation}
+    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\mathbf{\Phi}
+\end{equation}
+
+エネルギー方程式
+\begin{equation}
+    \Dder[e]{t} = - \frac{p}{\rho} \pder[v_j]{x_j} + \Gamma - \lambda
+\end{equation}
+\subsubsection{連続の式の導出}
+微小体積要素$\delta V = \delta x \delta y \delta z$を取ると、流れに沿って質量が保存する。
+\begin{equation}
+    \Dder[]{t} (\rho\delta V)= 0\label{eq:mass}
+\end{equation}
+ここで、ラグランジュ微分は、流れに沿った微分で
+\begin{equation}
+    \Dder[]{t} = \pder[]{t} + \bv\pder[]{\bx}
+\end{equation}
+である。
+\eqref{eq:mass}より、
+\begin{align}
+    %\rho\Dder[]{t} \delta V &+ \delta V\Dder[]{t} \rho= 0\\
+    \Dder[\rho]{t} &= -\frac{\rho}{\delta V}\Dder[]{t} \delta V \\
+    % &= -\frac{\rho}{ \delta x \delta y \delta z}\Dder[]{t}( \delta x \delta y \delta z)\\
+     %&= -\rho(\frac{1}{\delta x}\Dder[\delta x]{t} + \frac{1}{\delta y}\Dder[\delta y]{t} + \frac{1}{\delta z}\Dder[\delta z]{t})\\
+     %&= -\rho(\frac{1}{\delta x}\Dder[\delta x]{t} + \frac{1}{\delta y}\Dder[\delta y]{t} + \frac{1}{\delta z}\Dder[\delta z]{t})\\
+     %&= -\rho(\frac{\delta u}{\delta x} + \frac{\delta v}{\delta y} + \frac{\delta w}{\delta z})\\
+     &= - \rho \nabla \cdot \bv\\
+    \pder[\rho]{t} &= -  \nabla \cdot (\rho\bv)\label{eq:continuous}
+\end{align}
+\label{eq:continuous}が連続の式である。
+また、非圧縮性流体では$\nabla \cdot \bv = 0$であるから、連続の式は
+\begin{equation}
+    \pder[\rho]{t} = -  \rho \nabla \cdot \bv
+\end{equation}
+となる。
+\subsubsection{運動方程式の導出}
+微小体積要素に働く力は、重力ポテンシャルによる力と応力を考えて、
+\begin{equation}
+     \Dder[(\rho \delta V \bv)]{t} = - (\nabla p) \delta V - p \delta V \nabla \Phi
+\end{equation}
+左辺に質量保存則\eqref{eq:mass}を用いれば、運動方程式が導かれる。
+\begin{equation}
+    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla\mathbf{\Phi}
+\end{equation}
+\subsubsection{エネルギー方程式の導出}
+\subsection{ビリアル定理}
+\subsubsection{ビリアル定理の導出}
+\subsubsection{負の比熱}
+\subsection{重力不安定性}
+%天体物理の基礎
+%kipp 26.2
+\subsubsection{ジーンズ不安定性}
+\subsubsection{等温球の重力不安定性}
+
+\subsection{Lane-Emden方程式}
+星は主系列星への進化の過程で星全体での対流を経るので、星の内部の組成は主系列星に至った際には一様である。
+また、星間ガスから自己重力収縮している過程も内部の組成は一様である。
+%ほんと？
+そこで、ここでは組成が一様な星の内部構造を調べる。まず、星が静水圧平衡にあり、ポアソン方程式が成り立つとする。
+\begin{equation}
+    \dder[p]{r} = - \rho\dder[\Phi]{r}\label{eq:static}
+\end{equation}
+\begin{equation}
+    \frac{1}{r^2}\dder[]{r}(r^2\dder[\Phi]{r}) = 4\pi G\rho\label{eq:poisson}
+\end{equation}
+力学平衡をここまで考えたが、星の内部での電離状態を考えるには温度が必要である。
+温度を与えるために、ここではエネルギー保存やエネルギー輸送の効果を考えずに、系の力学的平衡状態の性質を調べるためにポリトロープ関係式を用いる。
+$K = R_{gas}T/\mu$として、
+\begin{equation}
+    P = K \rho^\gamma = K\rho^{1+1/n}\label{eq:polytropic}
+\end{equation}
+と書く。$\gamma$を比熱比、$n$をポリトロープ指数と呼ぶ。
+静水圧平衡の式\eqref{eq:static}にポリトロープ関係式を代入して、
+\begin{align}
+    \dder[\Phi]{r} &= - \gamma K \rho^{\gamma -2} \dder[\rho]{r}\label{eq:staticpoly}
+\end{align}
+\subsubsection{non isothermal}
+$\gamma \neq 1, n\neq \infty$のときに\eqref{eq:staticpoly}を積分して、
+\begin{align}
+    \Phi = \rho^{\gamma -1} (- \frac{\gamma}{\gamma -1}K)\\
+    \rho = \left(- \frac{1}{n+1}\frac{\Phi}{K}\right)^n
+\end{align}
+を得る。$\rho =0$となるような表面では$\Phi=0$、星の内部では$\Phi < 0$であるとした。
+この式を、\eqref{eq:poisson}に代入して
+\begin{equation}
+    \frac{1}{r^2}\dder[]{r}(r^2\dder[\Phi]{r}) = 4\pi G\left(- \frac{1}{n+1}\frac{\Phi}{K}\right)^n
+\end{equation}
+$\rho_c,\Phi_c$を中心密度、中心での重力ポテンシャルとして、
+\begin{align}
+    \rho = \rho_c \theta^n = \rho_c (\frac{\Phi}{\Phi_c})^n\\
+r = a\xi, a = \left(\frac{4\pi G}{(n+1)^n K^n}(-\Phi_c)^{n-1}\right)^{1/2}
+\end{align}
+を使って無次元化すれば、Lane-Emden方程式\eqref{eq:laneemden}を得る。
+\begin{equation}
+    \frac{1}{\xi^2}\dder[]{\xi}\left(\xi^2\dder[\theta]{\xi}\right) = - \theta^n\label{eq:laneemden}
+\end{equation}
+この方程式の解はEmden解と呼ばれ、$\theta(\xi)$を与える。
+\subsubsection{isothermal}
+$\gamma=1,n=\infty$の等温の場合
+%&= -  K \rho^{-1} \dder[\rho]{r}
+\eqref{eq:staticpoly}を$\Phi=0$での密度を$\rho_c$として積分する。
+\begin{align}
+    - \frac{\Phi}{K} = \ln \rho - \ln \rho_c\\
+    \rho = \rho_ce^{-\Phi/K}
+\end{align}
+これをポアソン方程式\eqref{eq:poisson}に代入すれば、
+\begin{equation}
+    \frac{1}{r^2}\dder[]{r}(r^2\dder[\Phi]{r}) = 4\pi G\rho_c e^{-\Phi/K}
+\end{equation}
+\begin{equation}
+    \xi = ar, a = \left( \frac{4\pi G \rho_c}{K}\right)^{1/2}, \theta = \frac{\Phi}{K}
+\end{equation}
+と無次元化すると等温過程のLane-Emden方程式を得る。
+\begin{equation}
+    \frac{1}{\xi^2}\dder[]{\xi}\left(\xi^2\dder[\theta]{\xi}\right) = e^{-\theta}
+\end{equation}
+中心で密度が有限で、圧力勾配が$0$になるから、境界条件を例えば
+\begin{equation}
+    \theta(0) = 0,    \theta'(0) = 0
+\end{equation}
+とおけば、Lane-Emden方程式は解ける。
+\subsection{等温球の崩壊}
+\subsection{逃走的収縮}
+中心部分の進化はどんどん速くなる。
+周囲が取り残されて中心だけが逃走的に収縮する。
+中心部分の大きさはジーンズ長程度。
+中心部分の質量。
+\subsection{放射}
+\subsection{1stコアの形成}
+\subsection{解離と電離の効果}
+\subsection{2nd}
+\section{衝撃波}
+\subsection{衝撃波}
+\subsubsection{ランキンユゴニオ}
+\subsection{衝撃波の性質}
+\subsection{エントロピージャンプ}
+\subsection{衝撃波の大きさ}
+\section{計算手法}
+\subsection{差分方程式についての一般論}
+\subsection{クーラン条件}
+\begin{equation}
+    \pder[u]{t} + c\pder[u]{x} = 0\label{eq:advection}
+\end{equation}
+波の伝播を表す線形移流方程式について考える。
+移流速度を$c$として方程式は\eqref{eq:advection}のようになる。
+この方程式の解は、$u = f(x -ct)$の形で得られ、
+$c>0$ならば$x$の正の方向に、$c<0$ならば$x$の負の方向に伝播する解になる。
+この方程式を$c>0$のときに風上差分法で差分化して数値的に解くことを考える。
+上付き添字を時刻、下付き添字を座標に関するインデックスとおいて、
+\begin{align}
+    \frac{u^{n+1}_j - u^{n}_j}{\Delta t} = c \frac{u^n_{j} - u^n_{j-1}}{\Delta x}
+\end{align}
+と書ける。したがって、$u$は時間方向において
+\begin{align}
+    u^{n+1}_j  =  u^{n}_j+ c \Delta t\frac{u^n_{j} - u^n_{j-1}}{\Delta x}
+\end{align}
+と更新される。
+時刻$n$での情報のみから次のステップでの物理量を計算する陽的な解法では、
+$1$ステップの情報の伝達距離が格子幅を超えないという条件が課される。%todo:言い換え
+したがって、情報が伝播する速さは$\frac{\Delta x}{\Delta t}$で、波の速さが$c$であるから条件は
+\begin{equation}
+    \frac{\Delta x}{\Delta t} \geq c
+\end{equation}
+これはクーラン条件と呼ばれ、Courant-Friedrichs-Lewy条件の略称としてCFL条件と書かれることもある。
+クーラン数が1より小さい条件$c\frac{\Delta t}{\Delta x} \leq 1$とも言える。
+例えば4次中心差分法ではクーラン条件は
+%図を乗せる
+\begin{equation}
+  c\frac{\Delta t}{\Delta x} \leq 2
+\end{equation}
+となることからわかるように、条件は必ずしも$1$ではないが$1$を使えば十分である。
+\subsubsection{フォン・ノイマンの安定性解析}
+クーラン条件が満たされていることは、数値計算が安定であることを保障しない。
+中心差分法、風上差分法において、安定性を考える。
+%todo:波数空間の描画
+\subsection{人工粘性}
+\subsection{基礎方程式の差分化}
+\subsection{陰的計算}
+\section{結果}
+\section{結論}
+\bibliographystyle{junsrt}
+\bibliography{cite}
+\end{document}
