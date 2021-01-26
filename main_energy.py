@@ -93,7 +93,7 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
 
         a_j = coef_base[j] * cur_am * 4 * tmp_three[j - 1]
         b_j = (
-            +R / (gamma[j] - 1)
+            +R / (1.4 - 1)
             + R * rho_res[j] * coef_inv_rho[j]
             + 4 * coef_base[j] * cur_ap * tmp_three[j]
             + 4 * coef_base[j] * cur_am * tmp_three[j]
@@ -170,7 +170,7 @@ def main():
         t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp[counter])
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
-        v, r, rho, p, tmp, Q, e, fh, fht, fion = next(
+        v, r, rho, p, tmp, Q, e = next(
             counter,
             t_h,
             deltat,
