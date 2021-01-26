@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from conditions import M_cc, G, R_CC
+from conditions import M_cc, G, R_CC,DISPLAY
 from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
 from conditions import KQ, kb, Kapper, SB, xi_d
 from utils import vstack_n, get_cs, r_init, m_init
@@ -21,7 +21,8 @@ def next(
     # v, r, rho, p, tmp
     v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx])
     v_res_b = np.zeros_like(v_res_a)
-    print("p_l:", p_l[idx])
+    if DISPLAY:
+        print("p_l:", p_l[idx])
     p_diff = np.diff(p_l[idx])
     p_diff = np.insert(p_diff, [0, p_diff.shape[0]], [0, 0])
     m_cur = np.zeros_like(m)
@@ -42,12 +43,14 @@ def next(
     v_res[0] = 0
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
-    print("idx", idx)
-    print("v:", v_res)
-    print("v from g:", v_res_a)
-    print("pdiff", p_diff)
-    print("v from p:", v_res_b)
-    print("v from q:", v_res_c)
+
+    if DISPLAY:
+        print("idx", idx)
+        print("v:", v_res)
+        print("v from g:", v_res_a)
+        print("pdiff", p_diff)
+        print("v from p:", v_res_b)
+        print("v from q:", v_res_c)
 
     r_res = r[idx] + v_res * t_h[idx]
     r = np.vstack((r, r_res))
@@ -55,13 +58,15 @@ def next(
 
     rho_res = np.zeros(rho.shape[1])
     rho_res = deltam / ((4 / 3) * np.pi * (np.diff(np.power(r_res, 3))))
-    print("rho_res", rho_res)
     rho = np.vstack((rho, rho_res.astype(np.float64)))
 
     gamma = calc_gamma(fht[idx])
-    print("gamma", gamma)
+
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
     efromq = deltat[idx] * (-3 / 2 * Q[idx])
+    if DISPLAY:
+        print("rho_res", rho_res)
+        print("gamma", gamma)
 
     # 計算を先に済ませておく
     coef_inv_rho = (1 / rho[idx + 1] - 1 / rho[idx]) / 2
@@ -86,7 +91,8 @@ def next(
         pderfht = (
             calc_fh(tmp[idx] * 1.001, p[idx])[1] - calc_fh(tmp[idx], p[idx])[1]
         ) / (0.001 * tmp[idx])
-    print("pderfht", pderfht)
+    if DISPLAY:
+        print("pderfht", pderfht)
     na = 6 * 10 ** 23
     fht_rho = (
         calc_fh_rho(tmp[idx], rho[idx + 1])[1] - calc_fh_rho(tmp[idx], rho[idx])[1]
@@ -129,16 +135,20 @@ def next(
         else:
             deltatmp[j] = deltatmp[j + 1] * d[j] + f[j]
     tmp_res = tmp[idx] + deltatmp
-    print("delta_tmp:", deltatmp)
-    print("tmp:", tmp_res)
     tmp = np.vstack((tmp, tmp_res))
 
     e_res = tmp_res * R / (gamma[j] - 1)
-    print("e:", e_res)
+    
     e = np.vstack((e, e_res))
     p_res = (gamma[j] - 1) * rho_res * e_res
-    print("p", p_res)
-    p = np.vstack((p, p_res))
+        p = np.vstack((p, p_res))
+
+    if DISPLAY:
+        print("delta_tmp:", deltatmp)
+        print("tmp:", tmp_res)
+        print("e:", e_res)
+        print("p", p_res)
+
     fh_res, fht_res, fion_res = calc_fh(tmp_res, p_res)
     fh = np.vstack((fh, fh_res))
     fht = np.vstack((fht, fht_res))

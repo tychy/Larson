@@ -15,7 +15,7 @@ if config["isLarson"]:
 else:
     TMP_INIT = config["TMP"]
     R_CC = config["radius"] * AU  #  AU 1000 to 30000
-
+DISPLAY = config["Display"]
 AVG = 2.4
 R = 8 * 10 ** 7 / AVG
 
