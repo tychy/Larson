@@ -88,9 +88,10 @@ def next(
     if idx <= 10:
         pderfht = np.zeros_like(tmp[idx])
     else:
+        dtmp = 0.0000001
         pderfht = (
-            calc_fh(tmp[idx] * 1.001, p[idx])[1] - calc_fh(tmp[idx], p[idx])[1]
-        ) / (0.001 * tmp[idx])
+            calc_fh(tmp[idx] * (1+dtmp), p[idx])[1] - calc_fh(tmp[idx], p[idx])[1]
+        ) / (dtmp * tmp[idx])
     if DISPLAY:
         print("pderfht", pderfht)
     na = 6 * 10 ** 23
