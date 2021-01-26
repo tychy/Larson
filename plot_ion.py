@@ -43,36 +43,63 @@ def main():
         allow_pickle=True,
     )
 
-    figure = plt.figure()
+    fht = np.load(
+        "data/" + config["plot_tag"] + "/step_fht.npy",
+        allow_pickle=True,
+    )
+
+    fig = plt.figure(figsize=(8, 6))
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax2 = fig.add_subplot(1, 2, 2)
     cur_fh = np.max(fh[0])
     i = 10
-    prev = i 
+    prev = i
 
     while i < idx:
         if np.abs(np.max(fh[i]) - cur_fh) >= 0.2 or i - prev >= 10000:
             if not np.all(np.abs(fh[prev] - fh[i]) < 0.000001):
-                plt.plot(
+                label = "{:.5f} * 10^13s,core={:.5f}K".format(
+                    t[i] / 10 ** 13, tmp[i][10]
+                )
+                ax1.plot(
                     np.log10(r_h[i]),
                     fh[i],
-                    label="{:.5f} * 10^13s,core={:.5f}K".format(
-                        t[i] / 10 ** 13, tmp[i][10]
-                    ),
+                    label=label,
                 )
+                ax2.plot(
+                    np.log10(r_h[i]),
+                    fht[i],
+                    label=label,
+                )
+
                 cur_fh = np.max(fh[i])
             prev = i
         i += 1
-    plt.plot(
-        np.log10(r_h[i-10]),
-        fh[i-10],
+    ax1.plot(
+        np.log10(r_h[i - 10]),
+        fh[i - 10],
         label="{:.5f} * 10^13s,core={:.5f}K".format(
-            t[i-10] / 10 ** 13, tmp[i-10][10]
+            t[i - 10] / 10 ** 13, tmp[i - 10][10]
         ),
     )
-    plt.ylim(-0.1, 1.2)
+    ax2.plot(
+        np.log10(r_h[i - 10]),
+        fht[i - 10],
+        label="{:.5f} * 10^13s,core={:.5f}K".format(
+            t[i - 10] / 10 ** 13, tmp[i - 10][10]
+        ),
+    )
 
-    plt.xlabel("log10r")
-    plt.ylabel("f")
+    ax1.set_ylim(-0.1, 1.2)
+    ax1.set_xlabel("log10r")
+    ax1.set_ylabel("H")
+
+    ax2.set_ylim(-0.1, 1.2)
+    ax2.set_xlabel("log10r")
+    ax2.set_ylabel("H2")
+
     plt.legend()
+    fig.tight_layout()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
     plt.savefig("results/" + config["plot_tag"] + "/f_r.png")
 
