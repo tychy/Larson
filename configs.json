@@ -1,5 +1,5 @@
 {
-    "tag": "01-26-Larson-r_j-re",
+    "tag": "01-26-Larson-fixion",
     "Display": false,
     "isLarson": true,
     "radius": 2000,
@@ -9,7 +9,7 @@
     "GRID": 200,
     "CFL": 0.3,
     "KQ": 3,
-    "plot_tag": "01-26-Larson-r_j-re",
+    "plot_tag": "01-26-Larson-fixion",
     "use_custom": false,
     "plot_step": 3300
 }
