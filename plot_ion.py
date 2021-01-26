@@ -47,10 +47,16 @@ def main():
         "data/" + config["plot_tag"] + "/step_fht.npy",
         allow_pickle=True,
     )
+    fion = np.load(
+        "data/" + config["plot_tag"] + "/step_fion.npy",
+        allow_pickle=True,
+    )
 
-    fig = plt.figure(figsize=(8, 6))
-    ax1 = fig.add_subplot(1, 2, 1)
-    ax2 = fig.add_subplot(1, 2, 2)
+    fig = plt.figure(figsize=(10, 8))
+    ax1 = fig.add_subplot(2, 2, 1)
+    ax2 = fig.add_subplot(2, 2, 2)
+    ax3 = fig.add_subplot(2, 2, 3)
+    ax4 = fig.add_subplot(2, 2, 4)
     cur_fh = np.max(fh[0])
     i = 10
     prev = i
@@ -71,6 +77,16 @@ def main():
                     fht[i],
                     label=label,
                 )
+                ax3.plot(
+                    np.log10(r_h[i]),
+                    fion[i],
+                    label=label,
+                )
+                ax4.plot(
+                    np.log10(r_h[i]),
+                    np.log10(tmp[i]),
+                    label=label,
+                )
 
                 cur_fh = np.max(fh[i])
             prev = i
@@ -89,6 +105,21 @@ def main():
             t[i - 10] / 10 ** 13, tmp[i - 10][10]
         ),
     )
+    ax3.plot(
+        np.log10(r_h[i - 10]),
+        fion[i - 10],
+        label="{:.5f} * 10^13s,core={:.5f}K".format(
+            t[i - 10] / 10 ** 13, tmp[i - 10][10]
+        ),
+    )
+
+    ax4.plot(
+        np.log10(r_h[i - 10]),
+        np.log10(tmp[i - 10]),
+        label="{:.5f} * 10^13s,core={:.5f}K".format(
+            t[i - 10] / 10 ** 13, tmp[i - 10][10]
+        ),
+    )
 
     ax1.set_ylim(-0.1, 1.2)
     ax1.set_xlabel("log10r")
@@ -98,6 +129,12 @@ def main():
     ax2.set_xlabel("log10r")
     ax2.set_ylabel("H2")
 
+    ax3.set_ylim(-0.1, 1.2)
+    ax3.set_xlabel("log10r")
+    ax3.set_ylabel("H+")
+
+    ax4.set_xlabel("log10r")
+    ax4.set_ylabel("TMP")
     plt.legend()
     fig.tight_layout()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
