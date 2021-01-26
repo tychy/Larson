@@ -1,4 +1,4 @@
-from calc_operator import fh_two, calc_gamma
+from calc_operator import calc_fh, calc_gamma
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -13,7 +13,7 @@ fht_ls = []
 fion_ls = []
 gamma_ls = []
 for item in tmp_ls:
-    fh, fht, fion = fh_two(item, rho_res)
+    fh, fht, fion = calc_fh(item, rho_res)
     fh_ls.append(fh)
     fht_ls.append(fht)
     fion_ls.append(fion)
