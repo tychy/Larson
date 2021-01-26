@@ -90,7 +90,7 @@ def next(
     else:
         dtmp = 0.0000001
         pderfht = (
-            calc_fh(tmp[idx] * (1+dtmp), p[idx])[1] - calc_fh(tmp[idx], p[idx])[1]
+            calc_fh(tmp[idx] * (1 + dtmp), p[idx])[1] - calc_fh(tmp[idx], p[idx])[1]
         ) / (dtmp * tmp[idx])
     if DISPLAY:
         print("pderfht", pderfht)
@@ -115,7 +115,7 @@ def next(
             + R * rho_res[j] * coef_inv_rho[j]
             + 4 * coef_base[j] * cur_ap * tmp_three[j]
             + 4 * coef_base[j] * cur_am * tmp_three[j]
-            - xi_d * pderfht[j] * na / 2  # 2は修正必要かも
+            - xi_d * pderfht[j] * na * 2 / AVG
         )
         c_j = coef_base[j] * cur_ap * 4 * tmp_three[j]
 
@@ -124,7 +124,7 @@ def next(
             + efromq[j]
             + coef_base[j] * cur_ap * (tmp_four[j + 1] - tmp_four[j])
             + coef_base[j] * cur_am * (tmp_four[j - 1] - tmp_four[j])
-            + xi_d * fht_rho[j] * na / 2
+            + xi_d * fht_rho[j] * na * 2 / AVG
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
         f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
