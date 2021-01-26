@@ -3,7 +3,7 @@ import numpy as np
 
 from conditions import M_cc, G, R_CC, DISPLAY
 from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
-from conditions import KQ, kb, Kapper, SB, xi_d
+from conditions import KQ, kb, Kapper, SB, xi_d, xi_h, NA
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_ionization
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
@@ -92,13 +92,14 @@ def next(
         pderfht = (
             calc_fh(tmp[idx] * (1 + dtmp), p[idx])[1] - calc_fh(tmp[idx], p[idx])[1]
         ) / (dtmp * tmp[idx])
+        pderfht = np.where(pderfht > 0, 0, pderfht)
     if DISPLAY:
         print("pderfht", pderfht)
     na = 6 * 10 ** 23
     fht_rho = (
         calc_fh_rho(tmp[idx], rho[idx + 1])[1] - calc_fh_rho(tmp[idx], rho[idx])[1]
     )
-
+    fht_rho = np.where(fht_rho > 0, 0, fht_rho)
     for j in range(1, tmp[idx].shape[0] - 1):
         cur_am = (
             t_n
@@ -124,7 +125,7 @@ def next(
             + efromq[j]
             + coef_base[j] * cur_ap * (tmp_four[j + 1] - tmp_four[j])
             + coef_base[j] * cur_am * (tmp_four[j - 1] - tmp_four[j])
-            + xi_d * fht_rho[j] * na * 2 / AVG
+            + xi_d * fht_rho[j] * NA * 2 / AVG
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
         f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
