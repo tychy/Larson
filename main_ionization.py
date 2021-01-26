@@ -94,16 +94,20 @@ def next(
 
     for j in range(1, tmp[idx].shape[0] - 1):
         cur_am = (
-            t_n * r_res[j - 1] ** 2 / rho_res[j - 1] / deltar_res[j - 1] / deltar_mid[j]
+            t_n
+            * r_h[idx + 1][j - 1] ** 2
+            / rho_res[j - 1]
+            / deltar_res[j - 1]
+            / deltar_mid[j]
         )
-        cur_ap = t_n * r_res[j] ** 2 / rho_res[j] / deltar_res[j] / deltar_mid[j]
+        cur_ap = t_n * r_h[idx + 1][j] ** 2 / rho_res[j] / deltar_res[j] / deltar_mid[j]
 
-        a_j = coef_base[j - 1] * cur_am * 4 * tmp_three[j - 1]
+        a_j = coef_base[j] * cur_am * 4 * tmp_three[j - 1]
         b_j = (
             +R / (gamma[j] - 1)
             + R * rho_res[j] * coef_inv_rho[j]
-            + 4 * cur_ap * tmp_three[j]
-            + 4 * cur_am * tmp_three[j]
+            + 4 * coef_base[j] * cur_ap * tmp_three[j]
+            + 4 * coef_base[j] * cur_am * tmp_three[j]
             - xi_d * pderfht[j] * na / 2  # 2は修正必要かも
         )
         c_j = coef_base[j] * cur_ap * 4 * tmp_three[j]
@@ -111,8 +115,8 @@ def next(
         r_j = (
             -R * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
             + efromq[j]
-            + cur_ap * (tmp_four[j + 1] - tmp_four[j])
-            + cur_am * (tmp_four[j - 1] - tmp_four[j])
+            + coef_base[j] * cur_ap * (tmp_four[j + 1] - tmp_four[j])
+            + coef_base[j] * cur_am * (tmp_four[j - 1] - tmp_four[j])
             + xi_d * fht_rho[j] * na / 2
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
