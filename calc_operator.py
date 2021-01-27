@@ -3,8 +3,8 @@ from utils import CFL, L
 from conditions import CFL_CONST, planck, m_p, m_e, xi_h, xi_d, kb, R
 
 
-def calc_t(idx, r, t, t_h, deltat, tmp):
-    t_diff = CFL(r[idx], tmp, CFL_CONST)
+def calc_t(idx, v, r, t, t_h, deltat, tmp):
+    t_diff = CFL(v[idx - 1], r[idx], tmp, CFL_CONST)
     t = np.append(t, t[idx] + t_diff)
     t_h = np.append(t_h, t_diff)
     deltat = np.append(deltat, (t_diff + t_h[idx - 1]) / 2)
