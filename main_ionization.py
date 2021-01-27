@@ -91,13 +91,13 @@ def next(
         pderfht = (
             calc_fh(tmp[idx] * (1 + dtmp), p[idx])[1] - calc_fh(tmp[idx], p[idx])[1]
         ) / (dtmp * tmp[idx])
-        pderfht = np.where(pderfht > 0, 0, pderfht)
+        # pderfht = np.where(pderfht > 0, 0, pderfht)
     if DISPLAY:
         print("pderfht", pderfht)
     fht_rho = (
         calc_fh_rho(tmp[idx], rho[idx + 1])[1] - calc_fh_rho(tmp[idx], rho[idx])[1]
     )
-    fht_rho = np.where(fht_rho > 0, 0, fht_rho)
+    # fht_rho = np.where(fht_rho > 0, 0, fht_rho)
     for j in range(1, tmp[idx].shape[0] - 1):
         cur_am = (
             t_n
@@ -147,7 +147,7 @@ def next(
     f[0] = (r_j) / (b_j)
     for j in reversed(range(tmp[idx].shape[0])):
         if j == tmp[idx].shape[0] - 1:
-            deltatmp[j] = 10 * d[j] + f[j]
+            deltatmp[j] = 0 * d[j] + f[j]
         else:
             deltatmp[j] = deltatmp[j + 1] * d[j] + f[j]
     tmp_res = tmp[idx] + deltatmp
