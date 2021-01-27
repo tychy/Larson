@@ -94,7 +94,6 @@ def next(
         pderfht = np.where(pderfht > 0, 0, pderfht)
     if DISPLAY:
         print("pderfht", pderfht)
-    na = 6 * 10 ** 23
     fht_rho = (
         calc_fh_rho(tmp[idx], rho[idx + 1])[1] - calc_fh_rho(tmp[idx], rho[idx])[1]
     )
@@ -115,7 +114,7 @@ def next(
             + R * rho_res[j] * coef_inv_rho[j]
             + 4 * coef_base[j] * cur_ap * tmp_three[j]
             + 4 * coef_base[j] * cur_am * tmp_three[j]
-            - xi_d * pderfht[j] * na * 2 / AVG
+            - xi_d * pderfht[j] * NA / AVG
         )
         c_j = coef_base[j] * cur_ap * 4 * tmp_three[j]
 
@@ -124,12 +123,28 @@ def next(
             + efromq[j]
             + coef_base[j] * cur_ap * (tmp_four[j + 1] - tmp_four[j])
             + coef_base[j] * cur_am * (tmp_four[j - 1] - tmp_four[j])
-            + xi_d * fht_rho[j] * NA * 2 / AVG
+            + xi_d * fht_rho[j] * NA / AVG
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
         f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
-    d[0] = d[1]
-    f[0] = f[1]
+    cur_ap = t_n * r_h[idx + 1][0] ** 2 / rho_res[0] / deltar_res[0] / deltar_mid[0]
+    a_j = 0
+    b_j = (
+        +R / (gamma[0] - 1)
+        + R * rho_res[0] * coef_inv_rho[0]
+        + 4 * coef_base[0] * cur_ap * tmp_three[0]
+        - xi_d * pderfht[0] * NA / AVG
+    )
+    c_j = coef_base[0] * cur_ap * 4 * tmp_three[0]
+
+    r_j = (
+        -R * (tmp[idx][0] * (rho[idx][0] + rho_res[0])) * coef_inv_rho[0]
+        + efromq[j]
+        + coef_base[0] * cur_ap * (tmp_four[1] - tmp_four[0])
+        + xi_d * fht_rho[0] * NA / AVG
+    )
+    d[0] = c_j / (b_j)
+    f[0] = (r_j) / (b_j)
     for j in reversed(range(tmp[idx].shape[0])):
         if j == tmp[idx].shape[0] - 1:
             deltatmp[j] = 10 * d[j] + f[j]
