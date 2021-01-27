@@ -1,5 +1,5 @@
 {
-    "tag": "01-26-Larson-fixion",
+    "tag": "01-27-Larson-deltar-bconly",
     "Display": false,
     "isLarson": true,
     "radius": 2000,
@@ -8,8 +8,8 @@
     "TMP": 10,
     "GRID": 200,
     "CFL": 0.3,
-    "KQ": 3,
-    "plot_tag": "01-26-Larson-fixion",
+    "KQ": 4,
+    "plot_tag": "01-27-Larson-deltar-bconly",
     "use_custom": false,
     "plot_step": 3300
 }
