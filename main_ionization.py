@@ -70,12 +70,11 @@ def next(
 
     # 計算を先に済ませておく
     coef_inv_rho = (1 / rho[idx + 1] - 1 / rho[idx]) / 2
-
-    deltar_res = np.diff(r_h[idx + 1])
-    deltar_res = np.insert(deltar_res, [0], [r_h[idx][0] * 2])
-    deltar_mid = np.zeros_like(r_res)
-    for i in range(1, len(deltar_mid) - 1):
-        deltar_mid[i] = (deltar_res[i - 1] + deltar_res[i]) / 2
+    deltar_mid = np.diff(r_res)
+    deltar_res = np.zeros_like(r_res)
+    deltar_res[0] = deltar_mid[0]
+    for i in range(1, len(deltar_res) - 1):
+        deltar_res[i] = (deltar_mid[i - 1] + deltar_mid[i]) / 2
     coef_base = 4 / 3 * SB / Kapper / rho_res / (r_h[idx + 1] ** 2)
     tmp_three = tmp[idx] ** 3
     tmp_four = tmp[idx] ** 4
