@@ -235,10 +235,6 @@ def main():
         if counter % 500 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
-            save_with_ionization(
-                base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
-            )
-
         cur_t += t_h[counter]
         counter += 1
     save_with_ionization(
