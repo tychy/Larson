@@ -63,7 +63,7 @@ def next(
     gamma = calc_gamma(fht[idx])
 
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
-    efromq = deltat[idx] * (-3 / 2 * Q[idx])
+    efromq = deltat[idx] * (-3 / 2 * Q[idx - 1])
     if DISPLAY:
         print("rho_res", rho_res)
         print("gamma", gamma)
@@ -201,7 +201,7 @@ def main():
     tmp = np.ones([3, GRID]) * 10
     e = vstack_n(tmp[-1] * R / 0.4, 3)
     fh = np.zeros([3, GRID])
-    fht = np.zeros([3, GRID])
+    fht = np.ones([3, GRID]) / 2
     fion = np.zeros([3, GRID])
 
     # main loop
