@@ -9,6 +9,7 @@
 \newcommand{\bd}{\mathbf{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\dder}[2][]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+\newcommand{\ddder}[2][]{\frac{\mathrm{d^2}#1}{\mathrm{d}#2^2}}
 \newcommand{\Dder}[2][]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\hpn}{n + \half}
@@ -17,7 +18,7 @@
 \newcommand{\hml}{j - \half}
 \newcommand{\hpi}{i + \half}
 \newcommand{\hmi}{i - \half}
-
+\newcommand{\ethe}{E_{th}}
 \newcommand{\beq}{\begin{equation}}
 \newcommand{\beql}[1]{\begin{equation}\label{#1}}
 \newcommand{\eeq}{\end{equation}}
@@ -56,7 +57,7 @@
 \end{equation}
 運動方程式
 \begin{equation}
-    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\mathbf{\Phi}
+    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\mathbf{\Phi}\label{eq:euler}
 \end{equation}
 
 エネルギー方程式
@@ -102,11 +103,87 @@
 \subsubsection{エネルギー方程式の導出}
 
 \subsection{ビリアル定理}
+重力と圧力勾配がつりあっていて、力学平衡にある系において、系の全重力エネルギー$W$とそして全内部エネルギー$E_{th}$には簡単な関係があり、ビリアル定理と呼ばれる。
+\begin{equation}
+     2E_{th} + W = 0
+\end{equation}
+ここでは、流体の自己重力系における力学平衡とは系の力学的性質が変化するタイムスケールが系の特徴的な時間である
+自由落下時間に比べて大きいときに系が力学的平衡にあるという。
 \subsubsection{ビリアル定理の導出}
-\subsubsection{負の比熱}
-星が
+運動方程式\eqref{eq:euler}の両辺に$\rho$をかけて整理すると、
+\begin{align}
+    \rho\Dder[v_i]{t} &= - \pder[p]{x_i} - \rho\pder[\Phi]{x_i}\\
+    \pder[]{t}(\rho v_i) &= - \pder[]{x_j}(\rho v_iv_j) - \pder[p]{x_i} - \rho\pder[\Phi]{x_i}
+\end{align}
+両辺に$x_k$をかけて体積積分すれば、
+\begin{align}
+    \int d^3x x_k \pder[]{t}(\rho v_i) &= - \int d^3x x_k\pder[]{x_j}(\rho v_iv_j) - \int d^3x x_k\pder[p]{x_i} - \int d^3x x_k\rho\pder[\Phi]{x_i}\\
+                                       &=  \int d^3x \delta_{jk}\rho v_iv_j + \int d^3x \delta_{ik}p - \int d^3x \rho x_k\pder[\Phi]{x_i}\\
+                                       &= 2T_{ik} + \Pi_{ik} + W_{ik}
+\end{align}
+途中でガウスの発散定理を使って、境界での圧力が$0$であるとした。
+また、最後の式で
+\beq
+T_{ik} = \half\int d^3x \delta_{jk}\rho v_iv_j
+\eeq
+\beq
+ \Pi_{ik} =  \int d^3x \delta_{ik}p
+\eeq
+と定義した。$K_{ik}$を
+\beq
+K_{ik} = T_{ik} + \half\Pi_{ik}
+\eeq
+と定義すれば、$K_{ik}$は運動エネルギーテンソルであり、$K = K_{ii}$は系の全運動エネルギーである。
+そして、
+慣性モーメントテンソル
+\beq
+    I_{ik} = \int d^3x\rho x_i x_k 
+\eeq
+を導入して、時間微分すれば
+\begin{align}
+    \dder[I_{ik}]{t} &= \int d^3x \pder[\rho]{t} x_i x_k \\
+                     &= -\int d^3x \pder[\rho v_j]{x_j} x_i x_k\\
+                     &= \int d^3x \rho(v_ix_k + x_i v_k)
+\end{align}
+もう一度微分すれば、テンソルビリアル定理
+\beq
+\half \ddder[I_{ik}]{t} = 2T_{ik} + \Pi_{ik} + W_{ik}
+\eeq
+を得る。このトレースはスカラービリアル定理呼ばれる。
+\beq
+\half \ddder[I]{t} = 2T + \Pi + W = 2K + W
+\eeq
+いま、系の内部では静水圧平衡にあり$v=0$とみなせるとすれば、
+$T \sim 0$であり、
+系の全エネルギー$K$は系の全内部エネルギーに等しいと近似できる。
+したがって重力エネルギーと熱エネルギーの関係式を得る。
+\beq
+    3(\gamma -1)\ethe + W = 0
+\eeq
 \subsubsection{ビリアル質量}
-
+半径$R$の球対称なガス雲においてビリアル定理が成り立っているとする。
+ガス雲の境界での外圧$p_{ex}$を用いて、定常状態のビリアル定理は
+\begin{align}
+    p_{eq}V &= \frac{2}{3}K + (\gamma -1)E_{th} + \frac{W}{3}
+\end{align}
+内部熱エネルギーに対して運動エネルギーが小さい近似をする。
+ガス表面での圧力が小さいとすれば、単原子分子$\gamma = \frac{5}{3}$では、
+\begin{align}
+    (\gamma -1)E_{th} + \frac{W}{3} = 0\label{eq:easyvirial}\\
+    2E_{th} + W = 0
+\end{align}
+\subsubsection{負の比熱}
+内部エネルギー$K$と重力エネルギー$W$のにはビリアル定理から
+\beq
+W = - 3(\gamma -1) \ethe
+\eeq
+の関係がある。系の全エネルギー$E = \ethe + W$が$\Delta E$だけ変化するとき、
+\beq
+    \Delta E = \Delta \ethe + \Delta W = -  3(\gamma -1)\Delta \ethe
+\eeq
+となる。安定な星では$\gamma > \frac{4}{3}$であるから、たとえば輻射の効果で星がエネルギーを失ったとき、内部エネルギーは増える結果となる。
+これは負の比熱とよばれる。
+この負のフィードバックによって、原始星では輻射によってエネルギーを失った結果コアの温度が上昇し熱核反応に至る。
 \subsection{重力不安定性}
 %天体物理の基礎
 %kipp 26.2
