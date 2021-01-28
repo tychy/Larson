@@ -103,6 +103,8 @@
 \subsubsection{エネルギー方程式の導出}
 
 \subsection{ビリアル定理}
+%http://jun-makino.sakura.ne.jp/kougi/stellar_dynamics_2009/note3/node3.html
+%http://th.nao.ac.jp/MEMBER/tomisaka/Lecture_Notes/StarFormation/6/node44.html#eqn:virial-2-5_3
 重力と圧力勾配がつりあっていて、力学平衡にある系において、系の全重力エネルギー$W$とそして全内部エネルギー$E_{th}$には簡単な関係があり、ビリアル定理と呼ばれる。
 \begin{equation}
      2E_{th} + W = 0
@@ -233,6 +235,15 @@ r = a\xi, a = \left(\frac{4\pi G}{(n+1)^n K^n}(-\Phi_c)^{n-1}\right)^{1/2}
     \frac{1}{\xi^2}\dder[]{\xi}\left(\xi^2\dder[\theta]{\xi}\right) = - \theta^n\label{eq:laneemden}
 \end{equation}
 この方程式の解はEmden解と呼ばれ、$\theta(\xi)$を与える。
+この解は一般には初等的には求められないが、$n=5$の場合には
+\beq
+\theta = \frac{1}{\sqrt{1 + \frac{1}{3}\xi^2}}
+\eeq
+の形の解が知られている。このとき密度は
+\beq
+\rho =  \frac{\rho_c}{(1 + \frac{1}{3}\xi^2)^\frac{5}{2}}
+\eeq
+となり、これをプラマーモデルという。
 \subsubsection{isothermal}
 $\gamma=1,n=\infty$の等温の場合
 %&= -  K \rho^{-1} \dder[\rho]{r}
