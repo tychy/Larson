@@ -186,11 +186,11 @@ W = - 3(\gamma -1) \ethe
 となる。安定な星では$\gamma > \frac{4}{3}$であるから、たとえば輻射の効果で星がエネルギーを失ったとき、内部エネルギーは増える結果となる。
 これは負の比熱とよばれる。
 この負のフィードバックによって、原始星では輻射によってエネルギーを失った結果コアの温度が上昇し熱核反応に至る。
-\subsection{重力不安定性}
 %天体物理の基礎
 %kipp 26.2
 \subsubsection{ジーンズ不安定性}
 \subsubsection{等温球の重力不安定性}
+
 \subsubsection{自由落下時間}
 \subsection{Lane-Emden方程式}
 星は主系列星への進化の過程で星全体での対流を経るので、星の内部の組成は主系列星に至った際には一様である。
@@ -285,7 +285,58 @@ $\gamma=1,n=\infty$の等温の場合
 コアの内部の温度と圧力は上がり続ける。
 温度が$2000K$に達すると、水素分子の解離の効果が現れる。
 水素原子と分子の関係はSahaの式によって与えられる。
-Sahaの式
+\subsubsection{Sahaの式}
+原子の励起状態には様々あるが、基底状態と励起状態の間の数密度の関係を考えるとき、熱平衡にあるガスを考えるのが良い。
+ガスの中では様々な状態の原子が分布していると考えられる。
+ここでは$s$番目の励起状態の統計的重みを$g_s$、状態$s$にある原子の数密度を$n_s$、基底状態からのエネルギーを$\psi_s$と書くこととする。
+統計的重みは、エネルギー準位における縮退度を表す。
+すると
+\beq
+\frac{n_s}{n_0} = \frac{g_s}{g_0}e^{-\psi_s/kT}\label{eq:bolzman}
+\eeq
+が成り立つ。分配関数$u$を
+\beq
+    u = \sum g_s e^{-\psi_s kt} 
+\eeq
+として、数密度$n$を
+\beq
+    n = \sum n_s
+\eeq
+と定義すれば、ボルツマン公式\eqref{eq:bolzman}は分配関数を使って書き直される。
+\beq
+    \frac{n_s}{n} = \frac{g_s}{u} e^{-\psi_s kt}
+\eeq
+中性原子が$r$個の原子を失った状態を$r$階電離原子と呼ぶ。
+基底状態の$r$階電離原子がさらに電子を一つ失って$(r+1)$階電離原子になるのに必要な最小のエネルギーを$\chi_r$とする。
+電離した電子が運動量$p_e$を持っているとき、電離した電子のエネルギーは$E = \chi_r + \frac{p_e}{2m_e}$となる。
+ここで、$r$階電離原子と自由電子が$[p_e, p_e + dp_e]$の間の運動量を持つ$r+1$階電離原子との関係を考える。
+数密度はそれぞれ、$n_r, dn_{r+1}$と書く。統計的重みは、$g_r, g_{r+1}dg(p_e)$となる。
+ここで$dg(p_e)$は、
+プランク定数を使って
+\beq
+dg(p_e) = \frac{2dVd^3p_e}{h^3}
+\eeq
+と書かれる。ボルツマン公式は
+\beq
+\frac{dn_{r+1}}{n_r} = \frac{g_{r+1}dg(p_e)}{g_r} \exp\left(- \frac{\chi_r + \frac{p_e^2}{2m_e}}{kT}\right)
+\eeq
+$dV = \frac{1}{n_e}$であること、$[p_e, p_e + dp_e]$の空間$d^3p_e = 4\pi p_e^2 dp_e$を使って
+\beq
+dg(p_e) = \frac{8\pi p_e^2dp_e}{n_eh^3}
+\eeq
+と書けるので、
+%todo:ちゃんとかく
+\beq
+\frac{dn_{r+1}}{n_r} = \frac{g_{r+1}}{g_r}\frac{8\pi p_e^2dp_e}{n_eh^3} \exp\left(- \frac{\chi_r + \frac{p_e^2}{2m_e}}{kT}\right)
+\eeq
+$p_e$について積分すれば
+\beq
+\frac{n_{r+1}}{n_r} n_e = \frac{g_{r+1}}{g_r} f_r(T)
+\eeq
+\beq
+f_r(T) = 2 \frac{(2\pi m_e kT)^{\frac{3}{2}}}{h^3} e^{-\chi_r/kT}
+\eeq
+これをSahaの四季と呼ぶ
 \subsection{2nd}
 \section{衝撃波}
 \subsection{衝撃波}
