@@ -11,6 +11,6 @@
 *.blg
 __latexindent_temp.tex
 settings.json
-*.png
+results/*.png
 data
 results
