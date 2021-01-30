@@ -174,11 +174,24 @@ K_{ik} = T_{ik} + \half\Pi_{ik}
 \half \ddder[I]{t} = 2T + \Pi + W = 2K + W
 \eeq
 いま、系の内部では静水圧平衡にあり$v=0$とみなせるとすれば、
-$T \sim 0$であり、
-系の全エネルギー$K$は系の全内部エネルギーに等しいと近似できる。
-したがって重力エネルギーと熱エネルギーの関係式を得る。
+$T \sim 0$である。
+ここで$\Pi$は全内部エネルギーを使って
+\begin{align}
+    \Pi &= \sum \Pi_{ii}\\
+&= 3 \int p d^3x\\
+&= 3 \int (\gamma -1) \rho e d^3x\\
+&= 3(\gamma - 1)\ethe
+\end{align}
+と書けるから、
+系の全エネルギー$K$は系の全内部エネルギーを使って近似できる。
+すると重力エネルギーと熱エネルギーの関係式\eqref{eq:easyvirial2}を得る。
+静水圧平衡にある系のビリアル定理である。
 \beq
-    3(\gamma -1)\ethe + W = 0
+3(\gamma -1)\ethe + W = 0\label{eq:easyvirial2}
+\eeq
+内部自由度がないとみなして、単原子分子の比熱比$\gamma = \frac{5}{3}$を代入すれば、
+\beq
+    2\ethe + W = 0
 \eeq
 \subsubsection{境界での圧力が無視できないとき}
 \eqref{eq:pzero}で境界の圧力が0であるとしたが、系の境界での圧力が無視できないときのビリアル定理を考える。
@@ -566,7 +579,6 @@ $Q$の更新は、
 \subsection{断熱過程におけるコアの形成}
 \subsection{輻射の効果を入れてエネルギー方程式を解く}
 \subsection{解離の効果による第一コアの崩壊と第二コアの形成}
-
 \section{結論}
 \bibliographystyle{junsrt}
 \bibliography{cite}
