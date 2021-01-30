@@ -38,41 +38,43 @@ def main():
         allow_pickle=True,
     )
 
-    e = np.load(
-        "data/" + config["plot_tag"] + "/step_e.npy",
+    fh = np.load(
+        "data/" + config["plot_tag"] + "/step_fh.npy",
         allow_pickle=True,
     )
 
-    i = 2
-    rho_ls = []
-    tmp_ls = []
-    while i < idx:
-        if i % 10 == 0:
-            rho_ls.append(np.log10(rho[i][1]))
-            tmp_ls.append(np.log10(tmp[i][1]))
-        i += 1
     figure = plt.figure()
-    plt.plot(rho_ls, tmp_ls)
-    plt.xlabel("log10rho cgs")
-    plt.ylabel("log10T cgs")
+    cur_fh = np.max(fh[0])
+
+    i = 10
+    prev = i
+    plt.plot(
+        np.log10(r_h[4]),
+        fh[4],
+        label="{:.5f} * 10^13s,core={:.1f}K".format(t[int(4)] / 10 ** 13, tmp[4][10]),
+    )
+
+    while i < idx:
+        if np.abs(np.max(fh[i]) - cur_fh) >= 0.2 or i - prev >= 10000:
+            if not np.all(np.abs(fh[prev] - fh[i]) < 0.000001):
+                plt.plot(
+                    np.log10(r_h[i]),
+                    fh[i],
+                    label="{:.5f} * 10^13s,core={:.5f}K".format(
+                        t[i] / 10 ** 13, tmp[i][10]
+                    ),
+                )
+                cur_fh = np.max(fh[i])
+            prev = i
+        i += 1
+
+    plt.ylim(-0.1, 1.2)
+
+    plt.xlabel("log10r")
+    plt.ylabel("f")
     plt.legend()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
-    plt.savefig("results/" + config["plot_tag"] + "/core.png")
-    i = 2
-    rho_ls = []
-    e_ls = []
-    while i < idx:
-        if i % 10 == 0:
-            rho_ls.append(np.log10(rho[i][1]))
-            e_ls.append(np.log10(e[i][1]))
-        i += 1
-    figure = plt.figure()
-    plt.plot(rho_ls, e_ls)
-    plt.xlabel("log10 rho")
-    plt.ylabel("log10 E")
-    plt.legend()
-    os.makedirs("results/" + config["plot_tag"], exist_ok=True)
-    plt.savefig("results/" + config["plot_tag"] + "/core_energy.png")
+    plt.savefig("results/" + config["plot_tag"] + "/f_r.png")
 
 
 if __name__ == "__main__":

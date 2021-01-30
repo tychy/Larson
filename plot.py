@@ -16,28 +16,28 @@ def main():
     if config["use_custom"]:
         idx = config["plot_step"]
     r_h = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_r_h.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_r_h.npy",
         allow_pickle=True,
     )
     r = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_r.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_r.npy",
         allow_pickle=True,
     )
     v = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_v.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_v.npy",
         allow_pickle=True,
     )
 
     rho = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_rho.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_rho.npy",
         allow_pickle=True,
     )
     t = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_t.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_t.npy",
         allow_pickle=True,
     )
     tmp = np.load(
-        "data/" + config["plot_tag"] + "/step_{}_tmp.npy".format(idx),
+        "data/" + config["plot_tag"] + "/step_tmp.npy",
         allow_pickle=True,
     )
 
@@ -50,9 +50,10 @@ def main():
         np.log10((rho[4][: GRID - 1])),
         label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
     )
-
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 1000:
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 2 or i - prev >= max(
+            10000, prev
+        ):
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((rho[i][: GRID - 1])),
@@ -73,13 +74,15 @@ def main():
     i = 10
     prev = i
     plt.plot(
-        np.log10(r_h[4][: GRID - 1]),
-        v[4][: GRID - 1],
+        np.log10(r[4]),
+        v[4],
         label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 1 or i - prev >= 500:
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 2 or i - prev >= max(
+            700, prev
+        ):
             plt.plot(
                 np.log10(r[i]),
                 v[i],
@@ -106,7 +109,9 @@ def main():
     )
 
     while i < idx:
-        if np.abs(np.max(np.log10(tmp[i])) - cur_tmp) >= 0.5 or i - prev >= 500:
+        if np.abs(np.max(np.log10(tmp[i])) - cur_tmp) >= 0.5 or i - prev >= max(
+            2500, prev
+        ):
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((tmp[i][: GRID - 1])),

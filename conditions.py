@@ -21,8 +21,12 @@ R = 8 * 10 ** 7 / AVG
 
 KQ = config["KQ"]
 CFL_CONST = config["CFL"]
+planck = 6.63 * 10 ** (-27)
 kb = 1.38 * 10 ** (-16)
-xi_h = 13.4
-m_e = 1
+xi_h = 2.18 * 10 ** (-11)
+xi_d = 2.18 * 10 ** (-11) * 4.48 / 13.6
+
+m_e = 9.11 * 10 ** (-28)
+m_p = 1.67 * 10 ** (-24)
 Kapper = 0.15  # cm^2/g
-SB = 5.67 * 10 ** (-8)  # stefanboltzmann
+SB = 5.67 * 10 ** (-5)  # stefanboltzmann
