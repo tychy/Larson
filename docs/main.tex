@@ -2,6 +2,8 @@
 \usepackage{amssymb,amsmath,amsthm}
 \usepackage{newtxtt}
 \usepackage[utf8]{inputenc}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{here}
 \newcommand{\kakko}[1][]{(#1)}
 \newcommand{\bx}{\mathbf{x}}
 \newcommand{\bv}{\mathbf{v}}
@@ -211,7 +213,12 @@ $R = x \tilde{R}, P = y \tilde{P}$として、
 \beq
     y = \frac{1}{x^3} \left(1 - \frac{1}{x}\right)
 \eeq
-この式を図示するとのようになる。
+この式を図示すると図\ref{fig:spherical}のようになる。
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/spherical.png}
+    \caption{}
+    \label{fig:spherical}
+\end{figure}
 ピークは
 \beq
 \dder[y]{x} = 
