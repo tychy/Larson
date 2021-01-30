@@ -42,8 +42,26 @@
 \maketitle
 \section{Introduction}
 \subsection{星形成の概要}
+ガス領域から星が形成されて、主系列星へ進化する。
+その中でも、原始星形成、質量降着、エンベロープの枯渇、前主系列星を経て主系列星へ進化する。
+星形成領域にはRho Ophiuchi, Taurus Molecular Cloud, Orion Nebulaなどがある。
+（写真はる）
+%https://en.wikipedia.org/wiki/List_of_star-forming_regions_in_the_Local_GroupF
+%https://www-tap.scphys.kyoto-u.ac.jp/~hosokawa/download/%E5%A4%A9II8.pdf
+星形成領域はフィラメントのような構造をしていることもある。
+原始星（質量が有意に増えつつある星）が形成されると、原始星への降着は数万年程度続く。
+質量が1$M_\odot$に達すると、質量降着が止まる。
+%表現変える
+質量降着が終わると、1$M_\odot$の星は林トラックに乗ったあと、
+ヘニエトラックに沿って進化する。そして、主系列星に至る。
 
 \subsection{課題}
+星形成の過程は、暗く冷たいガスの中で進むので直接観測することでできない。
+具体的には、崩壊の過程において内部が暴走的に収縮をするので中心の進化が外から見えない。
+一般に原始星の形成には数十万年かかる。
+分子雲の中の重力崩壊を数値的に計算する研究が行われてきた。
+とくに一次元での計算はLarson(1969)やMasunagaInutsuka(2000)による仕事がある。
+まず、その仕事を再現する。
 初期条件と観測される星のあいだのシナリオを検証する。
 
 \section{Related Work}
@@ -448,6 +466,78 @@ $\alpha > 1$のとき不安定である。
 したがってクーラン条件が満たされるときのみ安定なスキームであるとわかった。
 \subsection{人工粘性}
 \subsection{基礎方程式の差分化}
+一次元の球対称ラグランジアン流体計算において、独立変数は$M_r$である。
+ここで$M_r$は半径$r$の内部にある質量で定義され、媒質を外向きに大きくなる量である。
+（疑似粘性の選択は注意が必要である。）
+いま、解くべき方程式は
+\begin{align}
+    \Dder[v]{t} &= - \frac{GM_r}{r^2} - 4\pi r^2\pder[(p + Q)]{M_r}\\
+    \Dder[r]{t} &= v\\
+    V &= \frac{1}{\rho}=\frac{4}{3}\pder[r^3]{M_r}\\
+    Q &= \frac{4}{3}\rho l^2 (\pder[v]{r})^2\label{eq:q}
+\end{align}
+方程式は$\left\{M_i\right\};i = 1,...,I+1$によって離散化される。
+$i$番目の球殻の中の質量は
+\beq
+    \Delta M_{i+\half} = M_{i+1} - M_i
+\eeq
+陽的な差分方程式は、
+\begin{align}
+    \frac{v^{n+\half}_i - v^{n-\half}_i}{\Delta t^n} &= -\frac{GM_i}{(r^{n+\lambda}_i)^2}
+    -4\pi(r^{n+\lambda}_i)^2
+    \frac{p^{n+\lambda}_{i+\half} - p^{n+\lambda}_{i-\half}+Q^{n-\half}_{i+\half} - Q^{n-\half}_{i-\half}}{\Delta M_i}\\
+    r^{n+1}_i &= r^{n}_i + v^{\hpn}_i \Delta t^{\hpn}\\
+    V^{n+1}_{\hpi} &= \frac{1}{\rho^{n+1}_{\hpi}}=\frac{4}{3}\frac{(r^{n+1}_{i+1})^3 - (r^{n+1}_{i})^3}{\Delta M_{\hpi}}\\
+\end{align}
+途中で、
+\begin{align}
+    r^{n+\lambda}_i &= r^n_i + \frac{1}{4} (\Delta t^{n+\half} - \Delta t^{n-\half})v^{n-\half}_i\\
+    p^{n+\lambda}_{\hpi} &=  p^{n}_{\hpi} + \frac{1}{4} (\Delta t^{n+\half} - \Delta t^{n-\half})
+    \frac{p^{n}_{\hpi} - p^{n-1}_{\hpi}}{\Delta t^{\hmi}}
+\end{align}
+運動方程式は、
+\beq
+    \Dder[v]{t} = - \frac{GM_r}{r^2} - 4\pi r^2\pder[p]{M_r} - \frac{4\pi}{r}\pder[r^3Q]{M_r}
+\eeq
+差分化すれば、
+\beq
+    \frac{v^{n+\half}_i - v^{n-\half}_i}{\Delta t^n} =
+    -\frac{GM_i}{(r^{n+\lambda}_i)^2}
+    -4\pi(r^{n+\lambda}_i)^2
+    \frac{p^{n+\lambda}_{i+\half} - p^{n+\lambda}_{i-\half}}{\Delta M_i}
+    -\frac{4\pi}{r^{n}_i}
+    \frac{(r^{n}_{i+\half})^3Q^{n-\half}_{i+\half} - (r^{n}_{i-\half})^3Q^{n-\half}_{i-\half}}{\Delta M_i}
+\eeq
+ここで、$r_{i+\half}$は質量を半分持つように選ばれる。
+\begin{align}
+    r_{i+\half} = (r^3_i + r^3_{i+1})^{\frac{1}{3}}
+\end{align}
+$Q$の更新は、
+\beq
+    Q^{\hmn}_{\hpi} = - 2 (\mu_Q)^{\hmn}_{\hpi}
+     \left[\frac{v^{\hmn}_{i+1}-v^{\hmn}_{i}}{r^{\hmn}_{i+1}-r^{\hmn}_{i}}
+      +\frac{1}{3}\frac{\ln \rho^{n}_{\hpi} - \ln \rho^{n-1}_{\hpi}}{\Delta t^{\hpn}}\right]
+\eeq
+粘性係数は、
+\beq
+    (\mu_Q)^{n-\half}_{i+\half} = 
+    l^2 \frac{\left[ \rho^n_{\hpi} - \rho^{n-1}_{\hpi}\right]}{\Delta t^{\hpn}}
+\eeq
+ここで、$l$は
+\beq
+    l = k_q \Delta r
+\eeq
+等温の仮定を外してエネルギーを計算入れる。
+放射による効果は、
+\begin{align}
+        l = 4\pi r^2 F\\
+            F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
+        \end{align}
+        エネルギー方程式は、
+        \begin{align}
+                \Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = \dot{q} + \Phi\\
+                    \Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi
+                \end{align}    
 \subsection{陰的計算}
 \section{結果}
 \section{結論}
