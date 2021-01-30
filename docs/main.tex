@@ -75,23 +75,27 @@
 \end{equation}
 運動方程式
 \begin{equation}
-    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\mathbf{\Phi}\label{eq:euler}
+    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\Phi\label{eq:euler}
 \end{equation}
 
 エネルギー方程式
 \begin{equation}
     \Dder[e]{t} = - \frac{p}{\rho} \pder[v_j]{x_j} + \Gamma - \lambda
 \end{equation}
-\subsubsection{連続の式の導出}
-微小体積要素$\delta V = \delta x \delta y \delta z$を取ると、流れに沿って質量が保存する。
-\begin{equation}
-    \Dder[]{t} (\rho\delta V)= 0\label{eq:mass}
-\end{equation}
 ここで、ラグランジュ微分は、流れに沿った微分で
 \begin{equation}
     \Dder[]{t} = \pder[]{t} + \bv\pder[]{\bx}
 \end{equation}
 である。
+また、重力ポテンシャルは重力定数を$G$として、ポアソン方程式の解として与えられる。
+\beq
+ \Delta \Phi = 4 \pi G \rho
+\eeq
+\subsubsection{連続の式の導出}
+微小体積要素$\delta V = \delta x \delta y \delta z$を取ると、流れに沿って質量が保存する。
+\begin{equation}
+    \Dder[]{t} (\rho\delta V)= 0\label{eq:mass}
+\end{equation}
 \eqref{eq:mass}より、
 \begin{align}
     %\rho\Dder[]{t} \delta V &+ \delta V\Dder[]{t} \rho= 0\\
@@ -155,6 +159,7 @@ K_{ik} = T_{ik} + \half\Pi_{ik}
 \eeq
 と定義すれば、$K_{ik}$は運動エネルギーテンソルであり、$K = K_{ii}$は系の全運動エネルギーである。
 そして、
+
 慣性モーメントテンソル
 \beq
     I_{ik} = \int d^3x\rho x_i x_k 
@@ -492,6 +497,7 @@ $\alpha > 1$のとき不安定である。
 %todo:式
 人工粘性無しで衝撃波を扱う方法にはLax-Wendroff法などがあり広く使われているが、
 衝撃波面のまわりで解が振動するという問題も知られている。
+\subsection{一次元球対称ラグランジュ座標}
 \subsection{基礎方程式の差分化}
 一次元の球対称ラグランジアン流体計算において、独立変数は$M_r$である。
 ここで$M_r$は半径$r$の内部にある質量で定義され、媒質を外向きに大きくなる量である。
@@ -563,8 +569,8 @@ $Q$の更新は、
 \end{align}
 エネルギー方程式は、
 \begin{align}
-\Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = \dot{q} + \Phi\\
-\Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi
+\Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) = \dot{q} + \Phi\\
+\Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) = - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi
 \end{align}    
 ここで、エネルギー方程式を差分化することを考えるが、単に差分化すると２階微分が入っているので
 クーラン条件が$\Delta t < \frac{\Delta x^2}{c}$となる。
