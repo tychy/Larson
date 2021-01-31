@@ -73,14 +73,14 @@
 \begin{equation}
     \pder[\rho]{t} = - \nabla \bv
 \end{equation}
-運動方程式
+運動方程式は単位質量あたりの重力ポテンシャルを$\Phi$として、
 \begin{equation}
     \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\Phi\label{eq:euler}
 \end{equation}
 
-エネルギー方程式
+エネルギー方程式は単位質量あたりの内部エネルギーを$e$、加熱率を$\gamma$、冷却率を$\lambda$として、
 \begin{equation}
-    \Dder[e]{t} = - \frac{p}{\rho} \pder[v_j]{x_j} + \Gamma - \lambda
+    \Dder[e]{t} = - \frac{p}{\rho} \nabla \cdot \bv + \Gamma - \lambda
 \end{equation}
 ここで、ラグランジュ微分は、流れに沿った微分で
 \begin{equation}
@@ -122,8 +122,42 @@
 \begin{equation}
     \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla\mathbf{\Phi}
 \end{equation}
+\subsubsection{運動エネルギーの保存則}
+\subsubsection{TheRaynoldsTransportTheorem}
 \subsubsection{エネルギー方程式の導出}
-
+理想気体で孤立系を仮定して
+エネルギー保存則
+\beq
+\Dder[]{t} \int \rho(e + \half v^2) dV = \int f \cdot v dV - \int pv \cdot n dS\label{eq:energysave}
+\eeq
+から出発する。
+左辺は内部エネルギーと運動エネルギーの和の変化率で
+右辺第一項は外力のする仕事率、第二項は表面で圧力のする仕事率である。
+TheRaynoldsTransportTheoremを使って、
+\beq
+\Dder[]{t} \int \rho(e + \half v^2) dV  = \int \rho \Dder[]{t} (e + \half v^2)dV   
+\eeq    
+右辺第二項の表面積分を体積分に直して、
+\beq
+\int pv \cdot n dS = \int \nabla \cdot (pv) dV
+\eeq
+である。したがってエネルギー保存の式\eqref{eq:energysave}は
+\beq
+\int \rho \Dder[]{t} (e + \half v^2)dV =\int f \cdot v dV -  \int \nabla \cdot (pv) dV
+\eeq
+積分をまとめると、
+\beq
+    \rho \Dder[]{t} (e + \half v^2) + \nabla \cdot (pv) = f \cdot v
+\eeq
+ここから、
+\beq
+    \rho \Dder[]{t} v^2 = v \cdot f - (v \cdot \nabla) p
+\eeq
+を引いて
+\beq
+    \rho \Dder[]{t} e + p (\nabla \cdot v) = 0
+\eeq
+を得る。
 \subsection{ビリアル定理}
 %http://jun-makino.sakura.ne.jp/kougi/stellar_dynamics_2009/note3/node3.html
 %http://th.nao.ac.jp/MEMBER/tomisaka/Lecture_Notes/StarFormation/6/node44.html#eqn:virial-2-5_3
