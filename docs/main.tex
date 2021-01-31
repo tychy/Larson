@@ -300,6 +300,42 @@ $R$の式に代入すると、$R_m$
 クリティカルマスは$M_J$
 
 \subsubsection{自由落下時間}
+ジーンズ不安定性によって崩壊が始まると、圧力勾配の上昇に比べて重力による収縮の効果が支配的になる。
+一様球の崩壊において半径$r$の球殻の崩壊について考える。
+半径rの球殻の内部に$m$の質量があるとすれば、球殻の運動方程式は
+\beq
+    \ddot{r} = - \frac{Gm}{r^2}
+\eeq
+と書ける。初期条件において球殻の半径が$r_0$で、一様球の密度が$\rho_0$であったとすれば$m = \frac{4\pi r_0^3}{3}\rho_0$
+であるので、運動方程式は、
+\beq
+\ddot{r} = - \frac{4\pi Gr_0^3 \rho_0}{3r^2}
+\eeq
+$\dot{r}$をかけて積分すれば、初期条件において球殻が静止していたとして、
+\beq
+\half \dot{r}^2 = \frac{4 \pi r_0^3}{3}G\rho_0\left(\frac{1}{r} - \frac{1}{r_0} \right)
+\eeq
+整理すると
+\beq
+\frac{\dot{r}}{r_0} = \left[ \frac{8 \pi }{3}G\rho_0\left(\frac{r_0}{r} - 1\right) \right]^\half
+\eeq
+$\cos^2\xi = \frac{r}{r_0}$と置き換えれば、
+\beq
+2\dot{\xi}\cos^2\xi = \left(\frac{8\pi G \rho_0}{3} \right)^\half
+\eeq
+を得る。
+\beq
+2\dot{\xi}\cos^2\xi = \dder[]{t} \left(\xi + \half\sin 2\xi \right)
+\eeq
+を使って、積分すれば
+\beq
+\xi + \half \sin 2\xi = \left(\frac{8\pi G \rho_0}{3} \right)^\half t
+\eeq
+$\xi = \frac{\pi}{2}$において球殻が中心に達するので、
+\beq
+t_{ff} = \left(\frac{3\pi}{32\pi G \rho_0} \right)^\half
+\eeq
+%具体例
 \subsection{Lane-Emden方程式}
 星は主系列星への進化の過程で星全体での対流を経るので、星の内部の組成は主系列星に至った際には一様である。
 また、星間ガスから自己重力収縮している過程も内部の組成は一様である。
