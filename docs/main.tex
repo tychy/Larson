@@ -10,6 +10,7 @@
 \newcommand{\bb}{\mathbf{b}}
 \newcommand{\bd}{\mathbf{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\ppder}[2][]{\frac{\partial^2#1}{\partial#2^2}}
 \newcommand{\dder}[2][]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
 \newcommand{\ddder}[2][]{\frac{\mathrm{d^2}#1}{\mathrm{d}#2^2}}
 \newcommand{\Dder}[2][]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
@@ -256,18 +257,6 @@ $T \sim 0$である。
 \beq
 3p_{ex} V = 2T + 3(\gamma - 1) + W\label{eq:virialpressure}
 \eeq
-\subsubsection{ビリアル質量}
-半径$R$の球対称なガス雲においてビリアル定理が成り立っているとする。
-ガス雲の境界での外圧$p_{ex}$を用いて、定常状態のビリアル定理は\eqref{eq:virialpressure}より、
-\begin{align}
-    p_{eq}V &= \frac{2}{3}T + (\gamma -1)E_{th} + \frac{W}{3}
-\end{align}
-内部熱エネルギーに対して運動エネルギーが小さい近似をする。
-ガス表面での圧力が小さいとすれば、単原子分子$\gamma = \frac{5}{3}$では、
-\begin{align}
-    (\gamma -1)E_{th} + \frac{W}{3} = 0\label{eq:easyvirial}\\
-    2E_{th} + W = 0
-\end{align}
 \subsubsection{負の比熱}
 内部エネルギー$K$と重力エネルギー$W$のにはビリアル定理から
 \beq
@@ -283,7 +272,41 @@ W = - 3(\gamma -1) \ethe
 %天体物理の基礎
 %kipp 26.2
 \subsubsection{ジーンズ不安定性}
-しかしこれはジーンズのまやかしと呼ばれる。
+まず、無限一様に広がって制しているガスを考える。
+密度と温度は至るところで均一であるとする。
+同様に重力ポテンシャル$\Phi$もいたるところ一定でなくてはならないが、
+そのためにはポアソン方程式$\Delta \Phi = 4 \pi G \rho$によると$\rho=0$にならなくてはならない。
+よってこれは適切な設定ではない。
+この設定は物理的な設定ではないという意味でジーンズのまやかしと呼ばれることもある。
+しかし、適切な設定のもとで考える結果とほとんど変わらない結果を簡単な設定のもとで得られるという意味で有用である。
+一定の圧力を$p_0$、密度を$\rho_0$、重力ポテンシャルを$\Phi_0$とする。静止しているから媒質の速度は至るところ$0$である。
+ここで、この媒質にゆらぎを加える。
+$p = p_0 + p_1,\rho = \rho_0 + \rho_1,\Phi = \Phi_0 + \Phi_1, v = v_1$として連続の式と運動方程式を考える。
+\begin{align}
+    \pder[\rho]{t} + \nabla \cdot (\rho \bv) = 0\label{eq:linearcon}
+\\
+    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla \Phi\label{eq:lineareom}
+\end{align}
+これを線形化して、
+\begin{align}
+    \pder[\rho_1]{t} + \rho_0\nabla \cdot \bv_1 = 0\\
+    \pder[\bv_1]{t} = - \frac{1}{\rho_0}\nabla p_1 - \nabla \Phi_1
+\end{align}
+を得る。理想気体の状態方程式より$R_{gas}$を気体定数、$\mu$を平均分子量、$c_s$を音速であるとして、
+\beq
+P = \frac{R_{gas}}{\mu} \rho T = c_s^2 \rho
+\eeq
+であるから、線形化された運動方程式\eqref{eq:lineareom}は音速を使って書き直される。
+\beq
+    \pder[\bv_1]{t} = - \frac{c_s^2}{\rho_0}\nabla \rho_1 - \nabla \Phi_1
+\eeq
+さらにポアソン方程式$\Delta \Phi_1 = 4 \pi G\rho_1$を使って、線形化された連続の式\eqref{eq:linearcon}の時間微分を整理すると、
+\begin{align}
+    \ppder[\rho_1]{t} &= - \rho_0 \nabla \cdot \pder[\bv_1]{t}\\
+                      &= \rho_0 \nabla \cdot \left(\frac{c_s^2}{\rho_0}\nabla \rho_1 + \nabla \Phi\right)\\
+                      &= \nabla \cdot \left(c_s^2\nabla \rho_1 + \rho_0\nabla \Phi\right)\\
+                      &= c_s^2\Delta\rho_1 + 4\pi G\rho_0\rho_1
+\end{align}
 \subsubsection{等温球の重力不安定性}
 外圧$P_ex$の下に置かれた半径$R$で等温の球対称ガス球を考える。
 ガス球の全質量を$M$とする。
