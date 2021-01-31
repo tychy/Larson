@@ -307,6 +307,22 @@ P = \frac{R_{gas}}{\mu} \rho T = c_s^2 \rho
                       &= \nabla \cdot \left(c_s^2\nabla \rho_1 + \rho_0\nabla \Phi\right)\\
                       &= c_s^2\Delta\rho_1 + 4\pi G\rho_0\rho_1
 \end{align}
+ここで一次元平面波を考えて、解が$exp()$の形であるとすると、
+分散関係は
+\beq
+    \omega^2 = c_s^2k^2 - 4\pi G \rho_0
+\eeq
+となる。$k^2 < 4 \pi G\rho_0 / c_s^2$のとき、$\xi$を実数として$\omega = i \xi$の形の純虚数になって
+摂動が$exp(\xi t)$となるので時間とともに発達することがわかる。
+したがって、不安定である。
+この特徴的な波数を$k_J$とすれば、
+\beq
+k_j^2 = \frac{4\pi G \rho_0}{c_s^2}
+\eeq
+波長に直すと、
+\beq
+\lambda_J = \frac{2\pi}{k_J} = \left(\frac{\pi}{G\rho_0} \right)^\half c_s
+\eeq
 \subsubsection{等温球の重力不安定性}
 外圧$P_ex$の下に置かれた半径$R$で等温の球対称ガス球を考える。
 ガス球の全質量を$M$とする。
