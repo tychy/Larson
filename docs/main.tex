@@ -42,8 +42,6 @@
 \maketitle
 \section{Introduction}
 \subsection{星形成の概要}
-ガス領域から星が形成されて、主系列星へ進化する。
-その中でも、原始星形成、質量降着、エンベロープの枯渇、前主系列星を経て主系列星へ進化する。
 星形成領域にはRho Ophiuchi, Taurus Molecular Cloud, Orion Nebulaなどがある。
 （写真はる）
 %https://en.wikipedia.org/wiki/List_of_star-forming_regions_in_the_Local_GroupF
@@ -67,7 +65,7 @@
 \section{Related Work}
 \section{基礎理論}
 \subsection{基礎方程式}
-この論文では、自己重力と放射を入れた方程式を解く。
+このレポートでは、自己重力と放射を入れた方程式を解く。
 自己重力とは、流体に働く重力のうちの流体自身の作る重力のことである。
 自己重力を除いた重力は外場として与えられる重力である。
 支配方程式は以下のようになる :\\
@@ -75,25 +73,29 @@
 \begin{equation}
     \pder[\rho]{t} = - \nabla \bv
 \end{equation}
-運動方程式
+運動方程式は単位質量あたりの重力ポテンシャルを$\Phi$として、
 \begin{equation}
-    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\mathbf{\Phi}\label{eq:euler}
+    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\Phi\label{eq:euler}
 \end{equation}
 
-エネルギー方程式
+エネルギー方程式は単位質量あたりの内部エネルギーを$e$、加熱率を$\gamma$、冷却率を$\lambda$として、
 \begin{equation}
-    \Dder[e]{t} = - \frac{p}{\rho} \pder[v_j]{x_j} + \Gamma - \lambda
-\end{equation}
-\subsubsection{連続の式の導出}
-微小体積要素$\delta V = \delta x \delta y \delta z$を取ると、流れに沿って質量が保存する。
-\begin{equation}
-    \Dder[]{t} (\rho\delta V)= 0\label{eq:mass}
+    \Dder[e]{t} = - \frac{p}{\rho} \nabla \cdot \bv + \Gamma - \lambda
 \end{equation}
 ここで、ラグランジュ微分は、流れに沿った微分で
 \begin{equation}
     \Dder[]{t} = \pder[]{t} + \bv\pder[]{\bx}
 \end{equation}
 である。
+また、重力ポテンシャルは重力定数を$G$として、ポアソン方程式の解として与えられる。
+\beq
+ \Delta \Phi = 4 \pi G \rho
+\eeq
+\subsubsection{連続の式の導出}
+微小体積要素$\delta V = \delta x \delta y \delta z$を取ると、流れに沿って質量が保存する。
+\begin{equation}
+    \Dder[]{t} (\rho\delta V)= 0\label{eq:mass}
+\end{equation}
 \eqref{eq:mass}より、
 \begin{align}
     %\rho\Dder[]{t} \delta V &+ \delta V\Dder[]{t} \rho= 0\\
@@ -120,8 +122,42 @@
 \begin{equation}
     \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla\mathbf{\Phi}
 \end{equation}
+\subsubsection{運動エネルギーの保存則}
+\subsubsection{TheRaynoldsTransportTheorem}
 \subsubsection{エネルギー方程式の導出}
-
+理想気体で孤立系を仮定して
+エネルギー保存則
+\beq
+\Dder[]{t} \int \rho(e + \half v^2) dV = \int f \cdot v dV - \int pv \cdot n dS\label{eq:energysave}
+\eeq
+から出発する。
+左辺は内部エネルギーと運動エネルギーの和の変化率で
+右辺第一項は外力のする仕事率、第二項は表面で圧力のする仕事率である。
+TheRaynoldsTransportTheoremを使って、
+\beq
+\Dder[]{t} \int \rho(e + \half v^2) dV  = \int \rho \Dder[]{t} (e + \half v^2)dV   
+\eeq    
+右辺第二項の表面積分を体積分に直して、
+\beq
+\int pv \cdot n dS = \int \nabla \cdot (pv) dV
+\eeq
+である。したがってエネルギー保存の式\eqref{eq:energysave}は
+\beq
+\int \rho \Dder[]{t} (e + \half v^2)dV =\int f \cdot v dV -  \int \nabla \cdot (pv) dV
+\eeq
+積分をまとめると、
+\beq
+    \rho \Dder[]{t} (e + \half v^2) + \nabla \cdot (pv) = f \cdot v
+\eeq
+ここから、
+\beq
+    \rho \Dder[]{t} v^2 = v \cdot f - (v \cdot \nabla) p
+\eeq
+を引いて
+\beq
+    \rho \Dder[]{t} e + p (\nabla \cdot v) = 0
+\eeq
+を得る。
 \subsection{ビリアル定理}
 %http://jun-makino.sakura.ne.jp/kougi/stellar_dynamics_2009/note3/node3.html
 %http://th.nao.ac.jp/MEMBER/tomisaka/Lecture_Notes/StarFormation/6/node44.html#eqn:virial-2-5_3
@@ -140,7 +176,7 @@
 両辺に$x_k$をかけて体積積分すれば、
 \begin{align}
     \int d^3x x_k \pder[]{t}(\rho v_i) &= - \int d^3x x_k\pder[]{x_j}(\rho v_iv_j) - \int d^3x x_k\pder[p]{x_i} - \int d^3x x_k\rho\pder[\Phi]{x_i}\\
-                                       &=  \int d^3x \delta_{jk}\rho v_iv_j + \int d^3x \delta_{ik}p - \int d^3x \rho x_k\pder[\Phi]{x_i}\\
+                                       &=  \int d^3x \delta_{jk}\rho v_iv_j + \int d^3x \delta_{ik}p - \int d^3x \rho x_k\pder[\Phi]{x_i}\label{eq:pzero}\\
                                        &= 2T_{ik} + \Pi_{ik} + W_{ik}
 \end{align}
 途中でガウスの発散定理を使って、境界での圧力が$0$であるとした。
@@ -157,6 +193,7 @@ K_{ik} = T_{ik} + \half\Pi_{ik}
 \eeq
 と定義すれば、$K_{ik}$は運動エネルギーテンソルであり、$K = K_{ii}$は系の全運動エネルギーである。
 そして、
+
 慣性モーメントテンソル
 \beq
     I_{ik} = \int d^3x\rho x_i x_k 
@@ -176,12 +213,29 @@ K_{ik} = T_{ik} + \half\Pi_{ik}
 \half \ddder[I]{t} = 2T + \Pi + W = 2K + W
 \eeq
 いま、系の内部では静水圧平衡にあり$v=0$とみなせるとすれば、
-$T \sim 0$であり、
-系の全エネルギー$K$は系の全内部エネルギーに等しいと近似できる。
-したがって重力エネルギーと熱エネルギーの関係式を得る。
+$T \sim 0$である。
+ここで$\Pi$は全内部エネルギーを使って
+\begin{align}
+    \Pi &= \sum \Pi_{ii}\\
+&= 3 \int p d^3x\\
+&= 3 \int (\gamma -1) \rho e d^3x\\
+&= 3(\gamma - 1)\ethe
+\end{align}
+と書けるから、
+系の全エネルギー$K$は系の全内部エネルギーを使って近似できる。
+すると重力エネルギーと熱エネルギーの関係式\eqref{eq:easyvirial2}を得る。
+静水圧平衡にある系のビリアル定理である。
 \beq
-    3(\gamma -1)\ethe + W = 0
+3(\gamma -1)\ethe + W = 0\label{eq:easyvirial2}
 \eeq
+内部自由度がないとみなして、単原子分子の比熱比$\gamma = \frac{5}{3}$を代入すれば、
+\beq
+    2\ethe + W = 0
+\eeq
+\subsubsection{境界での圧力が無視できないとき}
+\eqref{eq:pzero}で境界の圧力が0であるとしたが、系の境界での圧力が無視できないときのビリアル定理を考える。
+星形成においては、星形成領域である分子雲の外側の高温ガスの圧力が無視できない場合に相当する。
+
 \subsubsection{ビリアル質量}
 半径$R$の球対称なガス雲においてビリアル定理が成り立っているとする。
 ガス雲の境界での外圧$p_{ex}$を用いて、定常状態のビリアル定理は
@@ -246,6 +300,42 @@ $R$の式に代入すると、$R_m$
 クリティカルマスは$M_J$
 
 \subsubsection{自由落下時間}
+ジーンズ不安定性によって崩壊が始まると、圧力勾配の上昇に比べて重力による収縮の効果が支配的になる。
+一様球の崩壊において半径$r$の球殻の崩壊について考える。
+半径rの球殻の内部に$m$の質量があるとすれば、球殻の運動方程式は
+\beq
+    \ddot{r} = - \frac{Gm}{r^2}
+\eeq
+と書ける。初期条件において球殻の半径が$r_0$で、一様球の密度が$\rho_0$であったとすれば$m = \frac{4\pi r_0^3}{3}\rho_0$
+であるので、運動方程式は、
+\beq
+\ddot{r} = - \frac{4\pi Gr_0^3 \rho_0}{3r^2}
+\eeq
+$\dot{r}$をかけて積分すれば、初期条件において球殻が静止していたとして、
+\beq
+\half \dot{r}^2 = \frac{4 \pi r_0^3}{3}G\rho_0\left(\frac{1}{r} - \frac{1}{r_0} \right)
+\eeq
+整理すると
+\beq
+\frac{\dot{r}}{r_0} = \left[ \frac{8 \pi }{3}G\rho_0\left(\frac{r_0}{r} - 1\right) \right]^\half
+\eeq
+$\cos^2\xi = \frac{r}{r_0}$と置き換えれば、
+\beq
+2\dot{\xi}\cos^2\xi = \left(\frac{8\pi G \rho_0}{3} \right)^\half
+\eeq
+を得る。
+\beq
+2\dot{\xi}\cos^2\xi = \dder[]{t} \left(\xi + \half\sin 2\xi \right)
+\eeq
+を使って、積分すれば
+\beq
+\xi + \half \sin 2\xi = \left(\frac{8\pi G \rho_0}{3} \right)^\half t
+\eeq
+$\xi = \frac{\pi}{2}$において球殻が中心に達するので、
+\beq
+t_{ff} = \left(\frac{3\pi}{32\pi G \rho_0} \right)^\half
+\eeq
+%具体例
 \subsection{Lane-Emden方程式}
 星は主系列星への進化の過程で星全体での対流を経るので、星の内部の組成は主系列星に至った際には一様である。
 また、星間ガスから自己重力収縮している過程も内部の組成は一様である。
@@ -329,10 +419,14 @@ $\gamma=1,n=\infty$の等温の場合
 これは分子雲のガス粒子はダスト粒子と衝突していて、ダストの熱放射で冷却されている状態である。
 この一様な分子雲が重力不安定性によって崩壊するとき、崩壊の中心部の密度が小さくダスト冷却が効く間は崩壊はほとんど$10K$の等温で進化する。
 そして、中心部の密度が大きくなり、光学的に厚くなると中心部では断熱的になり急速に温度が上昇する。
-中心部の高密度部分の進化が暴走的に進む一方で、それを取り囲むエンベロープは一定のままである。
+輻射でエネルギーが抜けなくなった中心部のことをコアと呼ぶことにする。
+コアの高密度部分の進化が暴走的に進む一方で、それを取り囲むエンベロープは一定のままである。
 これは、エンベロープが中心部に質量を供給しただけ崩壊している領域の境界からエンベロープに対しても質量の流れがあることによって起きる見かけの効果とも言える。
-中心部の密度が上がると、中心部の自由落下時間は速くなる。
-
+コアの密度が上がると、自由落下時間は短くなると同時にジーンズ質量は小さくなるので
+コアの質量は小さくなる。
+また、コアの大きさはジーンズ長程度のまま収縮するので密度の上昇とともにエンベロープに取り残された質量の分布がわかる。
+ジーンズ長が$\lambda_J \propto \rho^{-\half}$であるから、エンベロープの質量分布は
+$\rho \propto r^{-2}$となる。
 \subsection{解離と電離の効果}
 形成された第一コアは不透明で輻射によってエネルギーが抜けない。
 しかし、エンベロープからの質量降着は続くのでその重力エネルギーはコアの内部エネルギーに変換され
@@ -465,6 +559,19 @@ $u_j(j=0,\cdot N)$に対して
 $\alpha > 1$のとき不安定である。
 したがってクーラン条件が満たされるときのみ安定なスキームであるとわかった。
 \subsection{人工粘性}
+圧縮性流体の数値計算では衝撃波の取り扱いが必要である。
+衝撃波面は数学的には2価関数が現れる不連続な現象であるが、
+物理的には平均自由行程程度の厚みを持つ遷移層であるためにその前後で保存則が成り立つ。
+数値計算で衝撃波を正しく取り扱わなければ、衝撃波面の前後での不連続性から保存則が成り立たず、
+物理的な結果を得ることができない。
+そこで1950年にvon NeumannとRichtmyer人工粘性を導入した。
+人工粘性は計算に圧縮されたときのみ働く非線形な粘性で、
+平均自由行程程度の大きさの衝撃波の厚みを格子の幅程度にまで大きくすることによって衝撃波を数値計算で捉えられるようにする。
+そして、エネルギー方程式にも組み込まれることで、運動エネルギーを熱エネルギーへ変換する役割も果たす。
+%todo:式
+人工粘性無しで衝撃波を扱う方法にはLax-Wendroff法などがあり広く使われているが、
+衝撃波面のまわりで解が振動するという問題も知られている。
+\subsection{一次元球対称ラグランジュ座標}
 \subsection{基礎方程式の差分化}
 一次元の球対称ラグランジアン流体計算において、独立変数は$M_r$である。
 ここで$M_r$は半径$r$の内部にある質量で定義され、媒質を外向きに大きくなる量である。
@@ -527,19 +634,31 @@ $Q$の更新は、
 \beq
     l = k_q \Delta r
 \eeq
+\subsection{陰的計算}
 等温の仮定を外してエネルギーを計算入れる。
 放射による効果は、
 \begin{align}
-        l = 4\pi r^2 F\\
-            F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
-        \end{align}
-        エネルギー方程式は、
-        \begin{align}
-                \Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = \dot{q} + \Phi\\
-                    \Dder[e]{t} + p \Dder[]{t}(\frac{1}{\rho}) = - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi
-                \end{align}    
-\subsection{陰的計算}
+    l = 4\pi r^2 F\\
+    F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
+\end{align}
+エネルギー方程式は、
+\begin{align}
+\Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) = \dot{q} + \Phi\\
+\Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) = - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi
+\end{align}    
+ここで、エネルギー方程式を差分化することを考えるが、単に差分化すると２階微分が入っているので
+クーラン条件が$\Delta t < \frac{\Delta x^2}{c}$となる。
+時間とともに格子の幅が変化してゆく1次元ラグランジュ法を採用しているから、
+この$\Delta x$は崩壊が進むとともに中心部ではジーンズ長程度まで小さくなる。
+したがって、クーラン条件は崩壊の経過とともに一層厳しい条件となってしまう。
+そこで、この問題を解決するために陰的な手法を導入する。
+陰的な手法では、クーラン条件についての考えなくて良いのでエネルギー方程式に関するクーラン条件の問題が解決される。
+
 \section{結果}
+\subsection{等温過程における崩壊}
+\subsection{断熱過程におけるコアの形成}
+\subsection{輻射の効果を入れてエネルギー方程式を解く}
+\subsection{解離の効果による第一コアの崩壊と第二コアの形成}
 \section{結論}
 \bibliographystyle{junsrt}
 \bibliography{cite}

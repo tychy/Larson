@@ -19,5 +19,6 @@ with open("pages.txt" , "r") as f:
 plt.plot(x,y)
 # beautify the x-labels
 plt.gcf().autofmt_xdate()
+plt.ylabel("page number")
 
 plt.savefig("pages.png")
