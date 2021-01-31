@@ -123,12 +123,25 @@
     \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla\mathbf{\Phi}
 \end{equation}
 \subsubsection{運動エネルギーの保存則}
+運動方程式の両辺に$\rho\bv$をかける
+\beq
+    \rho\bv\Dder[\bv]{t} = - \bv\cdot\nabla{p} - \rho\bv\cdot\nabla\Phi
+\eeq
+左辺は
+\beq
+\rho\bv\Dder[\bv]{t} = \frac{\rho}{2}\Dder[(\bv \cdot \bv)]{t}= \frac{\rho}{2} \Dder[v^2]{t}
+\eeq
+と書き直されるので、
+\beq
+\frac{\rho}{2} \Dder[v^2]{t}= - \bv\cdot\nabla{p} - \rho\bv\cdot\nabla\Phi\label{eq:vsave}
+\eeq
 \subsubsection{TheRaynoldsTransportTheorem}
 \subsubsection{エネルギー方程式の導出}
-理想気体で孤立系を仮定して
+理想気体で断熱を仮定して
+外力は重力のみであるとする。
 エネルギー保存則
 \beq
-\Dder[]{t} \int \rho(e + \half v^2) dV = \int f \cdot v dV - \int pv \cdot n dS\label{eq:energysave}
+\Dder[]{t} \int \rho(e + \half v^2) dV = - \int \nabla\Phi \cdot v dV - \int pv \cdot n dS\label{eq:energysave}
 \eeq
 から出発する。
 左辺は内部エネルギーと運動エネルギーの和の変化率で
@@ -143,19 +156,19 @@ TheRaynoldsTransportTheoremを使って、
 \eeq
 である。したがってエネルギー保存の式\eqref{eq:energysave}は
 \beq
-\int \rho \Dder[]{t} (e + \half v^2)dV =\int f \cdot v dV -  \int \nabla \cdot (pv) dV
+\int \rho \Dder[]{t} (e + \half v^2)dV =-\int \nabla\Phi\cdot v dV -  \int \nabla \cdot (pv) dV
 \eeq
 積分をまとめると、
 \beq
-    \rho \Dder[]{t} (e + \half v^2) + \nabla \cdot (pv) = f \cdot v
+    \rho \Dder[]{t} (e + \half v^2) + \nabla \cdot (p\bv) = - \bv\cdot \nabla\Phi
 \eeq
-ここから、
+ここから運動エネルギーの保存則\eqref{eq:vsave}
 \beq
-    \rho \Dder[]{t} v^2 = v \cdot f - (v \cdot \nabla) p
+\frac{\rho}{2} \Dder[]{t} v^2 = -\bv \cdot \nabla\Phi - (\bv \cdot \nabla) p
 \eeq
 を引いて
 \beq
-    \rho \Dder[]{t} e + p (\nabla \cdot v) = 0
+    \rho \Dder[]{t} e + p (\nabla \cdot \bv) = 0
 \eeq
 を得る。
 \subsection{ビリアル定理}
