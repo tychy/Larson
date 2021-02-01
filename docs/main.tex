@@ -327,7 +327,7 @@ k_j^2 = \frac{4\pi G \rho_0}{c_s^2}
 外圧$P_ex$の下に置かれた半径$R$で等温の球対称ガス球を考える。
 ガス球の全質量を$M$とする。
 ガス球の内部構造はLane-Emden方程式によって決まる。
-ビリアル定理より、
+外圧が無視できないときのビリアル定理より、
 \beq
 P_{ex} V = (\gamma -1)\ethe + \frac{W}{3}
 \eeq
@@ -337,13 +337,14 @@ P_{ex} = (\gamma -1)\frac{\ethe }{\frac{4}{3} \pi R^3}+ \frac{W}{4 \pi R^3}
 \eeq
 $\ethe = c_v MT , W = - \Theta \frac{GM^2}{R}$を使って
 \beq
-P_{ex} = \frac{c_v MT}{2\pi R^3} - \frac{\Theta GM^2}{4\pi R^4}
+P_{ex} = \frac{c_v MT}{2\pi R^3} - \frac{\Theta GM^2}{4\pi R^4}\label{eq:pex}
 \eeq
-この式を$\tilde{R} = , \tilde{P}$で無次元化する。
-$R = x \tilde{R}, P = y \tilde{P}$として、
+この式を$\tilde{R} = \frac{\Theta G M}{2\pi R^3}, \tilde{P}=\frac{c_v MT}{2\pi \tilde{R}^3}$で無次元化する。
+$R = x \tilde{R}, P = y \tilde{P}$として、\eqref{eq:pex}は
 \beq
     y = \frac{1}{x^3} \left(1 - \frac{1}{x}\right)
 \eeq
+となる。
 この式を図示すると図\ref{fig:spherical}のようになる。
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/spherical.png}
@@ -351,11 +352,19 @@ $R = x \tilde{R}, P = y \tilde{P}$として、
     \label{fig:spherical}
 \end{figure}
 ピークは
+\begin{align}
+    \dder[y]{x} &= - \frac{3}{x^4}\left(1 - \frac{1}{x}\right) + \frac{1}{x^5}\\
+                &= \frac{1}{x^5}(x - 3x)
+\end{align}
+より$x = \frac{4}{3}$のところにある。この点は
+$R$の式に代入すると、
 \beq
-\dder[y]{x} = 
+R_m = \frac{4}{3}\tilde{R} = \frac{4\Theta}{9} \frac{G\mu M}{R_{gas} T}
 \eeq
-より$x = \frac{4}{3}$のところにある。
-$R$の式に代入すると、$R_m$
+に対応する。$M = \frac{4\pi R_m^3 \rho}{3}$を代入して、
+\beq
+R_m = \frac{27}{16\pi\Theta} \frac{R_{gas} T}{G\mu \rho}
+\eeq
 クリティカルマスは$M_J$
 
 \subsubsection{自由落下時間}
@@ -584,6 +593,7 @@ $2000K$では解離が起きる。
 解離が始まると、コアに入ってくるエネルギーの一部が吸熱反応に使われるようになる。
 この反応によって比熱比$\gamma$が下がり、$\gamma < \frac{4}{3}$になると第一コアの崩壊が起こる。
 解離による吸熱反応がなくなると、水素分子の比熱比が$\gamma = \frac{7}{5}$で水素分子の比熱比が$\gamma = \frac{5}{3}$であるから比熱比は高くなるので崩壊は止まる。
+
 \section{衝撃波}
 \subsection{衝撃波}
 \subsubsection{ランキンユゴニオ}
