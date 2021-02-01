@@ -85,7 +85,7 @@ def next(
     if idx <= 10:
         pderfht = np.zeros_like(tmp[idx])
     else:
-        dtmp = 0.0000001
+        dtmp = 0.001
         pderfht = (
             calc_fh(tmp[idx] * (1 + dtmp), rho[idx])[1] - calc_fh(tmp[idx], rho[idx])[1]
         ) / (dtmp * tmp[idx])
@@ -154,10 +154,10 @@ def next(
     tmp_res = tmp[idx] + deltatmp
     tmp = np.vstack((tmp, tmp_res))
 
-    e_res = tmp_res * R / (gamma[j] - 1)
+    e_res = tmp_res * R / (gamma - 1)
 
     e = np.vstack((e, e_res))
-    p_res = (gamma[j] - 1) * rho_res * e_res
+    p_res = (gamma - 1) * rho_res * e_res
     p = np.vstack((p, p_res))
 
     if DISPLAY:
@@ -236,6 +236,11 @@ def main():
         if counter % 500 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
+        if counter % 10000 == 0:
+            save_with_ionization(
+                base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
+            )
+
         cur_t += t_h[counter]
         counter += 1
     save_with_ionization(
