@@ -74,8 +74,8 @@ def main():
     i = 10
     prev = i
     plt.plot(
-        np.log10(r[4]),
-        v[4],
+        np.log10(r_h[4]),
+        v[4][:GRID],
         label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
     )
 
@@ -84,8 +84,8 @@ def main():
             700, prev
         ):
             plt.plot(
-                np.log10(r[i]),
-                v[i],
+                np.log10(r_h[i]),
+                v[i][:GRID],
                 label="{:.5f} * 10^13s".format(t[int(i)] / 10 ** 13),
             )
             cur_rho = np.max(np.floor(np.log10(rho[i])))
