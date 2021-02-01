@@ -518,16 +518,15 @@ $\rho \propto r^{-2}$となる。
 電離した電子が運動量$p_e$を持っているとき、電離した電子のエネルギーは$E = \chi_r + \frac{p_e}{2m_e}$となる。
 ここで、$r$階電離原子と自由電子が$[p_e, p_e + dp_e]$の間の運動量を持つ$r+1$階電離原子との関係を考える。
 数密度はそれぞれ、$n_r, dn_{r+1}$と書く。統計的重みは、$g_r, g_{r+1}dg(p_e)$となる。
-ここで$dg(p_e)$は、
-プランク定数を使って
+ここで$dg(p_e)$は、スピンの自由度$\times$相空間での体積/$h^3$であるから
 \beq
 dg(p_e) = \frac{2dVd^3p_e}{h^3}
 \eeq
-と書かれる。ボルツマン公式は
+と書かれる。したがって、ボルツマン公式は
 \beq
 \frac{dn_{r+1}}{n_r} = \frac{g_{r+1}dg(p_e)}{g_r} \exp\left(- \frac{\chi_r + \frac{p_e^2}{2m_e}}{kT}\right)
 \eeq
-$dV = \frac{1}{n_e}$であること、$[p_e, p_e + dp_e]$の空間$d^3p_e = 4\pi p_e^2 dp_e$を使って
+また、$dV = \frac{1}{n_e}$であること、$[p_e, p_e + dp_e]$の空間$d^3p_e = 4\pi p_e^2 dp_e$を使って
 \beq
 dg(p_e) = \frac{8\pi p_e^2dp_e}{n_eh^3}
 \eeq
@@ -538,12 +537,37 @@ dg(p_e) = \frac{8\pi p_e^2dp_e}{n_eh^3}
 \eeq
 $p_e$について積分すれば
 \beq
-\frac{n_{r+1}}{n_r} n_e = \frac{g_{r+1}}{g_r} f_r(T)
+\frac{n_{r+1}}{n_r} n_e = \frac{g_{r+1}}{g_r} f_r(T)\label{eq:sahaeasy}
 \eeq
+ただし、
 \beq
 f_r(T) = 2 \frac{(2\pi m_e kT)^{\frac{3}{2}}}{h^3} e^{-\chi_r/kT}
 \eeq
-これをSahaの四季と呼ぶ
+この式は$r$階電離原子と$r+1$階電離原子の数密度の関係を与えるが、これは原子がすべて基底状態であるとしたときの表式である。
+$r$階電離原子が第$s$励起状態にあるとき、$g_{r, s}$と添字をつけると約束すれば
+\eqref{eq:sahaeasy}を正確に記すと、
+\beq
+\frac{n_{r+1,0}}{n_{r,0}}n_e = \frac{g_{r+1,0}}{g_{r,0}} f_r(T)\label{eq:sahacorrect}
+\eeq
+となる。$r$階電離原子のすべての励起状態の数密度を足して、
+\beq
+n_r = \sum n_{r,s}
+\eeq
+を定義する。ここにボルツマン公式
+\beq
+\frac{n_{r,s}}{n_{r,0}} = \frac{g_{r,s}}{g_{r,0}} e^{-\psi_s/kT}
+\eeq
+を使って、
+\begin{align}
+    \frac{n_r}{n_{r,0}} &=
+    \frac{1}{g_{r,0}}\left(g_{r,0} + g_{r, 1}e^{\psi_1/ kT}+ g_{r, 2}e^{\psi_2/ kT} + \cdots\right)\\
+                        &= \frac{u}{g_{r,0}}
+\end{align}
+の関係を得る。この関係を\eqref{eq:sahacorrect}へ使えば、
+\beq
+\frac{n_{r+1}}{n_r}n_e = \frac{u_{r+1}}{u_r}f_r(T)
+\eeq
+すべての励起状態を考慮したSahaの式を得る。
 \subsection{2nd}
 \section{衝撃波}
 \subsection{衝撃波}
