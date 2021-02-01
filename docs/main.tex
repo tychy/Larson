@@ -749,10 +749,12 @@ $Q$の更新は、
     l = 4\pi r^2 F\\
     F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
 \end{align}
-エネルギー方程式は、
+より、
+エネルギー方程式は、人工粘性による散逸項を$\Phi$と書いて、
 \begin{align}
-\Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) = \dot{q} + \Phi\\
-\Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) = - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi
+    \Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) &= - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi\\
+                                                          &= 
+                                                          \frac{4a}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right) + \Phi
 \end{align}    
 ここで、エネルギー方程式を差分化することを考えるが、単に差分化すると２階微分が入っているので
 クーラン条件が$\Delta t < \frac{\Delta x^2}{c}$となる。
@@ -761,6 +763,16 @@ $Q$の更新は、
 したがって、クーラン条件は崩壊の経過とともに一層厳しい条件となってしまう。
 そこで、この問題を解決するために陰的な手法を導入する。
 陰的な手法では、クーラン条件についての考えなくて良いのでエネルギー方程式に関するクーラン条件の問題が解決される。
+\begin{align}
+    \Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) 
+= \frac{4a}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right) + \Phi\\
+e^{n+1} - e^{n} + \half (p^n + p^{n+1})(V^{n+1} - V^n) = \Delta t^n \dot{q}^{n+\half}+\Delta t^n \Phi^{n+\half}
+\end{align}    
+いま、$\dot{q}$を放射による効果として以下のように差分化する。
+\begin{align}
+    \dot{q} = \frac{4a}{3k}\frac{1}{\rho (r_j)^2}
+\end{align}
+
 \subsection{初期条件}
 \section{結果}
 \subsection{等温過程における崩壊}
