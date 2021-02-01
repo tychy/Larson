@@ -18,8 +18,9 @@ eps = 0.0000000001
 def next(
     idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e, fh, fht, fion
 ):
+    t_n = deltat[idx]
     # v, r, rho, p, tmp
-    v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx])
+    v_res_a = v[idx - 1] - t_n * G * m / (r_l[idx] * r_l[idx])
     v_res_b = np.zeros_like(v_res_a)
     if DISPLAY:
         print("p_l:", p_l[idx])
@@ -28,16 +29,14 @@ def next(
     m_cur = np.zeros_like(m)
     for i in range(1, m_cur.shape[0] - 1):
         m_cur[i] = (deltam[i - 1] + deltam[i]) / 2
-    v_res_b = -(4 * np.pi * deltat[idx] / (m_cur + eps)) * (
-        np.power(r_l[idx], 2) * p_diff
-    )
+    v_res_b = -(4 * np.pi * t_n / (m_cur + eps)) * (np.power(r_l[idx], 2) * p_diff)
     r_three = np.zeros(r[idx].shape[0] - 1)
     for i in range(r_three.shape[0]):
         r_three[i] = (r[idx][i] ** 3 + r[idx][i + 1] ** 3) / 2
     Q_r_three = r_three / 2 * Q[idx - 1]
     Q_diff = np.diff(Q_r_three)
     Q_diff = np.insert(Q_diff, [0, Q_diff.shape[0]], [0, 0])
-    v_res_c = -(4 * np.pi * deltat[idx] / (m_cur + eps)) * Q_diff / r[idx]
+    v_res_c = -(4 * np.pi * t_n / (m_cur + eps)) * Q_diff / r[idx]
 
     v_res = v_res_a + v_res_b + v_res_c
     v_res[0] = 0
@@ -63,7 +62,7 @@ def next(
     gamma = calc_gamma(fht[idx])
 
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
-    efromq = deltat[idx] * (-3 / 2 * Q[idx - 1])
+    efromq = t_n * (-3 / 2 * Q[idx - 1])
     if DISPLAY:
         print("rho_res", rho_res)
         print("gamma", gamma)
@@ -83,21 +82,37 @@ def next(
     f = np.zeros_like(tmp[idx])
     tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
     deltatmp = np.zeros_like(tmp[idx])
-    t_n = deltat[idx]
     if idx <= 10:
         pderfht = np.zeros_like(tmp[idx])
     else:
         dtmp = 0.0000001
         pderfht = (
-            calc_fh(tmp[idx] * (1 + dtmp), p[idx])[1] - calc_fh(tmp[idx], p[idx])[1]
+            calc_fh(tmp[idx] * (1 + dtmp), rho[idx])[1] - calc_fh(tmp[idx], rho[idx])[1]
         ) / (dtmp * tmp[idx])
         # pderfht = np.where(pderfht > 0, 0, pderfht)
     if DISPLAY:
         print("pderfht", pderfht)
-    fht_rho = (
-        calc_fh_rho(tmp[idx], rho[idx + 1])[1] - calc_fh_rho(tmp[idx], rho[idx])[1]
-    )
+    fht_rho = calc_fh(tmp[idx], rho[idx + 1])[1] - calc_fh(tmp[idx], rho[idx])[1]
     # fht_rho = np.where(fht_rho > 0, 0, fht_rho)
+    cur_ap = t_n * r_h[idx + 1][0] ** 2 / rho_res[0] / deltar_res[0] / deltar_mid[0]
+    a_j = 0
+    b_j = (
+        +R / (gamma[0] - 1)
+        + R * rho_res[0] * coef_inv_rho[0]
+        + 4 * coef_base[0] * cur_ap * tmp_three[0]
+        - xi_d * pderfht[0] * NA / AVG
+    )
+    c_j = coef_base[0] * cur_ap * 4 * tmp_three[0]
+
+    r_j = (
+        -R * (tmp[idx][0] * (rho[idx][0] + rho_res[0])) * coef_inv_rho[0]
+        + efromq[0]
+        + coef_base[0] * cur_ap * (tmp_four[1] - tmp_four[0])
+        + xi_d * fht_rho[0] * NA / AVG
+    )
+    d[0] = c_j / (b_j)
+    f[0] = (r_j) / (b_j)
+
     for j in range(1, tmp[idx].shape[0] - 1):
         cur_am = (
             t_n
@@ -127,24 +142,10 @@ def next(
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
         f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
-    cur_ap = t_n * r_h[idx + 1][0] ** 2 / rho_res[0] / deltar_res[0] / deltar_mid[0]
-    a_j = 0
-    b_j = (
-        +R / (gamma[0] - 1)
-        + R * rho_res[0] * coef_inv_rho[0]
-        + 4 * coef_base[0] * cur_ap * tmp_three[0]
-        - xi_d * pderfht[0] * NA / AVG
-    )
-    c_j = coef_base[0] * cur_ap * 4 * tmp_three[0]
 
-    r_j = (
-        -R * (tmp[idx][0] * (rho[idx][0] + rho_res[0])) * coef_inv_rho[0]
-        + efromq[j]
-        + coef_base[0] * cur_ap * (tmp_four[1] - tmp_four[0])
-        + xi_d * fht_rho[0] * NA / AVG
-    )
-    d[0] = c_j / (b_j)
-    f[0] = (r_j) / (b_j)
+    if DISPLAY:
+        print("d:", d)
+        print("f:", f)
     for j in reversed(range(tmp[idx].shape[0])):
         if j == tmp[idx].shape[0] - 1:
             deltatmp[j] = 0 * d[j] + f[j]
@@ -165,7 +166,7 @@ def next(
         print("e:", e_res)
         print("p", p_res)
 
-    fh_res, fht_res, fion_res = calc_fh(tmp_res, p_res)
+    fh_res, fht_res, fion_res = calc_fh(tmp_res, rho_res)
     fh = np.vstack((fh, fh_res))
     fht = np.vstack((fht, fht_res))
     fion = np.vstack((fion, fion_res))
