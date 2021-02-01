@@ -78,7 +78,7 @@ def calc_fh(tmp, rho):
         a = np.zeros_like(tmp)
         b = np.ones_like(tmp)
         return a, b / 2, a
-    fh_d = 2 * kh_d / (kh_d + (kh_d + 8 * rho * NA) ** 0.5)
+    fh_d = kh_d / (kh_d + (kh_d + 8 * rho * NA) ** 0.5)
     fh_h = 0
 
     fht = (1 - fh_d) / 2
