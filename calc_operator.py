@@ -1,10 +1,10 @@
 import numpy as np
 from utils import CFL, L
-from conditions import CFL_CONST, planck, m_p, m_e, xi_h, xi_d, kb, R
+from conditions import CFL_CONST, planck, m_p, m_e, xi_h, xi_d, kb, R, NA
 
 
-def calc_t(idx, r, t, t_h, deltat, tmp):
-    t_diff = CFL(r[idx], tmp, CFL_CONST)
+def calc_t(idx, v, r, t, t_h, deltat, tmp):
+    t_diff = CFL(v[idx - 1], r[idx], tmp, CFL_CONST)
     t = np.append(t, t[idx] + t_diff)
     t_h = np.append(t_h, t_diff)
     deltat = np.append(deltat, (t_diff + t_h[idx - 1]) / 2)
@@ -64,20 +64,22 @@ def calc_gamma(fht):
     return gamma_res
 
 
-def calc_fh(tmp, p):
+def calc_fh(tmp, rho):
     coef_b = ((2 * np.pi * m_e) ** 0.5 / planck) ** 3
-    coef_a = ((2 * np.pi * m_p) ** 0.5 / planck) ** 3
+    coef_a = ((np.pi * m_p) ** 0.5 / planck) ** 3
 
     kbt = kb * tmp
-    kbt_quad = kbt ** 2.5
 
     exp_xi_d = np.exp(-xi_d / kbt)
     exp_xi_h = np.exp(-xi_h / kbt)
-    kh_d = coef_a * kbt_quad * exp_xi_d
-    kh_h = coef_b / p * kbt_quad * exp_xi_h
-
-    fh_d = np.sqrt(kh_d / (1 + kh_d))
-    fh_h = np.sqrt(kh_h / (1 + kh_h))
+    kh_d = coef_a * (kbt ** 1.5) * exp_xi_d
+    kh_h = coef_b * (kbt ** 1.5) * exp_xi_h
+    if np.max(kh_d) < 0.0000001:
+        a = np.zeros_like(tmp)
+        b = np.ones_like(tmp)
+        return a, b / 2, a
+    fh_d = kh_d / (kh_d + (kh_d + 8 * rho * NA) ** 0.5)
+    fh_h = 0
 
     fht = (1 - fh_d) / 2
     fh = fh_d * (1 - fh_h)
@@ -87,49 +89,5 @@ def calc_fh(tmp, p):
 
 
 def calc_fh_rho(tmp, rho):
-    coef_b = ((2 * np.pi * m_e) ** 0.5 / planck) ** 3
-    coef_a = ((2 * np.pi * m_p) ** 0.5 / planck) ** 3
-
-    kbt = kb * tmp
-    kbt_quad = kbt ** 2.5
     p = rho * R * tmp
-
-    exp_xi_d = np.exp(-xi_d / kbt)
-    exp_xi_h = np.exp(-xi_h / kbt)
-    kh_d = coef_a * kbt_quad * exp_xi_d
-    kh_h = coef_b / p * kbt_quad * exp_xi_h
-
-    fh_d = np.sqrt(kh_d / (1 + kh_d))
-    fh_h = np.sqrt(kh_h / (1 + kh_h))
-
-    fht = (1 - fh_d) / 2
-    fh = fh_d * (1 - fh_h)
-    fion = fh_d * fh_h
-
-    return fh, fht, fion
-
-
-def fh_two(tmp_idx, rho_idx):
-    coef_b = ((2 * np.pi * m_e) ** 0.5 / planck) ** 3
-    coef_a = ((2 * np.pi * m_p) ** 0.5 / planck) ** 3
-
-    kbt = kb * tmp_idx
-    kbt_quad = kbt ** 2.5
-
-    exp_xi_d = np.exp(-xi_d / kbt)
-    exp_xi_h = np.exp(-xi_h / kbt)
-    p = rho_idx * R * tmp_idx
-    print("p", p)
-    kh_d = coef_a * kbt_quad * exp_xi_d
-    kh_h = coef_b / p * kbt_quad * exp_xi_h
-
-    fh_d = np.sqrt(kh_d / (1 + kh_d))
-    fh_h = np.sqrt(kh_h / (1 + kh_h))
-    print("x_d", fh_d)
-    print("x_h", fh_h)
-
-    fht = (1 - fh_d) / 2
-    fh = fh_d * (1 - fh_h)
-    fion = fh_d * fh_h
-
-    return fh, fht, fion
+    return calc_fh(tmp, p)

@@ -19,13 +19,14 @@ energy:mkdir
 
 adiabatic:mkdir
 	python main_adiabatic.py
-	python plot.py
+	python plot_adiabatic.py
 	python plot_core.py
 
 ionization:mkdir
 	python main_ionization.py
 	python plot.py
 	python plot_core.py
+	python plot_ion.py
 
 plot:mkdir
 	python plot.py

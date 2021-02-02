@@ -1,13 +1,16 @@
 import os
 import numpy as np
 
-from conditions import M_cc, G, R_CC
+from conditions import M_cc, G, R_CC, DISPLAY
 from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
-from conditions import KQ, kb, Kapper, SB
+from conditions import KQ, kb, Kapper, SB, xi_d, xi_h, NA
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_energy
 from calc_operator import calc_t, calc_lambda, calc_deltam, calc_half, calc_Q
-
+from calc_operator import calc_gamma, calc_fh, calc_fh_rho
+from logging import getLogger, StreamHandler, DEBUG
+import os
+from contextlib import redirect_stdout
 
 eps = 0.0000000001
 
@@ -16,7 +19,8 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     # v, r, rho, p, tmp
     v_res_a = v[idx - 1] - deltat[idx] * G * m / (r_l[idx] * r_l[idx])
     v_res_b = np.zeros_like(v_res_a)
-    print("p_l:", p_l[idx])
+    if DISPLAY:
+        print("p_l:", p_l[idx])
     p_diff = np.diff(p_l[idx])
     p_diff = np.insert(p_diff, [0, p_diff.shape[0]], [0, 0])
     m_cur = np.zeros_like(m)
@@ -37,12 +41,14 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
     v_res[0] = 0
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
-    print("idx", idx)
-    print("v:", v_res)
-    print("v from g:", v_res_a)
-    print("pdiff", p_diff)
-    print("v from p:", v_res_b)
-    print("v from q:", v_res_c)
+
+    if DISPLAY:
+        print("idx", idx)
+        print("v:", v_res)
+        print("v from g:", v_res_a)
+        print("pdiff", p_diff)
+        print("v from p:", v_res_b)
+        print("v from q:", v_res_c)
 
     r_res = r[idx] + v_res * t_h[idx]
     r = np.vstack((r, r_res))
@@ -50,69 +56,55 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
 
     rho_res = np.zeros(rho.shape[1])
     rho_res = deltam / ((4 / 3) * np.pi * (np.diff(np.power(r_res, 3))))
-    print("rho_res", rho_res)
     rho = np.vstack((rho, rho_res.astype(np.float64)))
 
     Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
     efromq = deltat[idx] * (-3 / 2 * Q[idx])
+    if DISPLAY:
+        print("rho_res", rho_res)
+        print("gamma", gamma)
 
     # 計算を先に済ませておく
     coef_inv_rho = (1 / rho[idx + 1] - 1 / rho[idx]) / 2
-    coef_a = 4 / 3 * SB / Kapper
-    coef_b = coef_a / rho_res / (r_h[idx] ** 2)
-    coef_c = coef_a / (rho_res ** 2)
-    coef_d = r_h[idx] ** 2 / rho_res
-    tmp_two = tmp[idx] ** 2
-    tmp_three = tmp[idx] ** 3
 
-    deltar = np.diff(r_h[idx])
     deltar_res = np.diff(r_h[idx + 1])
-
-    # T^nの位置微分
-    pder = np.zeros_like(tmp[idx])
-    for j in range(1, pder.shape[0] - 1):
-        pder[j] = (tmp[idx][j + 1] - tmp[idx][j - 1]) / deltar[j] / 2
-    pder[-1] = pder[-2]  # b.c.
-    pder[0] = pder[1]
-    ppder = np.zeros_like(tmp[idx])
-    for j in range(1, ppder.shape[0] - 1):
-        ppder[j] = (
-            (tmp[idx][j + 1] - tmp[idx][j]) / deltar[j]
-            - (tmp[idx][j] - tmp[idx][j - 1]) / deltar[j - 1]
-        ) / deltar[j]
-    ppder[0] = ppder[1]
-    ppder[-1] = ppder[-2]
-
+    deltar_res = np.insert(deltar_res, [0], [r_h[idx][0] * 2])
+    deltar_mid = np.zeros_like(r_res)
+    for i in range(1, len(deltar_mid) - 1):
+        deltar_mid[i] = (deltar_res[i - 1] + deltar_res[i]) / 2
+    coef_base = 4 / 3 * SB / Kapper / rho_res / (r_h[idx + 1] ** 2)
+    tmp_three = tmp[idx] ** 3
+    tmp_four = tmp[idx] ** 4
     # TMPの更新
     d = np.zeros_like(tmp[idx])
     f = np.zeros_like(tmp[idx])
     tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
     deltatmp = np.zeros_like(tmp[idx])
     t_n = deltat[idx]
-
     for j in range(1, tmp[idx].shape[0] - 1):
-        cur_a = t_n * coef_c[j] * 4 * tmp_three[j] / (deltar_res[j] ** 2)
-        cur_b = t_n * coef_b[j] * (coef_d[j + 1] - coef_d[j - 1]) / 2 / deltar_res[j]
-        cur_c = t_n * coef_c[j] * 24 * tmp_two[j] * pder[j] / 2 / deltar_res[j]
-        cur_d = t_n * coef_c[j] * (pder[j] ** 2)
-
-        a_j = cur_a - cur_b * 4 * tmp_three[j] / 2 / deltar_res[j] - cur_c
-
-        b_j = (
-            +R / 0.4
-            + R * rho_res[j] * coef_inv_rho[j]
-            + 2 * cur_a
-            - 24 * cur_d * tmp[idx][j]
-            - cur_b * 12 * tmp_two[j] * pder[j]
+        cur_am = (
+            t_n
+            * r_h[idx + 1][j - 1] ** 2
+            / rho_res[j - 1]
+            / deltar_res[j - 1]
+            / deltar_mid[j]
         )
-        c_j = cur_b * 4 * tmp_three[j] / 2 / deltar_res[j] + cur_a + cur_c
+        cur_ap = t_n * r_h[idx + 1][j] ** 2 / rho_res[j] / deltar_res[j] / deltar_mid[j]
+
+        a_j = coef_base[j] * cur_am * 4 * tmp_three[j - 1]
+        b_j = (
+            +R / (1.4 - 1)
+            + R * rho_res[j] * coef_inv_rho[j]
+            + 4 * coef_base[j] * cur_ap * tmp_three[j]
+            + 4 * coef_base[j] * cur_am * tmp_three[j]
+        )
+        c_j = coef_base[j] * cur_ap * 4 * tmp_three[j]
 
         r_j = (
             -R * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
             + efromq[j]
-            + 12 * cur_d * tmp_two[j]
-            + t_n * coef_c[j] * 4 * tmp_three[j] * ppder[j]
-            + cur_b * 4 * tmp_three[j] * pder[j]
+            + coef_base[j] * cur_ap * (tmp_four[j + 1] - tmp_four[j])
+            + coef_base[j] * cur_am * (tmp_four[j - 1] - tmp_four[j])
         )
         d[j] = c_j / (b_j - a_j * d[j - 1])
         f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
@@ -124,16 +116,19 @@ def next(idx, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e):
         else:
             deltatmp[j] = deltatmp[j + 1] * d[j] + f[j]
     tmp_res = tmp[idx] + deltatmp
-    print("delta_tmp:", deltatmp)
-    print("tmp:", tmp_res)
     tmp = np.vstack((tmp, tmp_res))
 
-    e_res = tmp_res * R / 0.4
-    print("e:", e_res)
+    e_res = tmp_res * R / (1.4 - 1)
+
     e = np.vstack((e, e_res))
-    p_res = 0.4 * rho_res * e_res
-    print("p", p_res)
+    p_res = (1.4 - 1) * rho_res * e_res
     p = np.vstack((p, p_res))
+
+    if DISPLAY:
+        print("delta_tmp:", deltatmp)
+        print("tmp:", tmp_res)
+        print("e:", e_res)
+        print("p", p_res)
 
     return v, r, rho, p, tmp, Q, e
 
@@ -159,24 +154,40 @@ def main():
     r_h = np.zeros([2, GRID])
     p_l = np.zeros([2, GRID])
     deltam = calc_deltam(m)
-    print("deltam", deltam)
+    if DISPLAY:
+        print("deltam", deltam)
     p = np.zeros([3, GRID])
     Q = np.zeros([2, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
     tmp = np.ones([3, GRID]) * 10
     e = vstack_n(tmp[-1] * R / 0.4, 3)
+
     # main loop
     counter = 2
     cur_t = 0.0
     while cur_t < T_END:
 
-        t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp[counter])
+        t, t_h, deltat = calc_t(counter, v, r, t, t_h, deltat, tmp[counter])
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
         v, r, rho, p, tmp, Q, e = next(
-            counter, t_h, deltat, v, r, rho, p, tmp, m, deltam, r_h, r_l, p_l, Q, e
+            counter,
+            t_h,
+            deltat,
+            v,
+            r,
+            rho,
+            p,
+            tmp,
+            m,
+            deltam,
+            r_h,
+            r_l,
+            p_l,
+            Q,
+            e,
         )
-        if counter % 100 == 0:
+        if counter % 500 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
             save_with_energy(base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e)
@@ -187,4 +198,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if True:
+        main()
+    else:
+        with redirect_stdout(open(os.devnull, "w")):
+            main()

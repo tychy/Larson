@@ -1,5 +1,6 @@
 {
-    "tag": "01-12-Larson-radiation",
+    "tag": "02-02-Larson-rho",
+    "Display": false,
     "isLarson": true,
     "radius": 2000,
     "T_END": 2,
@@ -8,7 +9,7 @@
     "GRID": 200,
     "CFL": 0.3,
     "KQ": 3,
-    "plot_tag": "01-12-Larson-radiation",
+    "plot_tag": "02-02-Larson-rho",
     "use_custom": false,
     "plot_step": 3300
 }
