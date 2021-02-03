@@ -91,7 +91,8 @@ def next(
     else:
         dtmp = 0.001
         pderfht = (
-            calc_fh(tmp[idx] * (1 + dtmp), rho[idx])[1] - calc_fh(tmp[idx], rho[idx])[1]
+            calc_fh(tmp[idx] * (1 + dtmp), rho[idx + 1])[1]
+            - calc_fh(tmp[idx], rho[idx + 1])[1]
         ) / (dtmp * tmp[idx])
         # pderfht = np.where(pderfht > 0, 0, pderfht)
     if DISPLAY:
@@ -114,7 +115,7 @@ def next(
         + 4 * coef_base[0] * cur_ap * tmp_three[0]
         - xi_d * pderfht[0] * NA / xmu[0]
     )
-    c_j = coef_base[0] * cur_ap * 4 * tmp_three[0]
+    c_j = coef_base[0] * cur_ap * 4 * tmp_three[1]
 
     r_j = (
         -R / xmu[0] * (tmp[idx][0] * (rho[idx][0] + rho_res[0])) * coef_inv_rho[0]
@@ -159,7 +160,7 @@ def next(
             + 4 * coef_base[j] * cur_am * tmp_three[j]
             - xi_d * pderfht[j] * NA / xmu[j]
         )
-        c_j = coef_base[j] * cur_ap * 4 * tmp_three[j]
+        c_j = coef_base[j] * cur_ap * 4 * tmp_three[j + 1]
 
         r_j = (
             -R / xmu[j] * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
