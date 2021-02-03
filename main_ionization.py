@@ -74,10 +74,15 @@ def next(
     deltar_res[0] = deltar_mid[0]
     for i in range(1, len(deltar_res) - 1):
         deltar_res[i] = (deltar_mid[i - 1] + deltar_mid[i]) / 2
-    coef_base = 4 / 3 * SB / Kapper / rho_res / (r_h[idx + 1] ** 2)
+    coef_base = 1 / 3 * SB / Kapper / rho_res / (r_h[idx + 1] ** 2)
     tmp_three = tmp[idx] ** 3
     tmp_four = tmp[idx] ** 4
     # TMPの更新
+
+    a = np.zeros_like(tmp[idx])
+    b = np.zeros_like(tmp[idx])
+    c = np.zeros_like(tmp[idx])
+    r_ls = np.zeros_like(tmp[idx])
     d = np.zeros_like(tmp[idx])
     f = np.zeros_like(tmp[idx])
     tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
@@ -94,7 +99,14 @@ def next(
         print("pderfht", pderfht)
     fht_rho = calc_fh(tmp[idx], rho[idx + 1])[1] - calc_fh(tmp[idx], rho[idx])[1]
     # fht_rho = np.where(fht_rho > 0, 0, fht_rho)
-    cur_ap = t_n * r_h[idx + 1][0] ** 2 / rho_res[0] / deltar_res[0] / deltar_mid[0]
+    cur_ap = (
+        t_n
+        * r[idx + 1][1] ** 2
+        * 2
+        / (rho_res[0] + rho_res[1])
+        / deltar_res[1]
+        / deltar_mid[0]
+    )
     a_j = 0
     b_j = (
         +R / (gamma[0] - 1)
@@ -112,16 +124,28 @@ def next(
     )
     d[0] = c_j / (b_j)
     f[0] = (r_j) / (b_j)
+    a[0] = a_j
+    b[0] = b_j
+    c[0] = c_j
+    r_ls[0] = r_j
 
     for j in range(1, tmp[idx].shape[0] - 1):
         cur_am = (
             t_n
-            * r_h[idx + 1][j - 1] ** 2
-            / rho_res[j - 1]
-            / deltar_res[j - 1]
+            * r[idx + 1][j] ** 2
+            * 2
+            / (rho_res[j - 1] + rho_res[j])
+            / deltar_res[j]
             / deltar_mid[j]
         )
-        cur_ap = t_n * r_h[idx + 1][j] ** 2 / rho_res[j] / deltar_res[j] / deltar_mid[j]
+        cur_ap = (
+            t_n
+            * r[idx + 1][j + 1] ** 2
+            * 2
+            / (rho_res[j] + rho_res[j + 1])
+            / deltar_res[j + 1]
+            / deltar_mid[j]
+        )
 
         a_j = coef_base[j] * cur_am * 4 * tmp_three[j - 1]
         b_j = (
@@ -140,9 +164,12 @@ def next(
             + coef_base[j] * cur_am * (tmp_four[j - 1] - tmp_four[j])
             + xi_d * fht_rho[j] * NA / AVG
         )
+        a[j] = a_j
+        b[j] = b_j
+        c[j] = c_j
+        r_ls[j] = r_j
         d[j] = c_j / (b_j - a_j * d[j - 1])
         f[j] = (r_j + a_j * f[j - 1]) / (b_j - a_j * d[j - 1])
-
     if DISPLAY:
         print("d:", d)
         print("f:", f)
@@ -151,6 +178,20 @@ def next(
             deltatmp[j] = 0 * d[j] + f[j]
         else:
             deltatmp[j] = deltatmp[j + 1] * d[j] + f[j]
+    for j in range(10):
+        if deltatmp[j] < deltatmp[j + 1]:
+            print(idx)
+            print("Oops")
+            print(deltatmp)
+            print("a", a)
+            print("b", b)
+            print("c", c)
+            print("r", r_ls)
+            print("d", d)
+            print("f", f)
+            print("pderfht", pderfht)
+            print("fht_rho", fht_rho)
+            break
     tmp_res = tmp[idx] + deltatmp
     tmp = np.vstack((tmp, tmp_res))
 
@@ -209,7 +250,6 @@ def main():
     counter = 2
     cur_t = 0.0
     while cur_t < T_END:
-
         t, t_h, deltat = calc_t(counter, v, r, t, t_h, deltat, tmp[counter])
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
