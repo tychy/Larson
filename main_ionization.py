@@ -39,7 +39,6 @@ def next(
     v_res_c = -(4 * np.pi * t_n / (m_cur + eps)) * Q_diff / r[idx]
 
     v_res = v_res_a + v_res_b + v_res_c
-    v_res[0] = v_res[1]
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
 
@@ -61,8 +60,8 @@ def next(
 
     gamma = calc_gamma(fht[idx])
 
-    Q = calc_Q(idx, v, r, rho, t_h, deltat, Q)
-    efromq = t_n * (-3 / 2 * Q[idx - 1])
+    Q, Phi_res = calc_Q(idx, v, r, rho, t_h, deltat, Q)
+    efromq = t_n * Phi_res
     if DISPLAY:
         print("rho_res", rho_res)
         print("gamma", gamma)
@@ -129,6 +128,10 @@ def next(
     b[0] = b_j
     c[0] = c_j
     r_ls[0] = r_j
+    if DISPLAY:
+        print("1st", -R / xmu * (tmp[idx] * (rho[idx] + rho_res)) * coef_inv_rho)
+        print("efromQ", efromq)
+        print("dis", +xi_d * fht_rho * NA / xmu)
 
     for j in range(1, tmp[idx].shape[0] - 1):
         cur_am = (
