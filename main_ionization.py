@@ -40,18 +40,19 @@ def next(
 
     v_res = v_res_a + v_res_b + v_res_c
     v_res[v_res.shape[0] - 1] = 0
+    v_res[0] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
 
+    r_res = r[idx] + v_res * t_h[idx]
+    r = np.vstack((r, r_res))
     if DISPLAY:
         print("idx", idx)
+        print("r", r_res)
         print("v:", v_res)
         print("v from g:", v_res_a)
         print("pdiff", p_diff)
         print("v from p:", v_res_b)
         print("v from q:", v_res_c)
-
-    r_res = r[idx] + v_res * t_h[idx]
-    r = np.vstack((r, r_res))
     r_h = calc_half(idx + 1, r, r_h)
 
     rho_res = np.zeros(rho.shape[1])
@@ -73,7 +74,7 @@ def next(
     deltar_res[0] = deltar_mid[0]
     for i in range(1, len(deltar_res) - 1):
         deltar_res[i] = (deltar_mid[i - 1] + deltar_mid[i]) / 2
-    coef_base = 1 / 3 * SB / Kapper / rho_res / (r_h[idx + 1] ** 2)
+    coef_base = 16 * np.pi / 3 * SB / Kapper
     tmp_three = tmp[idx] ** 3
     tmp_four = tmp[idx] ** 4
     # TMPの更新
@@ -106,21 +107,21 @@ def next(
         * 2
         / (rho_res[0] + rho_res[1])
         / deltar_res[1]
-        / deltar_mid[0]
+        / deltam[0]
     )
     a_j = 0
     b_j = (
         +R / xmu[0] / (gamma[0] - 1)
         + R / xmu[0] * rho_res[0] * coef_inv_rho[0]
-        + 4 * coef_base[0] * cur_ap * tmp_three[0]
+        + 4 * coef_base * cur_ap * tmp_three[0]
         - xi_d * pderfht[0] * NA / xmu[0]
     )
-    c_j = coef_base[0] * cur_ap * 4 * tmp_three[1]
+    c_j = coef_base * cur_ap * 4 * tmp_three[1]
 
     r_j = (
         -R / xmu[0] * (tmp[idx][0] * (rho[idx][0] + rho_res[0])) * coef_inv_rho[0]
         + efromq[0]
-        + coef_base[0] * cur_ap * (tmp_four[1] - tmp_four[0])
+        + coef_base * cur_ap * (tmp_four[1] - tmp_four[0])
         + xi_d * fht_rho[0] * NA / xmu[0]
     )
     d[0] = c_j / (b_j)
@@ -141,7 +142,7 @@ def next(
             * 2
             / (rho_res[j - 1] + rho_res[j])
             / deltar_res[j + 1]
-            / deltar_mid[j]
+            / deltam[j]
         )
         cur_ap = (
             t_n
@@ -149,24 +150,24 @@ def next(
             * 2
             / (rho_res[j] + rho_res[j + 1])
             / deltar_res[j + 1]
-            / deltar_mid[j]
+            / deltam[j]
         )
 
-        a_j = coef_base[j] * cur_am * 4 * tmp_three[j - 1]
+        a_j = coef_base * cur_am * 4 * tmp_three[j - 1]
         b_j = (
             +R / xmu[j] / (gamma[j] - 1)
             + R / xmu[j] * rho_res[j] * coef_inv_rho[j]
-            + 4 * coef_base[j] * cur_ap * tmp_three[j]
-            + 4 * coef_base[j] * cur_am * tmp_three[j]
+            + 4 * coef_base * cur_ap * tmp_three[j]
+            + 4 * coef_base * cur_am * tmp_three[j]
             - xi_d * pderfht[j] * NA / xmu[j]
         )
-        c_j = coef_base[j] * cur_ap * 4 * tmp_three[j + 1]
+        c_j = coef_base * cur_ap * 4 * tmp_three[j + 1]
 
         r_j = (
             -R / xmu[j] * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
             + efromq[j]
-            + coef_base[j] * cur_ap * (tmp_four[j + 1] - tmp_four[j])
-            + coef_base[j] * cur_am * (tmp_four[j - 1] - tmp_four[j])
+            + coef_base * cur_ap * (tmp_four[j + 1] - tmp_four[j])
+            + coef_base * cur_am * (tmp_four[j - 1] - tmp_four[j])
             + xi_d * fht_rho[j] * NA / xmu[j]
         )
         a[j] = a_j
@@ -281,7 +282,7 @@ def main():
         if counter % 500 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
-        if counter % 10000 == 0:
+        if counter % 3000 == 0:
             save_with_ionization(
                 base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
             )

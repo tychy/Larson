@@ -1,15 +1,15 @@
 {
-    "tag": "02-02-Larson-rho",
-    "Display": false,
+    "tag": "02-02-Larson-ab",
+    "Display": true,
     "isLarson": true,
     "radius": 2000,
     "T_END": 2,
     "M": 1,
     "TMP": 10,
-    "GRID": 200,
+    "GRID": 100,
     "CFL": 0.3,
-    "KQ": 3,
-    "plot_tag": "02-02-Larson-rho",
+    "KQ": 1.5,
+    "plot_tag": "02-02-Larson-ab",
     "use_custom": false,
     "plot_step": 3300
 }
