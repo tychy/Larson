@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from conditions import M_cc, G, R_CC, DISPLAY
-from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
+from conditions import TMP_INIT, AU, GRID, T_END, R
 from conditions import KQ, kb, Kapper, SB, xi_d, xi_h, NA
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_ionization
@@ -39,7 +39,7 @@ def next(
     v_res_c = -(4 * np.pi * t_n / (m_cur + eps)) * Q_diff / r[idx]
 
     v_res = v_res_a + v_res_b + v_res_c
-    v_res[0] = 0
+    v_res[0] = v_res[1]
     v_res[v_res.shape[0] - 1] = 0
     v = np.vstack((v, v_res.astype(np.float64)))
 
@@ -99,6 +99,7 @@ def next(
         print("pderfht", pderfht)
     fht_rho = calc_fh(tmp[idx], rho[idx + 1])[1] - calc_fh(tmp[idx], rho[idx])[1]
     # fht_rho = np.where(fht_rho > 0, 0, fht_rho)
+    xmu = 1.4 / (0.1 + fh[idx] + fht[idx])
     cur_ap = (
         t_n
         * r[idx + 1][1] ** 2
@@ -109,18 +110,18 @@ def next(
     )
     a_j = 0
     b_j = (
-        +R / (gamma[0] - 1)
-        + R * rho_res[0] * coef_inv_rho[0]
+        +R / xmu[0] / (gamma[0] - 1)
+        + R / xmu[0] * rho_res[0] * coef_inv_rho[0]
         + 4 * coef_base[0] * cur_ap * tmp_three[0]
-        - xi_d * pderfht[0] * NA / AVG
+        - xi_d * pderfht[0] * NA / xmu[0]
     )
     c_j = coef_base[0] * cur_ap * 4 * tmp_three[0]
 
     r_j = (
-        -R * (tmp[idx][0] * (rho[idx][0] + rho_res[0])) * coef_inv_rho[0]
+        -R / xmu[0] * (tmp[idx][0] * (rho[idx][0] + rho_res[0])) * coef_inv_rho[0]
         + efromq[0]
         + coef_base[0] * cur_ap * (tmp_four[1] - tmp_four[0])
-        + xi_d * fht_rho[0] * NA / AVG
+        + xi_d * fht_rho[0] * NA / xmu[0]
     )
     d[0] = c_j / (b_j)
     f[0] = (r_j) / (b_j)
@@ -135,7 +136,7 @@ def next(
             * r[idx + 1][j] ** 2
             * 2
             / (rho_res[j - 1] + rho_res[j])
-            / deltar_res[j]
+            / deltar_res[j + 1]
             / deltar_mid[j]
         )
         cur_ap = (
@@ -149,20 +150,20 @@ def next(
 
         a_j = coef_base[j] * cur_am * 4 * tmp_three[j - 1]
         b_j = (
-            +R / (gamma[j] - 1)
-            + R * rho_res[j] * coef_inv_rho[j]
+            +R / xmu[j] / (gamma[j] - 1)
+            + R / xmu[j] * rho_res[j] * coef_inv_rho[j]
             + 4 * coef_base[j] * cur_ap * tmp_three[j]
             + 4 * coef_base[j] * cur_am * tmp_three[j]
-            - xi_d * pderfht[j] * NA / AVG
+            - xi_d * pderfht[j] * NA / xmu[j]
         )
         c_j = coef_base[j] * cur_ap * 4 * tmp_three[j]
 
         r_j = (
-            -R * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
+            -R / xmu[j] * (tmp[idx][j] * (rho[idx][j] + rho_res[j])) * coef_inv_rho[j]
             + efromq[j]
             + coef_base[j] * cur_ap * (tmp_four[j + 1] - tmp_four[j])
             + coef_base[j] * cur_am * (tmp_four[j - 1] - tmp_four[j])
-            + xi_d * fht_rho[j] * NA / AVG
+            + xi_d * fht_rho[j] * NA / xmu[j]
         )
         a[j] = a_j
         b[j] = b_j
@@ -195,7 +196,7 @@ def next(
     tmp_res = tmp[idx] + deltatmp
     tmp = np.vstack((tmp, tmp_res))
 
-    e_res = tmp_res * R / (gamma - 1)
+    e_res = tmp_res * R / xmu / (gamma - 1)
 
     e = np.vstack((e, e_res))
     p_res = (gamma - 1) * rho_res * e_res
