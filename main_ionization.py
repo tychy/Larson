@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from conditions import M_cc, G, R_CC, DISPLAY
-from conditions import TMP_INIT, AU, GRID, T_END, R
+from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
 from conditions import KQ, kb, Kapper, SB, xi_d, xi_h, NA
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_ionization
@@ -74,7 +74,7 @@ def next(
     deltar_res[0] = deltar_mid[0]
     for i in range(1, len(deltar_res) - 1):
         deltar_res[i] = (deltar_mid[i - 1] + deltar_mid[i]) / 2
-    coef_base = 16 * np.pi / 3 * SB / Kapper
+    coef_base = 4 * np.pi / 3 * SB / Kapper
     tmp_three = tmp[idx] ** 3
     tmp_four = tmp[idx] ** 4
     # TMPの更新
@@ -87,20 +87,22 @@ def next(
     f = np.zeros_like(tmp[idx])
     tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
     deltatmp = np.zeros_like(tmp[idx])
+    xmu = 1.4 / (0.1 + fh[idx] + fht[idx])
     if idx <= 10:
         pderfht = np.zeros_like(tmp[idx])
     else:
         dtmp = 0.001
         pderfht = (
-            calc_fh(tmp[idx] * (1 + dtmp), rho[idx + 1])[1]
-            - calc_fh(tmp[idx], rho[idx + 1])[1]
+            calc_fh(tmp[idx] * (1 + dtmp), rho[idx + 1], xmu)[1]
+            - calc_fh(tmp[idx], rho[idx + 1], xmu)[1]
         ) / (dtmp * tmp[idx])
         # pderfht = np.where(pderfht > 0, 0, pderfht)
     if DISPLAY:
         print("pderfht", pderfht)
-    fht_rho = calc_fh(tmp[idx], rho[idx + 1])[1] - calc_fh(tmp[idx], rho[idx])[1]
+    fht_rho = (
+        calc_fh(tmp[idx], rho[idx + 1], xmu)[1] - calc_fh(tmp[idx], rho[idx], xmu)[1]
+    )
     # fht_rho = np.where(fht_rho > 0, 0, fht_rho)
-    xmu = 1.4 / (0.1 + fh[idx] + fht[idx])
     cur_ap = (
         t_n
         * r[idx + 1][1] ** 2
@@ -213,7 +215,7 @@ def next(
         print("e:", e_res)
         print("p", p_res)
 
-    fh_res, fht_res, fion_res = calc_fh(tmp_res, rho_res)
+    fh_res, fht_res, fion_res = calc_fh(tmp_res, rho_res, xmu)
     fh = np.vstack((fh, fh_res))
     fht = np.vstack((fht, fht_res))
     fion = np.vstack((fion, fion_res))
@@ -247,7 +249,7 @@ def main():
     Q = np.zeros([2, GRID])
     rho = vstack_n(deltam / ((4 / 3) * np.pi * (np.diff(np.power(r[2], 3)))), 3)
     tmp = np.ones([3, GRID]) * 10
-    e = vstack_n(tmp[-1] * R / 0.4, 3)
+    e = vstack_n(tmp[-1] * R / AVG / 0.4, 3)
     fh = np.zeros([3, GRID])
     fht = np.ones([3, GRID]) / 2
     fion = np.zeros([3, GRID])
