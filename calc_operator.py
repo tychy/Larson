@@ -1,6 +1,6 @@
 import numpy as np
 from utils import CFL, L
-from conditions import CFL_CONST, planck, m_p, m_e, xi_h, xi_d, kb, R, NA
+from conditions import CFL_CONST, planck, m_p, m_e, xi_h, xi_d, kb, R, NA, AVG
 
 
 def calc_t(idx, v, r, t, t_h, deltat, tmp):
@@ -51,10 +51,11 @@ def calc_Q(idx, v, r, rho, t_h, deltat, Q):
 
     Q_first = (np.diff(v[idx])) / (np.diff(r[idx + 1] + r[idx]) / 2)
     Q_second = (np.log(rho[idx + 1]) - np.log(rho[idx])) / t_h[idx] / 3
-    Q_res = Q_first + Q_second
-    Q_res = -2 * mu_res * Q_res
+    mid_res = Q_first + Q_second
+    Q_res = -2 * mu_res * mid_res
+    Phi_res = 3 * mu_res * mid_res * mid_res
     Q = np.vstack((Q, Q_res))
-    return Q
+    return Q, Phi_res
 
 
 def calc_gamma(fht):
@@ -64,9 +65,9 @@ def calc_gamma(fht):
     return gamma_res
 
 
-def calc_fh(tmp, rho):
+def calc_fh(tmp, rho, xmu):
     coef_b = ((2 * np.pi * m_e) ** 0.5 / planck) ** 3
-    coef_a = ((np.pi * m_p) ** 0.5 / planck) ** 3
+    coef_a = 2 * ((np.pi * m_p) ** 0.5 / planck) ** 3
 
     kbt = kb * tmp
 
@@ -78,16 +79,21 @@ def calc_fh(tmp, rho):
         a = np.zeros_like(tmp)
         b = np.ones_like(tmp)
         return a, b / 2, a
-    fh_d = kh_d / (kh_d + (kh_d + 8 * rho * NA) ** 0.5)
+    ntot = NA * rho / xmu
+    sqrtk = (kh_d) ** 0.5
+    fh_d = 2 * sqrtk / (sqrtk + (kh_d + 4 * ntot) ** 0.5)
     fh_h = 0
 
     fht = (1 - fh_d) / 2
     fh = fh_d * (1 - fh_h)
     fion = fh_d * fh_h
+    a = np.zeros_like(fh)
+    b = np.ones_like(a)
+    #    return a, b / 2, a
 
     return fh, fht, fion
 
 
-def calc_fh_rho(tmp, rho):
-    p = rho * R * tmp
+def calc_fh_rho(tmp, rho, mu):
+    p = rho * R / mu * tmp
     return calc_fh(tmp, p)
