@@ -2,12 +2,12 @@ import numpy as np
 from conditions import GRID, R_CC, M_cc, KQ
 
 
-def CFL(x, tmp, param=1.0):
+def CFL(v, x, tmp, param=1.0):
     assert x.ndim == 1, "x must be one dimentional array."
     assert x.shape[0] > 1, "x must be array."
     assert param > 0, "param must be positive."
     x_diff = np.diff(x)
-    t = x_diff / get_cs(tmp)
+    t = x_diff / np.maximum(np.abs(v[:GRID]), get_cs(tmp))
     """
     dx_min = x[1] - x[0]
     for i in range(x.shape[0] - 1):

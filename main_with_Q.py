@@ -87,7 +87,7 @@ def main():
     cur_t = 0.0
     while cur_t < T_END:
 
-        t, t_h, deltat = calc_t(counter, r, t, t_h, deltat, tmp)
+        t, t_h, deltat = calc_t(counter, v, r, t, t_h, deltat, tmp)
         r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(counter, r, r_h)
         v, r, rho, p, tmp, Q = next(
