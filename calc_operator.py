@@ -73,7 +73,6 @@ def calc_fh(tmp, rho, xmu):
 
     exp_xi_d = np.exp(-xi_d / kbt)
     exp_xi_h = np.exp(-xi_h / kbt)
-    print(kbt)
     kh_d = coef_a * (kbt ** 1.5) * exp_xi_d
     kh_h = coef_b * (kbt ** 1.5) * exp_xi_h
     if np.max(kh_d) < 0.0000001:
