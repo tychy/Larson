@@ -1,5 +1,5 @@
 {
-    "tag": "02-02-Larson-ab",
+    "tag": "02-02-Larson-kairi",
     "Display": true,
     "isLarson": true,
     "radius": 2000,
@@ -9,7 +9,7 @@
     "GRID": 100,
     "CFL": 0.3,
     "KQ": 1.5,
-    "plot_tag": "02-02-Larson-ab",
+    "plot_tag": "02-02-Larson-kairi",
     "use_custom": false,
     "plot_step": 3300
 }
