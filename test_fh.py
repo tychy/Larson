@@ -2,6 +2,9 @@ from calc_operator import calc_fh, calc_gamma
 import matplotlib.pyplot as plt
 from conditions import AVG
 import numpy as np
+import seaborn as sns
+
+sns.set_theme()
 
 na = 6 * 10 ** 23
 
