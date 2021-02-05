@@ -41,6 +41,7 @@
 \title{原始星形成の1次元数値計算}
 \begin{document}
 \maketitle
+\tableofcontents
 \section{Introduction}
 \subsection{星形成の概要}
 星形成領域にはRho Ophiuchi, Taurus Molecular Cloud, Orion Nebulaなどがある。
@@ -65,8 +66,11 @@
 
 \section{Related Work}
 \section{基礎理論}
+このレポートでは、一次元においてLarson 1969\cite{Larson}の行った計算を再現する。
+Larsonの計算とは、ガス球が等温崩壊して第一コアを形成作り熱せられた第一コアが水素の解離反応によって崩壊して第二コア、つまり原始星に至るまでの計算である。
+ここでは、ガス雲からの星形成について理論的な理解を示した上で、数値計算への実装方法をまとめる。
 \subsection{基礎方程式}
-自己重力と放射の効果を入れた連続の式、運動方程式、エネルギー方程式を解く。
+自己重力と放射の効果を入れた連続の式、運動方程式、エネルギー方程式を解くことを考える。
 自己重力とは、流体に働く重力のうちの流体自身の作る重力のことである。
 自己重力と外場として与えられる重力を合わせたものが重力である。
 支配方程式は以下である:\\
@@ -108,7 +112,7 @@
      &= - \rho \nabla \cdot \bv\\
     \pder[\rho]{t} &= -  \nabla \cdot (\rho\bv)\label{eq:continuous}
 \end{align}
-\label{eq:continuous}が連続の式である。
+\eqref{eq:continuous}が連続の式である。
 また、非圧縮性流体では$\nabla \cdot \bv = 0$であるから、連続の式は
 \begin{equation}
     \pder[\rho]{t} = -  \rho \nabla \cdot \bv
@@ -172,7 +176,7 @@ TheRaynoldsTransportTheoremを使って、
     \rho \Dder[]{t} e + p (\nabla \cdot \bv) = 0
 \eeq
 を得る。
-\subsection{ポリトロープ関係}
+\subsection{定性的な議論}
 \subsection{ビリアル定理}
 %http://jun-makino.sakura.ne.jp/kougi/stellar_dynamics_2009/note3/node3.html
 %http://th.nao.ac.jp/MEMBER/tomisaka/Lecture_Notes/StarFormation/6/node44.html#eqn:virial-2-5_3
@@ -320,18 +324,24 @@ P = \frac{R_{gas}}{\mu} \rho T = c_s^2 \rho
 \eeq
 となる。$k^2 < 4 \pi G\rho_0 / c_s^2$のとき、$\xi$を実数として$\omega = \pm i \xi$の形の純虚数になって
 摂動が$exp(\pm \xi t)$となるのでゆらぎが時間とともに発達することがわかる。
-したがって、不安定である。
 この特徴的な波数を$k_J$とすれば、
 \beq
 k_j^2 = \frac{4\pi G \rho_0}{c_s^2}
 \eeq
-波長に直すと、
+と書ける。これを波長に直すと、
 \beq
 \lambda_J = \frac{2\pi}{k_J} = \left(\frac{\pi}{G\rho_0} \right)^\half c_s
 \eeq
-この波長をジーンズ波長と呼ぶ。
-ジーンズ質量
+となる。
+これジーンズ波長と呼び、この波長より波長の長いゆらぎは発達し重力収縮を起こす。
+この波長を半径とする級の内部の質量を
+ジーンズ質量といい、
+\beq
+M_J = \frac{4}{3}\pi \lambda_J^3
+\eeq
+と書く。
 \subsubsection{等温球の重力不安定性}
+等温球の重力不安定性について考える。
 外圧$P_ex$の下に置かれた半径$R$で等温の球対称ガス球を考える。
 ガス球の全質量を$M$とする。
 ガス球の内部構造はLane-Emden方程式によって決まる。
@@ -343,10 +353,11 @@ $V = \frac{4}{3} \pi R^3$であるので、
 \beq
 P_{ex} = (\gamma -1)\frac{\ethe }{\frac{4}{3} \pi R^3}+ \frac{W}{4 \pi R^3}
 \eeq
-$\ethe = c_v MT , W = - \Theta \frac{GM^2}{R}$を使って
+質量あたりの定積比熱$c_v$を定義して$\ethe = c_v MT$、重力エネルギーの表式$ W = - \Theta \frac{GM^2}{R}$を使って
 \beq
 P_{ex} = \frac{c_v MT}{2\pi R^3} - \frac{\Theta GM^2}{4\pi R^4}\label{eq:pex}
 \eeq
+と書き換えられる。今球対称を考えているので$\Theta = \frac{5}{3}$である。
 この式を$\tilde{R} = \frac{\Theta G M}{2\pi R^3}, \tilde{P}=\frac{c_v MT}{2\pi \tilde{R}^3}$で無次元化する。
 $R = x \tilde{R}, P = y \tilde{P}$として、\eqref{eq:pex}は
 \beq
@@ -359,22 +370,37 @@ $R = x \tilde{R}, P = y \tilde{P}$として、\eqref{eq:pex}は
     \caption{}
     \label{fig:spherical}
 \end{figure}
-ピークは
+この式はピークを持ち、
 \begin{align}
     \dder[y]{x} &= - \frac{3}{x^4}\left(1 - \frac{1}{x}\right) + \frac{1}{x^5}\\
                 &= \frac{1}{x^5}(x - 3x)
 \end{align}
-より$x = \frac{4}{3}$のところにある。この点は
+より$x = \frac{4}{3}$のところにピークがある。この点は
 $R$の式に代入すると、
 \beq
-R_m = \frac{4}{3}\tilde{R} = \frac{4\Theta}{9} \frac{G\mu M}{R_{gas} T}
+R_m = \frac{4}{3}\tilde{R} = \frac{4\Theta}{9} \frac{G\mu M}{R_{gas} T}\label{eq:rm}
 \eeq
-に対応する。$M = \frac{4\pi R_m^3 \rho}{3}$を代入して、
+に対応する。
+ここで、外圧$P_{ex}$に等温球が置かれていて外圧と球の境界での圧力$P$が釣り合っていたとする。
+$R < R_m$の場合、球が何らかの理由で微小に圧縮され$P < P_{ex}$になったとすると$R$はすでにピークである$R_m$より小さいので、
+半径$R$を小さくすると圧力$P$も下がってしまい外圧と釣り合わせることができずに収縮を続ける。
+一方で$R> R_m$の場合は、$P < P_{ex}$となるような微小な圧縮に対して$R$を小さくすると圧力$P$を増やすことができるので$P_{ex}$と釣り合わせることができる。
+したがって、$R > R_m$のときは球は安定であることがわかる。
+次に、ジーンズ質量を求めるために$M = \frac{4\pi R_m^3 \rho}{3}$を\eqref{eq:rm}へ代入して、
 \beq
-R_m = \frac{27}{16\pi\Theta} \frac{R_{gas} T}{G\mu \rho}
+R_m^2 = \frac{27}{16\pi\Theta} \frac{R_{gas} T}{G\mu \rho}
 \eeq
-クリティカルマスは$M_J$
-
+得られた$R_m$の質量によらない表式を$M = \frac{4\pi R_m^3 \rho}{3}$へ代入して、ジーンズ質量
+\beq
+M_J 
+\eeq
+を得る。
+ジーンズ質量より大きな質量を持つ球に対しては外圧との釣り合いが取れる半径がないので不安定である。
+そして、ここへ実際のガス雲の代表的な数値を入れると、
+\beq
+M_J = 1.1 M_{sun}
+\eeq
+となる。ガス雲が太陽質量程度の総質量があれば重力不安定性が起こる。
 \subsubsection{自由落下時間}
 ジーンズ不安定性によって崩壊が始まると、圧力勾配の上昇に比べて重力による収縮の効果が支配的になる。
 一様球の崩壊において半径$r$の球殻の崩壊について考える。
@@ -429,7 +455,8 @@ $K = R_{gas}T/\mu$として、
 \begin{equation}
     P = K \rho^\gamma = K\rho^{1+1/n}\label{eq:polytropic}
 \end{equation}
-と書く。$\gamma$を比熱比、$n$をポリトロープ指数と呼ぶ。
+と書く。$\gamma$をポリトロープ指数、$n$をポリトロープ数と呼び、等温過程では$\gamma = 1, n = \infty$、断熱過程では$\gamma = \frac{5}{3}, n =\frac{3}{2}$である。
+また、ポリトロープ指数は気体の比熱比$\gamma_{ad}$と必ずしも同じではない。
 静水圧平衡の式\eqref{eq:static}にポリトロープ関係式を代入して、
 \begin{align}
     \dder[\Phi]{r} &= - \gamma K \rho^{\gamma -2} \dder[\rho]{r}\label{eq:staticpoly}
