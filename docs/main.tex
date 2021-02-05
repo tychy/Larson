@@ -66,20 +66,20 @@
 \section{Related Work}
 \section{基礎理論}
 \subsection{基礎方程式}
-このレポートでは、自己重力と放射を入れた方程式を解く。
+自己重力と放射の効果を入れた連続の式、運動方程式、エネルギー方程式を解く。
 自己重力とは、流体に働く重力のうちの流体自身の作る重力のことである。
-自己重力を除いた重力は外場として与えられる重力である。
-支配方程式は以下のようになる :\\
+自己重力と外場として与えられる重力を合わせたものが重力である。
+支配方程式は以下である:\\
 連続の式
 \begin{equation}
-    \pder[\rho]{t} = - \nabla \bv
+    \pder[\rho]{t} = - \nabla(\rho \bv)
 \end{equation}
 運動方程式は単位質量あたりの重力ポテンシャルを$\Phi$として、
 \begin{equation}
     \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\Phi\label{eq:euler}
 \end{equation}
 
-エネルギー方程式は単位質量あたりの内部エネルギーを$e$、加熱率を$\gamma$、冷却率を$\lambda$として、
+エネルギー方程式は単位質量あたりの内部エネルギーを$e$、加熱率を$\Gamma$、冷却率を$\lambda$として、
 \begin{equation}
     \Dder[e]{t} = - \frac{p}{\rho} \nabla \cdot \bv + \Gamma - \lambda
 \end{equation}
@@ -97,7 +97,7 @@
 \begin{equation}
     \Dder[]{t} (\rho\delta V)= 0\label{eq:mass}
 \end{equation}
-\eqref{eq:mass}より、
+質量保存則\eqref{eq:mass}より、
 \begin{align}
     %\rho\Dder[]{t} \delta V &+ \delta V\Dder[]{t} \rho= 0\\
     \Dder[\rho]{t} &= -\frac{\rho}{\delta V}\Dder[]{t} \delta V \\
@@ -119,7 +119,7 @@
 \begin{equation}
      \Dder[(\rho \delta V \bv)]{t} = - (\nabla p) \delta V - p \delta V \nabla \Phi
 \end{equation}
-左辺に質量保存則\eqref{eq:mass}を用いれば、運動方程式が導かれる。
+とかける。左辺に質量保存則\eqref{eq:mass}を用いれば、運動方程式が導かれる。
 \begin{equation}
     \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla\mathbf{\Phi}
 \end{equation}
@@ -176,12 +176,12 @@ TheRaynoldsTransportTheoremを使って、
 \subsection{ビリアル定理}
 %http://jun-makino.sakura.ne.jp/kougi/stellar_dynamics_2009/note3/node3.html
 %http://th.nao.ac.jp/MEMBER/tomisaka/Lecture_Notes/StarFormation/6/node44.html#eqn:virial-2-5_3
-重力と圧力勾配がつりあっていて、力学平衡にある系において、系の全重力エネルギー$W$とそして全内部エネルギー$E_{th}$には簡単な関係があり、ビリアル定理と呼ばれる。
+重力と圧力勾配がつりあっていて、力学平衡にある系において、系の全重力エネルギー$W$とそして全内部エネルギー$E_{th}$には簡単な関係があり\eqref{eq:viriale}と表される。この関係はビリアル定理と呼ばれる。
 \begin{equation}
-     2E_{th} + W = 0
+    2E_{th} + W = 0\label{eq:viriale}
 \end{equation}
 ここでは、流体の自己重力系における力学平衡とは系の力学的性質が変化するタイムスケールが系の特徴的な時間である
-自由落下時間に比べて大きいときに系が力学的平衡にあるという。
+自由落下時間に比べて大きいときに系を力学的平衡にあるという。
 \subsubsection{ビリアル定理の導出}
 運動方程式\eqref{eq:euler}の両辺に$\rho$をかけて整理すると、
 \begin{align}
@@ -227,7 +227,7 @@ K_{ik} = T_{ik} + \half\Pi_{ik}
 \beq
 \half \ddder[I]{t} = 2T + \Pi + W = 2K + W
 \eeq
-いま、系の内部では静水圧平衡にあり$v=0$とみなせるとすれば、
+特に、星の内部で静水圧平衡にあり$v=0$とみなせる状況を考えると、
 $T \sim 0$である。
 ここで$\Pi$は全内部エネルギーを使って
 \begin{align}
@@ -237,7 +237,7 @@ $T \sim 0$である。
 &= 3(\gamma - 1)\ethe
 \end{align}
 と書けるから、
-系の全エネルギー$K$は系の全内部エネルギーを使って近似できる。
+系の全エネルギー$K = T  + \frac{\Pi}{2}$は系の全内部エネルギーを使って近似できる。
 すると重力エネルギーと熱エネルギーの関係式\eqref{eq:easyvirial2}を得る。
 静水圧平衡にある系のビリアル定理である。
 \beq
@@ -258,12 +258,14 @@ $T \sim 0$である。
 \beq
 3p_{ex} V = 2T + 3(\gamma - 1) + W\label{eq:virialpressure}
 \eeq
+これは状態方程式に補正が入った式だとも捉えられる。
 \subsubsection{負の比熱}
-内部エネルギー$K$と重力エネルギー$W$のにはビリアル定理から
+力学平衡にある系がエネルギーを失ったときに起こる特徴的な現象がある。
+内部エネルギー$E_{th}$と重力エネルギー$W$の関係はビリアル定理から
 \beq
 W = - 3(\gamma -1) \ethe
 \eeq
-の関係がある。系の全エネルギー$E = \ethe + W$が$\Delta E$だけ変化するとき、
+と書ける。系の全エネルギー$E = \ethe + W$が$\Delta E$だけ変化するとき、この関係を使って
 \beq
     \Delta E = \Delta \ethe + \Delta W = -  3(\gamma -1)\Delta \ethe
 \eeq
@@ -272,20 +274,23 @@ W = - 3(\gamma -1) \ethe
 この負のフィードバックによって、原始星では輻射によってエネルギーを失った結果コアの温度が上昇し熱核反応に至る。
 %天体物理の基礎
 %kipp 26.2
+\subsection{重力不安定性}
 \subsubsection{ジーンズ不安定性}
 まず、無限一様に広がって制しているガスを考える。
 密度と温度は至るところで均一であるとする。
-同様に重力ポテンシャル$\Phi$もいたるところ一定でなくてはならないが、
+このとき、重力ポテンシャル$\Phi$もいたるところ一定でなくてはならないが、
 そのためにはポアソン方程式$\Delta \Phi = 4 \pi G \rho$によると$\rho=0$にならなくてはならない。
-よってこれは適切な設定ではない。
-この設定は物理的な設定ではないという意味でジーンズのまやかしと呼ばれることもある。
+したがってこれは適切な設定ではない。
 しかし、適切な設定のもとで考える結果とほとんど変わらない結果を簡単な設定のもとで得られるという意味で有用である。
 一定の圧力を$p_0$、密度を$\rho_0$、重力ポテンシャルを$\Phi_0$とする。静止しているから媒質の速度は至るところ$0$である。
 ここで、この媒質にゆらぎを加える。
-$p = p_0 + p_1,\rho = \rho_0 + \rho_1,\Phi = \Phi_0 + \Phi_1, v = v_1$として連続の式と運動方程式を考える。
+$p = p_0 + p_1,\rho = \rho_0 + \rho_1,\Phi = \Phi_0 + \Phi_1, v = v_1$として連続の式と運動方程式を考える。\\
+連続の式
 \begin{align}
     \pder[\rho]{t} + \nabla \cdot (\rho \bv) = 0\label{eq:linearcon}
-\\
+\end{align}
+運動方程式
+\begin{align}
     \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla \Phi\label{eq:lineareom}
 \end{align}
 これを線形化して、
@@ -308,13 +313,13 @@ P = \frac{R_{gas}}{\mu} \rho T = c_s^2 \rho
                       &= \nabla \cdot \left(c_s^2\nabla \rho_1 + \rho_0\nabla \Phi\right)\\
                       &= c_s^2\Delta\rho_1 + 4\pi G\rho_0\rho_1
 \end{align}
-ここで一次元平面波を考えて、解が$exp()$の形であるとすると、
+ここで一次元平面波を考えて、解が$exp(kx -\omega t)$の形であるとすると、
 分散関係は
 \beq
     \omega^2 = c_s^2k^2 - 4\pi G \rho_0
 \eeq
-となる。$k^2 < 4 \pi G\rho_0 / c_s^2$のとき、$\xi$を実数として$\omega = i \xi$の形の純虚数になって
-摂動が$exp(\xi t)$となるので時間とともに発達することがわかる。
+となる。$k^2 < 4 \pi G\rho_0 / c_s^2$のとき、$\xi$を実数として$\omega = \pm i \xi$の形の純虚数になって
+摂動が$exp(\pm \xi t)$となるのでゆらぎが時間とともに発達することがわかる。
 したがって、不安定である。
 この特徴的な波数を$k_J$とすれば、
 \beq
@@ -324,6 +329,8 @@ k_j^2 = \frac{4\pi G \rho_0}{c_s^2}
 \beq
 \lambda_J = \frac{2\pi}{k_J} = \left(\frac{\pi}{G\rho_0} \right)^\half c_s
 \eeq
+この波長をジーンズ波長と呼ぶ。
+ジーンズ質量
 \subsubsection{等温球の重力不安定性}
 外圧$P_ex$の下に置かれた半径$R$で等温の球対称ガス球を考える。
 ガス球の全質量を$M$とする。
@@ -694,8 +701,6 @@ Q = - \frac{4}{3} \mu_Q \pder[v]{z}
     \Dder[e]{t} + (p + Q)\Dder[]{t}\left(\frac{1}{\rho}\right)=0
 \end{align}
 となる。
-人工粘性無しで衝撃波を扱う方法にはLax-Wendroff法などがあり広く使われているが、
-衝撃波面のまわりで解が振動するという問題も知られている。
 \subsection{一次元球対称ラグランジュ座標}
 星形成のシミュレーションでは、計算に必要ね密度と長さの桁のレンジが大きい。
 例えば長さのスケールについて考えると、初期条件では$1000AU$程度の分布が第２コアでは$1R_{sun}$程度の領域の計算が必要になる。
