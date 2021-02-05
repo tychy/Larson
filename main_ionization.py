@@ -186,20 +186,21 @@ def next(
             deltatmp[j] = 0 * d[j] + f[j]
         else:
             deltatmp[j] = deltatmp[j + 1] * d[j] + f[j]
-    for j in range(10):
-        if deltatmp[j] < deltatmp[j + 1]:
-            print(idx)
-            print("Oops")
-            print(deltatmp)
-            print("a", a)
-            print("b", b)
-            print("c", c)
-            print("r", r_ls)
-            print("d", d)
-            print("f", f)
-            print("pderfht", pderfht)
-            print("fht_rho", fht_rho)
-            break
+    if DISPLAY:
+        for j in range(10):
+            if deltatmp[j] < deltatmp[j + 1]:
+                print(idx)
+                print("Oops")
+                print(deltatmp)
+                print("a", a)
+                print("b", b)
+                print("c", c)
+                print("r", r_ls)
+                print("d", d)
+                print("f", f)
+                print("pderfht", pderfht)
+                print("fht_rho", fht_rho)
+                break
     tmp_res = tmp[idx] + deltatmp
     tmp = np.vstack((tmp, tmp_res))
 
@@ -254,6 +255,8 @@ def main():
     fht = np.ones([3, GRID]) / 2
     fion = np.zeros([3, GRID])
 
+    # for save
+
     # main loop
     counter = 2
     cur_t = 0.0
@@ -281,6 +284,8 @@ def main():
             fht,
             fion,
         )
+        cur_t += t_h[counter]
+
         if counter % 500 == 0:
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
@@ -288,8 +293,6 @@ def main():
             save_with_ionization(
                 base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
             )
-
-        cur_t += t_h[counter]
         counter += 1
     save_with_ionization(
         base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
