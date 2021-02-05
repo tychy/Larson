@@ -401,7 +401,7 @@ M_J
 M_J = 1.1 M_{sun}
 \eeq
 となる。ガス雲が太陽質量程度の総質量があれば重力不安定性が起こる。
-\subsubsection{自由落下時間}
+\subsection{自由落下時間}
 ジーンズ不安定性によって崩壊が始まると、圧力勾配の上昇に比べて重力による収縮の効果が支配的になる。
 一様球の崩壊において半径$r$の球殻の崩壊について考える。
 半径rの球殻の内部に$m$の質量があるとすれば、球殻の運動方程式は
@@ -516,8 +516,8 @@ $\gamma=1,n=\infty$の等温の場合
 \end{equation}
 とおけば、Lane-Emden方程式は解ける。
 \subsection{放射}
-\subsubsection{Fockの法則}
-\subsubsection{輻射輸送}
+\subsection{Fockの法則}
+\subsection{輻射輸送}
 \subsection{第一コアの形成}
 重力不安定性によって重力収縮を起こしている分子雲について考える。
 分子雲は崩壊を起こす前は$T=10K$で分子雲全体が等温で、かつ光学的に薄い状態である。
@@ -669,7 +669,7 @@ $1$ステップの情報の伝達距離が格子幅を超えないという条�
   c\frac{\Delta t}{\Delta x} \leq 2
 \end{equation}
 となることからわかるように、条件は必ずしも$1$ではないが$1$を使えば十分である。
-\subsubsection{フォン・ノイマンの安定性解析}
+\subsection{フォン・ノイマンの安定性解析}
 クーラン条件が満たされていることは、数値計算が安定であることを保障しない。
 風上差分法において、安定性を考える。
 %todo:波数空間の描画
@@ -834,8 +834,35 @@ e^{n+1} - e^{n} + \half (p^n + p^{n+1})(V^{n+1} - V^n) = \Delta t^n \dot{q}^{n+\
 \subsection{初期条件}
 \section{結果}
 \subsection{等温過程における崩壊}
-\subsection{断熱過程におけるコアの形成}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/rho_r_iso.png}
+    \caption{}
+    \label{fig:rho_r_iso}
+\end{figure}
+
 \subsection{輻射の効果を入れてエネルギー方程式を解く}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/rho_r_noion.png}
+    \caption{}
+    \label{fig:rho_r_noion}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/core_noion.png}
+    \caption{}
+    \label{fig:core_noion}
+\end{figure}
+\subsection{粘性なしの計算の例}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/noQ.png}
+    \caption{}
+    \label{fig:noQ}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/v_r_noQ.png}
+    \caption{}
+    \label{fig:v_r_noQ}
+\end{figure}
+
 \subsection{解離の効果による第一コアの崩壊と第二コアの形成}
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/rho_r.png}
