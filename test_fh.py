@@ -1,8 +1,10 @@
-from calc_operator import calc_fh, calc_gamma
-import matplotlib.pyplot as plt
-from conditions import AVG
 import numpy as np
 import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+from calc_operator import calc_fh, calc_gamma
+from conditions import AVG
 
 sns.set_theme()
 
