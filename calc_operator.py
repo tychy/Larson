@@ -87,9 +87,6 @@ def calc_fh(tmp, rho, xmu):
     fht = (1 - fh_d) / 2
     fh = fh_d * (1 - fh_h)
     fion = fh_d * fh_h
-    a = np.zeros_like(fh)
-    b = np.ones_like(a)
-    #    return a, b / 2, a
 
     return fh, fht, fion
 
