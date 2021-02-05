@@ -64,9 +64,7 @@ def main():
     while i < idx:
         if np.abs(np.max(fh[i]) - cur_fh) >= 0.2 or i - prev >= 10000:
             if not np.all(np.abs(fh[prev] - fh[i]) < 0.000001):
-                label = "{:.5f} * 10^13s,core={:.5f}K".format(
-                    t[i] / 10 ** 13, tmp[i][10]
-                )
+                label = r"$T_{core}$:" + "{:.1f}K".format(tmp[i][10])
                 ax1.plot(
                     np.log10(r_h[i]),
                     fh[i],
@@ -91,50 +89,43 @@ def main():
                 cur_fh = np.max(fh[i])
             prev = i
         i += 1
+    label = r"$T_{core}$:" + "{:.1f}K".format(tmp[i - 10][10])
+
     ax1.plot(
         np.log10(r_h[i - 10]),
         fh[i - 10],
-        label="{:.5f} * 10^13s,core={:.5f}K".format(
-            t[i - 10] / 10 ** 13, tmp[i - 10][10]
-        ),
+        label=label,
     )
     ax2.plot(
         np.log10(r_h[i - 10]),
         fht[i - 10],
-        label="{:.5f} * 10^13s,core={:.5f}K".format(
-            t[i - 10] / 10 ** 13, tmp[i - 10][10]
-        ),
+        label=label,
     )
     ax3.plot(
         np.log10(r_h[i - 10]),
         fion[i - 10],
-        label="{:.5f} * 10^13s,core={:.5f}K".format(
-            t[i - 10] / 10 ** 13, tmp[i - 10][10]
-        ),
+        label=label,
     )
-
     ax4.plot(
         np.log10(r_h[i - 10]),
         np.log10(tmp[i - 10]),
-        label="{:.5f} * 10^13s,core={:.5f}K".format(
-            t[i - 10] / 10 ** 13, tmp[i - 10][10]
-        ),
+        label=label,
     )
 
-    ax1.set_ylim(-0.1, 1.2)
-    ax1.set_xlabel("log10r")
-    ax1.set_ylabel("H")
+    ax1.set_ylim(-0.1, 1.1)
+    ax1.set_xlabel(r"$\log_{10}r$")
+    ax1.set_ylabel(r"$f_H$")
 
-    ax2.set_ylim(-0.1, 1.2)
-    ax2.set_xlabel("log10r")
-    ax2.set_ylabel("H2")
+    ax2.set_ylim(-0.1, 1.1)
+    ax2.set_xlabel(r"$\log_{10}r$")
+    ax2.set_ylabel(r"$f_{H^2}$")
 
-    ax3.set_ylim(-0.1, 1.2)
-    ax3.set_xlabel("log10r")
-    ax3.set_ylabel("H+")
+    ax3.set_ylim(-0.1, 1.1)
+    ax3.set_xlabel(r"$\log_{10}r$")
+    ax3.set_ylabel(r"$f_{H^+}$")
 
-    ax4.set_xlabel("log10r")
-    ax4.set_ylabel("TMP")
+    ax4.set_xlabel(r"$\log_{10}r$")
+    ax4.set_ylabel(r"$\log_{10}T$")
     plt.legend()
     fig.tight_layout()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)

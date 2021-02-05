@@ -26,8 +26,8 @@ for item in tmp_ls:
 
 plt.plot()
 
-plt.plot(tmp_ls, fh_ls, label="H")
-plt.plot(tmp_ls, fht_ls, label="H2")
-plt.plot(tmp_ls, fion_ls, label="h+")
+plt.plot(tmp_ls, fh_ls, label=r"$f_H$")
+plt.plot(tmp_ls, fht_ls, label=r"$f_{H^2}$")
+plt.plot(tmp_ls, fion_ls, label=r"$f_{H+}$")
 plt.legend()
 plt.savefig("fh.png")

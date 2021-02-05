@@ -48,7 +48,7 @@ def main():
     plt.plot(
         np.log10(r_h[4][: GRID - 1]),
         np.log10((rho[4][: GRID - 1])),
-        label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
+        label="{:.6f}".format(t[int(4)] / 10 ** 12),
     )
     while i < idx:
         if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 2 or i - prev >= max(
@@ -57,15 +57,18 @@ def main():
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((rho[i][: GRID - 1])),
-                label="{:.5f} * 10^13s".format(t[int(i)] / 10 ** 13),
+                label="{:.6f}".format(t[int(i)] / 10 ** 12),
             )
             cur_rho = np.max(np.floor(np.log10(rho[i])))
+            if cur_rho > -4:
+                break
             prev = i
         i += 1
 
-    plt.xlabel("log10r")
-    plt.ylabel("log10rho")
+    plt.xlabel(r"$\log_{10}r$")
+    plt.ylabel(r"$\log_{10}\rho$")
     plt.legend()
+    plt.tight_layout()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
     plt.savefig("results/" + config["plot_tag"] + "/rho_r.png")
 
@@ -73,28 +76,24 @@ def main():
     cur_rho = np.max(np.floor(np.log10(rho[0])))
     i = 10
     prev = i
-    plt.plot(
-        np.log10(r_h[4]),
-        v[4][:GRID],
-        label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
-    )
-
     while i < idx:
-        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 2 or i - prev >= max(
-            700, prev
-        ):
+        if np.abs(np.max(np.log10(rho[i])) - cur_rho) >= 2:
             plt.plot(
                 np.log10(r_h[i]),
                 np.abs(v[i][:GRID]),
-                label="{:.5f} * 10^13s".format(t[int(i)] / 10 ** 13),
+                label="{:.6f}".format(t[int(i)] / 10 ** 12),
             )
             cur_rho = np.max(np.floor(np.log10(rho[i])))
+            print(cur_rho)
+            if cur_rho > -3.5:
+                break
             prev = i
         i += 1
 
-    plt.xlabel("log10r")
-    plt.ylabel("v")
+    plt.xlabel(r"$\log_{10}r$")
+    plt.ylabel(r"$v$")
     plt.legend()
+    plt.tight_layout()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
     plt.savefig("results/" + config["plot_tag"] + "/v_r.png")
 
@@ -105,7 +104,7 @@ def main():
     plt.plot(
         np.log10(r_h[4][: GRID - 1]),
         np.log10((tmp[4][: GRID - 1])),
-        label="{:.5f} * 10^13s".format(t[int(4)] / 10 ** 13),
+        label="{:.5f}".format(t[int(4)] / 10 ** 12),
     )
 
     while i < idx:
@@ -115,16 +114,18 @@ def main():
             plt.plot(
                 np.log10(r_h[i][: GRID - 1]),
                 np.log10((tmp[i][: GRID - 1])),
-                label="{:.5f} * 10^13s".format(t[int(i)] / 10 ** 13),
+                label="{:.5f} ".format(t[int(i)] / 10 ** 12),
             )
             cur_tmp = np.max(np.log10(tmp[i]))
             print(cur_tmp)
             prev = i
 
         i += 1
-    plt.xlabel("log10 r")
-    plt.ylabel("log10 T")
+    plt.xlabel(r"$\log_{10}r$")
+    plt.ylabel(r"$\log_{10}T$")
+
     plt.legend()
+    plt.tight_layout()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
     plt.savefig("results/" + config["plot_tag"] + "/t_r.png")
 
