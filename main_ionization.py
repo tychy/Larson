@@ -96,12 +96,25 @@ def next(
             calc_fh(tmp[idx] * (1 + dtmp), rho[idx + 1], xmu)[1]
             - calc_fh(tmp[idx], rho[idx + 1], xmu)[1]
         ) / (dtmp * tmp[idx])
+    if idx <= 10:
+        pderfion = np.zeros_like(tmp[idx])
+    else:
+        dtmp = 0.001
+        pderfion = (
+            calc_fh(tmp[idx] * (1 + dtmp), rho[idx + 1], xmu)[2]
+            - calc_fh(tmp[idx], rho[idx + 1], xmu)[2]
+        ) / (dtmp * tmp[idx])
+
         # pderfht = np.where(pderfht > 0, 0, pderfht)
     if DISPLAY:
         print("pderfht", pderfht)
     fht_rho = (
         calc_fh(tmp[idx], rho[idx + 1], xmu)[1] - calc_fh(tmp[idx], rho[idx], xmu)[1]
     )
+    fion_rho = (
+        calc_fh(tmp[idx], rho[idx + 1], xmu)[2] - calc_fh(tmp[idx], rho[idx], xmu)[2]
+    )
+
     # fht_rho = np.where(fht_rho > 0, 0, fht_rho)
     cur_ap = (
         t_n
@@ -117,6 +130,7 @@ def next(
         + R / xmu[0] * rho_res[0] * coef_inv_rho[0]
         + 4 * coef_base * cur_ap * tmp_three[0]
         - xi_d * pderfht[0] * NA / xmu[0]
+        + xi_h * pderfion[0] * NA / xmu[0]
     )
     c_j = coef_base * cur_ap * 4 * tmp_three[1]
 
@@ -125,6 +139,7 @@ def next(
         + efromq[0]
         + coef_base * cur_ap * (tmp_four[1] - tmp_four[0])
         + xi_d * fht_rho[0] * NA / xmu[0]
+        - xi_h * fion_rho[0] * NA / xmu[0]
     )
     d[0] = c_j / (b_j)
     f[0] = (r_j) / (b_j)
@@ -162,6 +177,7 @@ def next(
             + 4 * coef_base * cur_ap * tmp_three[j]
             + 4 * coef_base * cur_am * tmp_three[j]
             - xi_d * pderfht[j] * NA / xmu[j]
+            + xi_h * pderfion[j] * NA / xmu[j]
         )
         c_j = coef_base * cur_ap * 4 * tmp_three[j + 1]
 
@@ -171,6 +187,7 @@ def next(
             + coef_base * cur_ap * (tmp_four[j + 1] - tmp_four[j])
             + coef_base * cur_am * (tmp_four[j - 1] - tmp_four[j])
             + xi_d * fht_rho[j] * NA / xmu[j]
+            - xi_h * fion_rho[j] * NA / xmu[j]
         )
         a[j] = a_j
         b[j] = b_j

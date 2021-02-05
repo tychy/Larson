@@ -46,9 +46,9 @@ def search_fion():
     tmp_ls_high = []
 
     # グリッドサーチ
-    for rho_index in [-3, -2.5, -2, -1.5, -1]:
+    for rho_index in [-3, -2.5, -2, -1.5, -1, -0.5, -0.2]:
         rho_res = 10 ** rho_index
-        tmp_ls = np.linspace(3000, 150000, 1000)
+        tmp_ls = np.linspace(3000, 250000, 1000)
         best_low = 0.0
         best_tmp_low = 3000
         best_high = 0.0
