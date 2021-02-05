@@ -1,15 +1,15 @@
 {
-    "tag": "02-02-Larson-kairi",
-    "Display": true,
+    "tag": "02-02-Larson-long",
+    "Display": false,
     "isLarson": true,
     "radius": 2000,
-    "T_END": 2,
+    "MAX_STEP": 50000,
     "M": 1,
     "TMP": 10,
     "GRID": 100,
     "CFL": 0.3,
     "KQ": 1.5,
-    "plot_tag": "02-02-Larson-kairi",
+    "plot_tag": "02-02-Larson-long",
     "use_custom": false,
     "plot_step": 3300
 }

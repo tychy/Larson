@@ -5,7 +5,7 @@ config = read_json()
 AU = 1.4598 * 10 ** 13  # cm
 GRID = config["GRID"]
 T_ORDER = 10 ** 13
-T_END = config["T_END"] * T_ORDER
+MAX_STEP = config["MAX_STEP"]
 M_cc = config["M"] * 1.99 * 10 ** 33  # cloud core
 G = 6.67259 * 10 ** (-8)
 

@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from conditions import M_cc, G, R_CC, DISPLAY
-from conditions import TMP_INIT, AU, GRID, T_END, R, AVG
+from conditions import TMP_INIT, AU, GRID, MAX_STEP, R, AVG
 from conditions import KQ, kb, Kapper, SB, xi_d, xi_h, NA
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_ionization
@@ -255,17 +255,18 @@ def main():
     fht = np.ones([3, GRID]) / 2
     fion = np.zeros([3, GRID])
 
-    # for save
-
     # main loop
     counter = 2
+    idx = counter
     cur_t = 0.0
-    while cur_t < T_END:
-        t, t_h, deltat = calc_t(counter, v, r, t, t_h, deltat, tmp[counter])
-        r_l, p_l = calc_lambda(counter, v, r, p, t_h, r_l, p_l)
-        r_h = calc_half(counter, r, r_h)
+    cur_rho = np.max(np.floor(np.log10(rho[0])))
+    skip = 0
+    while counter < MAX_STEP:
+        t, t_h, deltat = calc_t(idx, v, r, t, t_h, deltat, tmp[idx])
+        r_l, p_l = calc_lambda(idx, v, r, p, t_h, r_l, p_l)
+        r_h = calc_half(idx, r, r_h)
         v, r, rho, p, tmp, Q, e, fh, fht, fion = next(
-            counter,
+            idx,
             t_h,
             deltat,
             v,
@@ -284,19 +285,49 @@ def main():
             fht,
             fion,
         )
-        cur_t += t_h[counter]
 
-        if counter % 500 == 0:
+        cur_t += t_h[idx]
+        if counter <= 10:
+            idx += 1
+        elif skip > 0:
+            skip -= 1
+            idx += 1
+        elif (
+            counter % 500 == 0
+            or np.abs(np.max(np.floor(np.log10(rho[idx]))) - cur_rho) > 0.1
+        ):
+
+            cur_rho = np.max(np.floor(np.log10(rho[idx])))
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
+            print("core tmp", tmp[idx][0])
+            skip = 5
+            idx += 1
+
+        else:
+            t = np.delete(t, -3, 0)
+            t_h = np.delete(t_h, -3, 0)
+            deltat = np.delete(deltat, -3, 0)
+            v = np.delete(v, -3, 0)
+            r = np.delete(r, -3, 0)
+            rho = np.delete(rho, -3, 0)
+            p = np.delete(p, -3, 0)
+            tmp = np.delete(tmp, -3, 0)
+            r_h = np.delete(r_h, -3, 0)
+            r_l = np.delete(r_l, -3, 0)
+            p_l = np.delete(p_l, -3, 0)
+            Q = np.delete(Q, -3, 0)
+            e = np.delete(e, -3, 0)
+            fh = np.delete(fh, -3, 0)
+            fht = np.delete(fht, -3, 0)
+            fion = np.delete(fion, -3, 0)
         if counter % 3000 == 0:
             save_with_ionization(
-                base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
+                base_dir, idx, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
             )
         counter += 1
-    save_with_ionization(
-        base_dir, counter, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion
-    )
+
+    save_with_ionization(base_dir, idx, v, r, rho, p, tmp, r_h, t, Q, e, fh, fht, fion)
 
 
 if __name__ == "__main__":
