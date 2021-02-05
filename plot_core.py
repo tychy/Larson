@@ -6,7 +6,7 @@ import seaborn as sns
 
 from file_operator import read_json, read_index
 from conditions import GRID, AVG
-from plot_fh_2d import search_fh
+from plot_fh_2d import search_fh, search_fion
 
 
 def main():
@@ -56,10 +56,12 @@ def main():
     plt.plot(rho_ls, tmp_ls)
     plt.xlabel("log10rho cgs")
     plt.ylabel("log10T cgs")
-    rho_ls_fh, tmp_ls_low, tmp_ls_high = search_fh()
-
-    plt.plot(rho_ls_fh, tmp_ls_low, linestyle="dashed", label="f_h = 0.1")
-    plt.plot(rho_ls_fh, tmp_ls_high, linestyle="dashed", label="f_h = 0.9")
+    rho_fh, tmp_fh_low, tmp_fh_high = search_fh()
+    rho_fion, tmp_fion_low, tmp_fion_high = search_fion()
+    plt.plot(rho_fh, tmp_fh_low, linestyle="dashed", label="f_h = 0.1")
+    plt.plot(rho_fh, tmp_fh_high, linestyle="dashed", label="f_h = 0.9")
+    plt.plot(rho_fion, tmp_fion_low, linestyle="dashed", label="f_ion = 0.1")
+    plt.plot(rho_fion, tmp_fion_high, linestyle="dashed", label="f_ion = 0.5")
     plt.legend()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
     plt.savefig("results/" + config["plot_tag"] + "/core.png")
