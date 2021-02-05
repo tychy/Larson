@@ -318,6 +318,7 @@ def main():
             print("counter:", counter)
             print("cur_t:{:.8}".format(cur_t))
             print("core tmp", tmp[idx][0])
+            print(calc_gamma(fh[idx], fht[idx], fion[idx])[0])
             skip = 5
             idx += 1
 
