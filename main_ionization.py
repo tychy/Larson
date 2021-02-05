@@ -59,7 +59,7 @@ def next(
     rho_res = deltam / ((4 / 3) * np.pi * (np.diff(np.power(r_res, 3))))
     rho = np.vstack((rho, rho_res.astype(np.float64)))
 
-    gamma = calc_gamma(fht[idx])
+    gamma = calc_gamma(fh[idx], fht[idx], fion[idx])
 
     Q, Phi_res = calc_Q(idx, v, r, rho, t_h, deltat, Q)
     efromq = t_n * Phi_res
@@ -87,7 +87,7 @@ def next(
     f = np.zeros_like(tmp[idx])
     tmp_res = np.ones_like(tmp[idx]) * TMP_INIT
     deltatmp = np.zeros_like(tmp[idx])
-    xmu = 1.4 / (0.1 + fh[idx] + fht[idx])
+    xmu = 1.4 / (0.1 + fh[idx] + fht[idx] + 2 * fion[idx])
     if idx <= 10:
         pderfht = np.zeros_like(tmp[idx])
     else:

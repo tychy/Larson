@@ -58,31 +58,29 @@ def calc_Q(idx, v, r, rho, t_h, deltat, Q):
     return Q, Phi_res
 
 
-def calc_gamma(fht):
-    molecular = 7 / 5
-    monoatomic = 5 / 3
-    gamma_res = molecular * fht * 2 + monoatomic * (0.5 - fht) * 2
+def calc_gamma(fh, fht, fion):
+    gamma_res = 1 + 1 / (1.5 * (fh + fion) + 5 * fht)
     return gamma_res
 
 
 def calc_fh(tmp, rho, xmu):
-    coef_b = ((2 * np.pi * m_e) ** 0.5 / planck) ** 3
     coef_a = 2 * ((np.pi * m_p) ** 0.5 / planck) ** 3
+    coef_b = ((2 * np.pi * m_e) ** 0.5 / planck) ** 3
 
+    ntot = NA * rho / xmu
     kbt = kb * tmp
 
     exp_xi_d = np.exp(-xi_d / kbt)
     exp_xi_h = np.exp(-xi_h / kbt)
     kh_d = coef_a * (kbt ** 1.5) * exp_xi_d
-    kh_h = coef_b * (kbt ** 1.5) * exp_xi_h
+    kh_h = coef_b * (kbt ** 1.5) * exp_xi_h / ntot
     if np.max(kh_d) < 0.0000001:
         a = np.zeros_like(tmp)
         b = np.ones_like(tmp)
         return a, b / 2, a
-    ntot = NA * rho / xmu
     sqrtk = (kh_d) ** 0.5
     fh_d = 2 * sqrtk / (sqrtk + (kh_d + 4 * ntot) ** 0.5)
-    fh_h = 0
+    fh_h = (kh_h / (1 + kh_h)) ** 0.5
 
     fht = (1 - fh_d) / 2
     fh = fh_d * (1 - fh_h)

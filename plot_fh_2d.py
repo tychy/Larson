@@ -21,11 +21,14 @@ def search_fh():
         best_high = 0.0
         best_tmp_high = 100
         for item in tmp_ls:
-            if np.abs(calc_fh(item, rho_res, AVG)[0] - 0.1) < np.abs(best_low - 0.1):
-                best_low = calc_fh(item, rho_res, AVG)[0]
+            fh_low = 2 * (0.5 - calc_fh(item, rho_res, 2.15)[1])
+            fh_high = 2 * (0.5 - calc_fh(item, rho_res, 1.4)[1])
+
+            if np.abs(fh_low - 0.1) < np.abs(best_low - 0.1):
+                best_low = fh_low
                 best_tmp_low = item
-            if np.abs(calc_fh(item, rho_res, AVG)[0] - 0.9) < np.abs(best_high - 0.9):
-                best_high = calc_fh(item, rho_res, AVG)[0]
+            if np.abs(fh_high - 0.9) < np.abs(best_high - 0.9):
+                best_high = fh_high
                 best_tmp_high = item
         print("index:", rho_index)
         print(best_low)

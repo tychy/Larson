@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from calc_operator import calc_fh, calc_gamma
 from file_operator import read_json, read_index
 from conditions import GRID, AVG
 from plot_fh_2d import search_fh
