@@ -1,8 +1,8 @@
 import os
 import numpy as np
 
-from conditions import M_cc, G, R_CC, DISPLAY
-from conditions import TMP_INIT, AU, GRID, MAX_STEP, R, AVG
+from conditions import M_cc, G, RCC, DISPLAY
+from conditions import TMP_INIT, AU, GRID, MAXSTEP, R, AVG
 from conditions import KQ, kb, Kapper, SB, xi_d, xi_h, NA
 from utils import vstack_n, get_cs, r_init, m_init
 from file_operator import read_json, copy_json, save_with_ionization
@@ -261,7 +261,7 @@ def main():
     cur_t = 0.0
     cur_rho = np.max(np.floor(np.log10(rho[0])))
     skip = 0
-    while counter < MAX_STEP:
+    while counter < MAXSTEP:
         t, t_h, deltat = calc_t(idx, v, r, t, t_h, deltat, tmp[idx])
         r_l, p_l = calc_lambda(idx, v, r, p, t_h, r_l, p_l)
         r_h = calc_half(idx, r, r_h)

@@ -5,22 +5,22 @@ config = read_json()
 AU = 1.4598 * 10 ** 13  # cm
 GRID = config["GRID"]
 T_ORDER = 10 ** 13
-MAX_STEP = config["MAX_STEP"]
+MAXSTEP = config["MAXSTEP"]
 M_cc = config["M"] * 1.99 * 10 ** 33  # cloud core
 G = 6.67259 * 10 ** (-8)
 
 if config["isLarson"]:
-    R_CC = 1.63 * 10 ** 17
+    RCC = 1.63 * 10 ** 17
 else:
-    R_CC = config["radius"] * AU  #  AU 1000 to 30000
+    RCC = config["RADIUS"] * AU  #  AU 1000 to 30000
 
 TMP_INIT = config["TMP"]
-DISPLAY = config["Display"]
+DISPLAY = config["DISPLAY"]
 AVG = 2.4
 R = 8 * 10 ** 7
 
 KQ = config["KQ"]
-CFL_CONST = config["CFL"]
+CFLCONST = config["CFL"]
 planck = 6.63 * 10 ** (-27)
 kb = 1.38 * 10 ** (-16)
 eV = 1.6 * 10 ** (-12)

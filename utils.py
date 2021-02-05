@@ -1,5 +1,5 @@
 import numpy as np
-from conditions import GRID, R_CC, M_cc, KQ
+from conditions import GRID, RCC, M_cc, KQ
 
 
 def CFL(v, x, tmp, param=1.0):
@@ -37,11 +37,11 @@ def get_cs(tmp):
 
 
 def m_init(r):
-    res = np.power(r / R_CC, 3) * M_cc
+    res = np.power(r / RCC, 3) * M_cc
     return res
 
 
 def r_init():
-    res = np.linspace(0, R_CC, GRID + 1)
+    res = np.linspace(0, RCC, GRID + 1)
     res[0] = 1
     return res
