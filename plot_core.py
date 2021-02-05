@@ -1,13 +1,13 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import json
 import os
+import numpy as np
+import matplotlib.pyplot as plt
 import seaborn as sns
-from calc_operator import calc_fh, calc_gamma
-from conditions import AVG
 
+from calc_operator import calc_fh, calc_gamma
 from file_operator import read_json, read_index
-from conditions import GRID
+from conditions import GRID, AVG
+from plot_fh_2d import search_fh
 
 
 def main():
@@ -44,7 +44,7 @@ def main():
         "data/" + config["plot_tag"] + "/step_e.npy",
         allow_pickle=True,
     )
-
+    # plot TMP
     i = 2
     rho_ls = []
     tmp_ls = []
@@ -57,39 +57,15 @@ def main():
     plt.plot(rho_ls, tmp_ls)
     plt.xlabel("log10rho cgs")
     plt.ylabel("log10T cgs")
-    rho_ls = []
-    tmp_ls_low = []
-    tmp_ls_high = []
+    rho_ls_fh, tmp_ls_low, tmp_ls_high = search_fh()
 
-    # グリッドサーチ
-    for rho_index in range(-10, -1):
-        rho_res = 10 ** rho_index
-        tmp_ls = np.linspace(100, 10000, 1000)
-        best_low = 0.0
-        best_tmp_low = 100
-        best_high = 0.0
-        best_tmp_high = 100
-        for item in tmp_ls:
-            if np.abs(calc_fh(item, rho_res, AVG)[0] - 0.1) < np.abs(best_low - 0.1):
-                best_low = calc_fh(item, rho_res, AVG)[0]
-                best_tmp_low = item
-            if np.abs(calc_fh(item, rho_res, AVG)[0] - 0.9) < np.abs(best_high - 0.9):
-                best_high = calc_fh(item, rho_res, AVG)[0]
-                best_tmp_high = item
-        print(best_low)
-        print(best_high)
-        rho_ls.append(rho_res)
-        tmp_ls_low.append(best_tmp_low)
-        tmp_ls_high.append(best_tmp_high)
-    rho_ls = np.log10(np.array(rho_ls))
-    tmp_ls_low = np.log10(np.array(tmp_ls_low))
-    tmp_ls_high = np.log10(np.array(tmp_ls_high))
-
-    plt.plot(rho_ls, tmp_ls_low, linestyle="dashed", label="f_h = 0.1")
-    plt.plot(rho_ls, tmp_ls_high, linestyle="dashed", label="f_h = 0.9")
+    plt.plot(rho_ls_fh, tmp_ls_low, linestyle="dashed", label="f_h = 0.1")
+    plt.plot(rho_ls_fh, tmp_ls_high, linestyle="dashed", label="f_h = 0.9")
     plt.legend()
     os.makedirs("results/" + config["plot_tag"], exist_ok=True)
     plt.savefig("results/" + config["plot_tag"] + "/core.png")
+
+    # plot Energy
     i = 2
     rho_ls = []
     e_ls = []
