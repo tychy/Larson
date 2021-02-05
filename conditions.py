@@ -10,11 +10,11 @@ M_cc = config["M"] * 1.99 * 10 ** 33  # cloud core
 G = 6.67259 * 10 ** (-8)
 
 if config["isLarson"]:
-    TMP_INIT = 10
     R_CC = 1.63 * 10 ** 17
 else:
-    TMP_INIT = config["TMP"]
     R_CC = config["radius"] * AU  #  AU 1000 to 30000
+
+TMP_INIT = config["TMP"]
 DISPLAY = config["Display"]
 AVG = 2.4
 R = 8 * 10 ** 7
