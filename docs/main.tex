@@ -18,10 +18,14 @@
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\hpn}{n + \half}
 \newcommand{\hmn}{n - \half}
-\newcommand{\hpj}{j + \half}
-\newcommand{\hml}{j - \half}
-\newcommand{\hpi}{i + \half}
-\newcommand{\hmi}{i - \half}
+\newcommand{\pnn}{{n + 1}}
+\newcommand{\mnn}{{n - 1}}
+\newcommand{\pjj}{{j + 1}}
+\newcommand{\mjj}{{j - 1}}
+\newcommand{\hpj}{{j + \half}}
+\newcommand{\hml}{{j - \half}}
+\newcommand{\hpi}{{i + \half}}
+\newcommand{\hmi}{{i - \half}}
 \newcommand{\ethe}{E_{th}}
 \newcommand{\beq}{\begin{equation}}
 \newcommand{\beql}[1]{\begin{equation}\label{#1}}
@@ -828,104 +832,40 @@ $\alpha > 1$のとき不安定である。
 \mu_Q = l^2 \Dder[\rho]{t} 
 \eeq
 それ以外のとき$\mu_Q = 0$として、本当の粘性と同じ形で運動方程式とエネルギー方程式へ組み込めば良い。
-エネルギー方程式への組み込みで運動エネルギーを熱エネルギーへ変換する役割も果たす。
-%todo:式
-つまり、粘性圧を
-\beq
-Q = - \frac{4}{3} \mu_Q \pder[v]{z}
-\eeq
-として、運動方程式、エネルギー方程式に粘性圧の項を付け足せば良い。それぞれ
-\begin{align}
-    \rho \Dder[v]{t} = f - \pder[]{z}(P + Q)\\
-    \Dder[e]{t} + (p + Q)\Dder[]{t}\left(\frac{1}{\rho}\right)=0
-\end{align}
-となる。
+エネルギー方程式への組み込みによって運動エネルギーを熱エネルギーへ変換する役割も果たす。
 \subsection{一次元球対称ラグランジュ座標}
 星形成のシミュレーションでは、計算に必要ね密度と長さの桁のレンジが大きい。
 例えば長さのスケールについて考えると、初期条件では$1000AU$程度の分布が第２コアでは$1R_{sun}$程度の領域の計算が必要になる。
 ここには$6$桁の違いがある。
-密度は初期条件では$10^{-19}g/cc$であるが、最終的には$10^{-2}g/cc$に至る。$17$桁のレンジがある。
+密度は初期条件では$10^{-19}\,\mathrm{gcm^{-3}}$であるが、最終的には$10^{-2}\,\mathrm{gcm^{-3}}$に至る。$17$桁のレンジがある。
 長さのスケールだけを考えても、空間を格子によって均等に切るだけでは計算量が膨大になってうまく計算できないことがわかる。
 そこで、一次元球対称ラグランジアン座標を導入する。
 それは、半径ではなく質量について座標を切る方法である。
 計算の過程で最初に分割された媒質の質量は変わらずに
 媒質の空間座標が時間によって変化することでコアの密度が上がると媒質が中央に集まって計算が細かくなるという利点がある。
 
-\subsection{基礎方程式の差分化}
-一次元の球対称ラグランジアン流体計算において、独立変数は$M_r$である。
-ここで$M_r$は半径$r$の内部にある質量で定義され、媒質を外向きに大きくなる量である。
-（疑似粘性の選択は注意が必要である。）
-いま、解くべき方程式は
-\begin{align}
-    \Dder[v]{t} &= - \frac{GM_r}{r^2} - 4\pi r^2\pder[(p + Q)]{M_r}\\
-    \Dder[r]{t} &= v\\
-    V &= \frac{1}{\rho}=\frac{4}{3}\pder[r^3]{M_r}\\
-    Q &= \frac{4}{3}\rho l^2 (\pder[v]{r})^2\label{eq:q}
-\end{align}
-方程式は$\left\{M_i\right\};i = 1,...,I+1$によって離散化される。
-$i$番目の球殻の中の質量は
-\beq
-    \Delta M_{i+\half} = M_{i+1} - M_i
-\eeq
-陽的な差分方程式は、
-\begin{align}
-    \frac{v^{n+\half}_i - v^{n-\half}_i}{\Delta t^n} &= -\frac{GM_i}{(r^{n+\lambda}_i)^2}
-    -4\pi(r^{n+\lambda}_i)^2
-    \frac{p^{n+\lambda}_{i+\half} - p^{n+\lambda}_{i-\half}+Q^{n-\half}_{i+\half} - Q^{n-\half}_{i-\half}}{\Delta M_i}\\
-    r^{n+1}_i &= r^{n}_i + v^{\hpn}_i \Delta t^{\hpn}\\
-    V^{n+1}_{\hpi} &= \frac{1}{\rho^{n+1}_{\hpi}}=\frac{4}{3}\frac{(r^{n+1}_{i+1})^3 - (r^{n+1}_{i})^3}{\Delta M_{\hpi}}\\
-\end{align}
-途中で、
-\begin{align}
-    r^{n+\lambda}_i &= r^n_i + \frac{1}{4} (\Delta t^{n+\half} - \Delta t^{n-\half})v^{n-\half}_i\\
-    p^{n+\lambda}_{\hpi} &=  p^{n}_{\hpi} + \frac{1}{4} (\Delta t^{n+\half} - \Delta t^{n-\half})
-    \frac{p^{n}_{\hpi} - p^{n-1}_{\hpi}}{\Delta t^{\hmi}}
-\end{align}
-運動方程式は、
-\beq
-    \Dder[v]{t} = - \frac{GM_r}{r^2} - 4\pi r^2\pder[p]{M_r} - \frac{4\pi}{r}\pder[r^3Q]{M_r}
-\eeq
-差分化すれば、
-\beq
-    \frac{v^{n+\half}_i - v^{n-\half}_i}{\Delta t^n} =
-    -\frac{GM_i}{(r^{n+\lambda}_i)^2}
-    -4\pi(r^{n+\lambda}_i)^2
-    \frac{p^{n+\lambda}_{i+\half} - p^{n+\lambda}_{i-\half}}{\Delta M_i}
-    -\frac{4\pi}{r^{n}_i}
-    \frac{(r^{n}_{i+\half})^3Q^{n-\half}_{i+\half} - (r^{n}_{i-\half})^3Q^{n-\half}_{i-\half}}{\Delta M_i}
-\eeq
-ここで、$r_{i+\half}$は質量を半分持つように選ばれる。
-\begin{align}
-    r_{i+\half} = (r^3_i + r^3_{i+1})^{\frac{1}{3}}
-\end{align}
-$Q$の更新は、
-\beq
-    Q^{\hmn}_{\hpi} = - 2 (\mu_Q)^{\hmn}_{\hpi}
-     \left[\frac{v^{\hmn}_{i+1}-v^{\hmn}_{i}}{r^{\hmn}_{i+1}-r^{\hmn}_{i}}
-      +\frac{1}{3}\frac{\ln \rho^{n}_{\hpi} - \ln \rho^{n-1}_{\hpi}}{\Delta t^{\hpn}}\right]
-\eeq
-粘性係数は、
-\beq
-    (\mu_Q)^{n-\half}_{i+\half} = 
-    l^2 \frac{\left[ \rho^n_{\hpi} - \rho^{n-1}_{\hpi}\right]}{\Delta t^{\hpn}}
-\eeq
-ここで、$l$は
-\beq
-    l = k_q \Delta r
-\eeq
-\subsection{陰的計算}
-等温の仮定を外してエネルギーを計算入れる。
-放射による効果は、
+\subsection{エネルギー方程式と陰的計算}
+ここではエネルギー方程式を解くことを考える。
+半径$r$の球殻全体のエネルギーフラックス$l$はエネルギーフラックス$F$を使って
 \begin{align}
     l = 4\pi r^2 F\\
-    F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
 \end{align}
-より、
-エネルギー方程式は、人工粘性による散逸項を$\Phi$と書いて、
+と書ける。ここへエネルギーフラックスの表式\eqref{eq:Flast}
+\beq
+    F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
+\eeq
+を使えば単位質量あたりのエネルギー方程式は、
+\begin{align}
+    \Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) &= - \frac{1}{4\pi\rho r^2}\pder[l]{r}\\
+                                                          &= 
+                                                          \frac{ac}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right)
+\end{align}    
+と書ける。
+さらに、人工粘性によって運動エネルギーが内部エネルギーに変換される項を$\Phi$と書いて、
 \begin{align}
     \Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) &= - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi\\
                                                           &= 
-                                                          \frac{4a}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right) + \Phi
+                                                          \frac{ac}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right) + \Phi
 \end{align}    
 ここで、エネルギー方程式を差分化することを考えるが、単に差分化すると２階微分が入っているので
 クーラン条件が$\Delta t < \frac{\Delta x^2}{c}$となる。
@@ -936,15 +876,63 @@ $Q$の更新は、
 陰的な手法では、クーラン条件についての考えなくて良いのでエネルギー方程式に関するクーラン条件の問題が解決される。
 \begin{align}
     \Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) 
-= \frac{4a}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right) + \Phi\\
-e^{n+1} - e^{n} + \half (p^n + p^{n+1})(V^{n+1} - V^n) = \Delta t^n \dot{q}^{n+\half}+\Delta t^n \Phi^{n+\half}
+= \frac{4ac}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right) + \Phi\\
+e^{n+1}_j - e^{n}_j + \half (p^n_j + p^{n+1}_j)(V^{n+1}_j - V^n_j) 
+= \Delta t^n \dot{q}^{n+1}_j+\Delta t^n \Phi^{n+\half}_j\label{eq:sabun}
 \end{align}    
+差分化した結果は\eqref{eq:sabun}のようになる。
 いま、$\dot{q}$を放射による効果として以下のように差分化する。
 \begin{align}
-    \dot{q} = \frac{4a}{3k}\frac{1}{\rho (r_j)^2}
+    \dot{q}^\pnn_j = \frac{ac}{3k}\frac{1}{\rho^\pnn_j (r^\pnn_j)^2}\frac{1}{\Delta r_\hpj}
+    \left(\frac{(r^\pnn_\pjj)^2}{\rho^\pnn_\pjj}\frac{T^\pnn_\pjj - T^\pnn_j}{\Delta r^\pnn_\pjj} -
+    \frac{(r^\pnn_j)^2}{\rho^\pnn_j}\frac{T^\pnn_j - T^\pnn_\mjj}{\Delta r^\pnn_j}\right)
 \end{align}
-
-
+この式では右の肩の時刻が$\pnn$になっている。これは陰解法と呼ばれる手法である。
+ここで例えば\eqref{eq:sabun}の右辺に$\dot{q}^n$を使うと陽解法であり、クーラン条件を考える必要がある方法であった。
+また、ここでは採用しなかったが$\half(\dot{q}^n + \dot{q}^\pnn)$を使うCrank-Nicolson法も陰的な解法である。
+いま、$\delta T^n = T^\pnn - T^n$として\eqref{eq:sabun}を$\delta T^n$について解くことを考える。
+\beq
+T = \frac{RT}{\gamma -1}
+\eeq
+\beq
+p = R\rho T
+\eeq
+の関係式を使うと$T$に関する式にできる。つまり\eqref{eq:sabun}は
+\beq
+- a_j \delta T^n_\mjj+ b_j \delta T^n_j- c_j \delta T^n_\pjj =r_j
+\eeq
+ここで$a, b, c, r$は時刻$n$までに決定される項である。
+したがって、すべての$j ={1\cdots J}$の$J$個の方程式を解けば良い。これは行列を使って
+\beq
+\begin{pmatrix}
+    b_{0} & -c_{0} &  && \\
+    -a_{1} & b_{1} & -c_{1} &&\\
+    &-a_{2} & b_{2} & -c_{2} &&\\
+&  &  \ddots      &  \ddots      & \ddots \\
+&&&-a_{J-1}  & b_{J-1} &-c_{J-1}\\
+&&&&-a_{J}  & b_{J} 
+\end{pmatrix}
+\begin{pmatrix}
+\delta T_{0} \\
+\vdots  \\
+\delta T_{j}  \\
+\vdots \\
+\delta T_{J}
+\end{pmatrix}
+=
+\begin{pmatrix}
+r_{0} \\
+\vdots  \\
+r_{j}  \\
+\\
+r_{J}
+\end{pmatrix}
+\label{eq:mat}
+\eeq
+と表される。ここに境界での温度が一定である条件$\delta T_J = 0$を与えればこれは解ける。
+先にこれは陰解法であると述べたが、陰解法の重要な性質として\eqref{eq:mat}からわかるように
+時刻$n$での解の変化が時刻$n+1$のすべての点に影響を与えるという点がある。
+これは情報が無限の速さで伝わることを意味して、この性質によってクーラン条件をエネルギー方程式については考える必要がなくなる。
 \section{結果}
 \subsection{初期条件}
 初期条件として、ガス雲の全質量を$1M_\odot$としてガス雲全体が$T=10\,\mathrm{K}$で等温であるとする。
