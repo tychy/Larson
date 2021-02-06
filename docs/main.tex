@@ -977,7 +977,7 @@ R < 0.46 \frac{GM\mu}{R_{gas}T}
 \subsection{輻射の効果を入れてエネルギー方程式を解く}
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/rho_r_noion.png}
-    \caption{}
+    \caption{。ラベルは時間で単位は$10^{12}s$}
     \label{fig:rho_r_noion}
 \end{figure}
 \begin{figure}[H]
@@ -986,21 +986,42 @@ R < 0.46 \frac{GM\mu}{R_{gas}T}
     \label{fig:core_noion}
 \end{figure}
 \subsection{粘性なしの計算の例}
+衝撃波の取り扱いは圧縮性流体の数値計算には欠かせないと述べたが、実際に人工粘性の効果を取り除いて計算した結果を調べる。
+輻射の効果を考えてエネルギー方程式を解いた結果の図\ref{fig:rho_r_noion}はすでに人工粘性を実装していた。
+そこから、人工粘性を取り除いた結果が図\ref{fig:noQ}である。
+形成された第一コアの中で数値不安定が時刻$9.572392\times10^{12}\,\mathrm{s}$から$9.572755\times10^{12}\,\mathrm{s}$へ発達している過程が見て取れる。
+このとき速度プロファイルは図\ref{fig:v_r_noQ}のようになっている。
+時刻$9.572392\times10^{12}\,\mathrm{s}$とその$1$ステップ前の流速と音速の分布はそれぞれ
+\ref{fig:1879}と\ref{fig:2392}である。
+この一連のプロファイルから時刻$9.571879\times10^{12}\,\mathrm{s}$において第二コアの境界部分で
+自由落下速度が音速を超えるが、
+衝撃波を扱うことができないために$9.572755\times10^{12}\,\mathrm{s}$へかけて数値的不安定性が発達していくことがわかる。
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/noQ.png}
-    \caption{}
+    \caption{人工粘性なしの計算を$r-\rho$平面でプロットした図。ラベルは時間で単位は$10^{12}s$}
     \label{fig:noQ}
 \end{figure}
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/v_r_noQ.png}
-    \caption{}
+    \caption{人工粘性なしの計算の速度分布。ラベルは時間で単位は$10^{12}s$}
     \label{fig:v_r_noQ}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/v_r_cs_9571879.png}
+    \caption{時刻$9.571879\times10^{12}\,\mathrm{s}$での速度と音速の$r-\rho$平面での分布}
+
+    \label{fig:1879}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/v_r_cs_9572392.png}
+    \caption{時刻$9.572392\times10^{12}\,\mathrm{s}$での速度と音速の$r-\rho$平面での分布}
+    \label{fig:2392}
 \end{figure}
 
 \subsection{解離の効果による第一コアの崩壊と第二コアの形成}
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/rho_r.png}
-    \caption{}
+    \caption{。ラベルは時間で単位は$10^{12}s$}
     \label{fig:rho_r}
 \end{figure}
 
@@ -1011,12 +1032,12 @@ R < 0.46 \frac{GM\mu}{R_{gas}T}
 \end{figure}
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/v_r.png}
-    \caption{}
+    \caption{。ラベルは時間で単位は$10^{12}s$}
     \label{fig:v_r}
 \end{figure}
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/f_r.png}
-    \caption{}
+    \caption{。ラベルは時間で単位は$10^{12}s$}
     \label{fig:f_r}
 \end{figure}
 
