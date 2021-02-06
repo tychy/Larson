@@ -554,18 +554,42 @@ J = - \frac{N(x + \delta) - N(x)}{2\delta \tau}
     = - D \pder[n]{x}\label{eq:fick}
 \end{align}
 $D = \frac{\delta^2}{2\tau}$とした。
+粒子の速度は$v_x = \frac{\delta}{\tau}$と書けるが、
+粒子が三次元の速度$v$を持っていてそのうちの一次元のみを見ていると考えて、
+近似として$v = 3v_x$とする。
+すると係数は$D = frac{v\delta}{3}$と書き換えることもできる。
 これが物質の拡散についてのフィックの法則である。
 \subsubsection{輻射輸送}
+星の輻射輸送について考える。
 星の半径に比べて、平均自由行程$l_{ph}$は
 \beq
-\frac{l_{ph}}{R_{sun}} \sim 3 \times 10^{-11}
+\frac{l_{ph}}{R_{\odot}} \sim 3 \times 10^{-11}
 \eeq
-ととても小さい。このような状況では、輻射による輸送は拡散過程として捉えられる。
+ととても小さい。このような状況では、輻射輸送は拡散過程として捉えられる。
 したがって、Fickの法則\eqref{eq:fick}からの類推をする。
-$J \rightarrow F, n \rightarrow U, v \rightarrow c, \delta \rightarrow l_{ph}$と取り替えると
+物質の場合の物理量を置き換える。
+物質の流れをエネルギーフラックスに$J \rightarrow F$、
+数密度を内部エネルギーに$n \rightarrow U$
+、速度を光速に$v \rightarrow c$
+そして物質の自由行程であった$\delta$を光の平均自由行程に$\delta \rightarrow l_{ph}$と取り替えると
 \beq
-F = - \frac{c l_{ph}}{3}\pder[U]{r}
+F = - \frac{c l_{ph}}{3}\pder[U]{r}\label{eq:F}
 \eeq
+とFickの法則から輻射の式を得られる。
+ここへシュテファンボルツマン則
+\beq
+U = aT^4
+\eeq
+から
+\beq
+\pder[U]{r} = 4 aT^3\pder[T]{r}
+\eeq
+となる。$a=7.57\times10^{-15}\,\mathrm{ergcm^{-3}K^{-4}}$はシュテファンボルツマン係数と呼ばれる。
+これを\eqref{eq:F}へ使って
+\beq
+F = - \frac{4ac}{3} l_{ph}T^3\pder[T]{r}
+\eeq
+となる。平均自由行程は
 \subsection{第一コアの形成}
 重力不安定性によって重力収縮を起こしている分子雲について考える。
 分子雲は崩壊を起こす前は$T=10K$で分子雲全体が等温で、かつ光学的に薄い状態である。
