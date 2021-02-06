@@ -589,7 +589,16 @@ U = aT^4
 \beq
 F = - \frac{4ac}{3} l_{ph}T^3\pder[T]{r}
 \eeq
-となる。平均自由行程は
+となる。平均自由行程$l_{ph}$は単位質量あたりの断面積$\kappa$と密度$\rho$を使って
+\beq
+l_{ph} = \frac{1}{\kappa\rho}
+\eeq
+と書ける。典型的な星では$\kappa \sim 1 \,\mathrm{cm^2g-1}$である。
+これを使えば最終的な表式は、
+\beq
+F =  - \frac{4ac}{3} \frac{T^3}{\kappa\rho}\pder[T]{r}\label{eq:Flast}
+\eeq
+となる。
 \subsection{第一コアの形成}
 重力不安定性によって重力収縮を起こしている分子雲について考える。
 分子雲は崩壊を起こす前は$T=10K$で分子雲全体が等温で、かつ光学的に薄い状態である。
