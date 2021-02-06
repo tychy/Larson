@@ -1,8 +1,9 @@
-\documentclass{jsarticle}
+\documentclass[a4j, dvipdfmx]{jsarticle}
 \usepackage{amssymb,amsmath,amsthm}
 \usepackage{newtxtt}
 \usepackage[utf8]{inputenc}
-\usepackage[dvipdfmx]{graphicx}
+\usepackage{tikz}
+\usepackage{graphicx}
 \usepackage{here}
 \newcommand{\kakko}[1][]{(#1)}
 \newcommand{\bx}{\mathbf{x}}
@@ -519,7 +520,35 @@ $\gamma=1,n=\infty$の等温の場合
 \end{equation}
 とおけば、2階の微分方程式であるLane-Emden方程式は閉じている。
 \subsection{放射}
-\subsubsection{Fockの法則}
+\subsubsection{Fickの法則}
+物質の拡散についての簡単なモデルについて調べる。
+一次元の空間を考える。区間$[x, x +\delta)$の間の粒子数を$N(x)$とする。
+\begin{center}\begin{tikzpicture}[scale=2]
+       %ここにTikZのコマンドを記述します。
+     % 軸
+    \draw[thick, -stealth] (-1.2, 0)--(1.2, 0) node[right] {$x$};
+    \draw (-0.5, 0) node[below] {$N(x)$};
+    \fill (0.5, 0) circle (1pt);
+    \fill (-0.5, 0) circle (1pt);
+    \draw (0.5, 0) node[below] {$N(x+\delta)$};
+\end{tikzpicture}\label{tikz:fick}\end{center}
+
+各粒子は独立に運動していて、ある固定された時間間隔$\tau$ごとに正か負の方向へ$1/2$の確率で距離$\delta$だけ動くとする。
+すると、$x+\delta $の点を右に通過する粒子数は、
+\beq
+- \half \left[N(x + \delta) - N(x)\right]
+\eeq
+時間あたりの流束を$J$として
+\beq
+J = - \frac{N(x + \delta) - N(x)}{2\delta \tau}
+\eeq
+濃度を$n = \frac{N}{\delta}$として
+\begin{align}
+    J = - \frac{\delta^2}{2\tau} \pder[n]{x}\\
+    = - D \pder[n]{x}
+\end{align}
+$D = \frac{\delta^2}{2\tau}$とした。
+これが物質の拡散についてのフィックの法則である。
 \subsubsection{輻射輸送}
 \subsection{第一コアの形成}
 重力不安定性によって重力収縮を起こしている分子雲について考える。
