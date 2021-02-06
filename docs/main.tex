@@ -975,15 +975,30 @@ R < 0.46 \frac{GM\mu}{R_{gas}T}
 \end{figure}
 
 \subsection{輻射の効果を入れてエネルギー方程式を解く}
+図\ref{fig:rho_r_iso}では強制的に等温にした状況のもとでの重力収縮を計算した。
+しかし、実際にはダスト冷却の効果によってコアが不透明になるまで広い範囲で等温進化している。
+したがって、輻射輸送の効果を入れたエネルギー方程式を計算に取り入れて計算した。
+密度分布は\ref{fig:rho_r_noion}のようになる。
+\ref{fig:rho_r_iso}と同じようにエンベロープの分布は$\rho \propto r^{-2}$であることがわかる。
+さらに、中心部分の温度と密度を図示した結果である図\ref{fig:core_noion}から$\rho \sim 10^{-13}$程度で中心部分が光学的に
+厚くなって断熱的に進化している様子がわかる。そして断熱進化の傾きが$0.39$程度であることから、比熱比$\gamma \sim 1.4$で断熱進化していることがわかる。
+これは水素分子の比熱比と一致している。
+また、速度分布\ref{fig:v_r_noion}からはコアの表面で次第に衝撃波面が形成されていく様子がわかる。
+コアへ降着する質量は衝撃波面で運動エネルギーを失い、内部エネルギーに変換される。
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/rho_r_noion.png}
-    \caption{。ラベルは時間で単位は$10^{12}s$}
+    \caption{第一コアの形成を$r-\rho$平面でプロットした図。ラベルは時間で単位は$10^{12}s$}
     \label{fig:rho_r_noion}
 \end{figure}
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/core_noion.png}
-    \caption{}
+    \caption{中心部分の密度と温度の発達をを$T-\rho$平面でプロットした図。ラベルは時間で単位は$10^{12}s$}
     \label{fig:core_noion}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/v_r_noion.png}
+    \caption{速度分布を$v-\rho$平面でプロットした図。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:v_r_noion}
 \end{figure}
 \subsection{粘性なしの計算の例}
 衝撃波の取り扱いは圧縮性流体の数値計算には欠かせないと述べたが、実際に人工粘性の効果を取り除いて計算した結果を調べる。
@@ -993,6 +1008,7 @@ R < 0.46 \frac{GM\mu}{R_{gas}T}
 このとき速度プロファイルは図\ref{fig:v_r_noQ}のようになっている。
 時刻$9.572392\times10^{12}\,\mathrm{s}$とその$1$ステップ前の流速と音速の分布はそれぞれ
 \ref{fig:1879}と\ref{fig:2392}である。
+人工粘性を入れて計算した分布が図\ref{fig:v_r_noion}であるからこれと比べると、
 この一連のプロファイルから時刻$9.571879\times10^{12}\,\mathrm{s}$において第二コアの境界部分で
 自由落下速度が音速を超えるが、
 衝撃波を扱うことができないために$9.572755\times10^{12}\,\mathrm{s}$へかけて数値的不安定性が発達していくことがわかる。
@@ -1036,13 +1052,11 @@ R < 0.46 \frac{GM\mu}{R_{gas}T}
     \label{fig:v_r}
 \end{figure}
 \begin{figure}[H]
-    \includegraphics[clip,width=10.0cm]{graph/f_r.png}
+    \includegraphics[clip,width=17.0cm]{graph/f_r.png}
     \caption{。ラベルは時間で単位は$10^{12}s$}
     \label{fig:f_r}
 \end{figure}
 
-
-\section{結論}
 \bibliographystyle{junsrt}
 \bibliography{cite}
 \end{document}
