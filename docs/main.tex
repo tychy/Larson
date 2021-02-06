@@ -439,9 +439,15 @@ $\cos^2\xi = \frac{r}{r_0}$と置き換えれば、
 \eeq
 $\xi = \frac{\pi}{2}$において球殻が中心に達するので、
 \beq
-t_{ff} = \left(\frac{3\pi}{32\pi G \rho_0} \right)^\half
+t_{ff} = \left(\frac{3\pi}{32 G \rho_0} \right)^\half
 \eeq
+と書かれる自由落下時間$t_{ff}$が崩壊のタイムスケールを表していることがわかる。
 %具体例
+ここへ例えばガス雲の代表的な密度$\rho = 10^{-19}$を代入してみると
+\beq
+t_{ff} = 7\times10^{12}s \simeq 10^5 \sim 10^6 year
+\eeq
+ガス雲の崩壊のタイムスケールが数十万年から数百万年のスケールであることがわかる。
 \subsection{Lane-Emden方程式}
 星は主系列星への進化の過程で星全体での対流を経るので、星の内部の組成は主系列星に至った際には一様である。
 また、星間ガスから自己重力収縮している過程も内部の組成は一様である。
@@ -545,11 +551,21 @@ J = - \frac{N(x + \delta) - N(x)}{2\delta \tau}
 濃度を$n = \frac{N}{\delta}$として
 \begin{align}
     J = - \frac{\delta^2}{2\tau} \pder[n]{x}\\
-    = - D \pder[n]{x}
+    = - D \pder[n]{x}\label{eq:fick}
 \end{align}
 $D = \frac{\delta^2}{2\tau}$とした。
 これが物質の拡散についてのフィックの法則である。
 \subsubsection{輻射輸送}
+星の半径に比べて、平均自由行程$l_{ph}$は
+\beq
+\frac{l_{ph}}{R_{sun}} \sim 3 \times 10^{-11}
+\eeq
+ととても小さい。このような状況では、輻射による輸送は拡散過程として捉えられる。
+したがって、Fickの法則\eqref{eq:fick}からの類推をする。
+$J \rightarrow F, n \rightarrow U, v \rightarrow c, \delta \rightarrow l_{ph}$と取り替えると
+\beq
+F = - \frac{c l_{ph}}{3}\pder[U]{r}
+\eeq
 \subsection{第一コアの形成}
 重力不安定性によって重力収縮を起こしている分子雲について考える。
 分子雲は崩壊を起こす前は$T=10K$で分子雲全体が等温で、かつ光学的に薄い状態である。
