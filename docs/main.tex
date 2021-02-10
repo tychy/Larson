@@ -1,8 +1,9 @@
-\documentclass{jsarticle}
+\documentclass[a4j, dvipdfmx]{jsarticle}
 \usepackage{amssymb,amsmath,amsthm}
 \usepackage{newtxtt}
 \usepackage[utf8]{inputenc}
-\usepackage[dvipdfmx]{graphicx}
+\usepackage{tikz}
+\usepackage{graphicx}
 \usepackage{here}
 \newcommand{\kakko}[1][]{(#1)}
 \newcommand{\bx}{\mathbf{x}}
@@ -10,16 +11,21 @@
 \newcommand{\bb}{\mathbf{b}}
 \newcommand{\bd}{\mathbf{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\ppder}[2][]{\frac{\partial^2#1}{\partial#2^2}}
 \newcommand{\dder}[2][]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
 \newcommand{\ddder}[2][]{\frac{\mathrm{d^2}#1}{\mathrm{d}#2^2}}
 \newcommand{\Dder}[2][]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\hpn}{n + \half}
 \newcommand{\hmn}{n - \half}
-\newcommand{\hpj}{j + \half}
-\newcommand{\hml}{j - \half}
-\newcommand{\hpi}{i + \half}
-\newcommand{\hmi}{i - \half}
+\newcommand{\pnn}{{n + 1}}
+\newcommand{\mnn}{{n - 1}}
+\newcommand{\pjj}{{j + 1}}
+\newcommand{\mjj}{{j - 1}}
+\newcommand{\hpj}{{j + \half}}
+\newcommand{\hml}{{j - \half}}
+\newcommand{\hpi}{{i + \half}}
+\newcommand{\hmi}{{i - \half}}
 \newcommand{\ethe}{E_{th}}
 \newcommand{\beq}{\begin{equation}}
 \newcommand{\beql}[1]{\begin{equation}\label{#1}}
@@ -40,6 +46,7 @@
 \title{原始星形成の1次元数値計算}
 \begin{document}
 \maketitle
+\tableofcontents
 \section{Introduction}
 \subsection{星形成の概要}
 星形成領域にはRho Ophiuchi, Taurus Molecular Cloud, Orion Nebulaなどがある。
@@ -64,21 +71,24 @@
 
 \section{Related Work}
 \section{基礎理論}
+このレポートでは、一次元においてLarson 1969\cite{Larson}の行った計算を再現する。
+Larsonの計算とは、ガス球が等温崩壊して第一コアを形成作り熱せられた第一コアが水素の解離反応によって崩壊して第二コア、つまり原始星に至るまでの計算である。
+ここでは、ガス雲からの星形成について理論的な理解を示した上で、数値計算への実装方法をまとめる。
 \subsection{基礎方程式}
-このレポートでは、自己重力と放射を入れた方程式を解く。
+自己重力と放射の効果を入れた連続の式、運動方程式、エネルギー方程式を解くことを考える。
 自己重力とは、流体に働く重力のうちの流体自身の作る重力のことである。
-自己重力を除いた重力は外場として与えられる重力である。
-支配方程式は以下のようになる :\\
+自己重力と外場として与えられる重力を合わせたものが重力である。
+支配方程式は以下である:\\
 連続の式
 \begin{equation}
-    \pder[\rho]{t} = - \nabla \bv
+    \pder[\rho]{t} = - \nabla(\rho \bv)
 \end{equation}
 運動方程式は単位質量あたりの重力ポテンシャルを$\Phi$として、
 \begin{equation}
     \Dder[\bv]{t} = - \frac{1}{\rho}\nabla{p} - \nabla\Phi\label{eq:euler}
 \end{equation}
 
-エネルギー方程式は単位質量あたりの内部エネルギーを$e$、加熱率を$\gamma$、冷却率を$\lambda$として、
+エネルギー方程式は単位質量あたりの内部エネルギーを$e$、加熱率を$\Gamma$、冷却率を$\lambda$として、
 \begin{equation}
     \Dder[e]{t} = - \frac{p}{\rho} \nabla \cdot \bv + \Gamma - \lambda
 \end{equation}
@@ -96,7 +106,7 @@
 \begin{equation}
     \Dder[]{t} (\rho\delta V)= 0\label{eq:mass}
 \end{equation}
-\eqref{eq:mass}より、
+質量保存則\eqref{eq:mass}より、
 \begin{align}
     %\rho\Dder[]{t} \delta V &+ \delta V\Dder[]{t} \rho= 0\\
     \Dder[\rho]{t} &= -\frac{\rho}{\delta V}\Dder[]{t} \delta V \\
@@ -107,7 +117,7 @@
      &= - \rho \nabla \cdot \bv\\
     \pder[\rho]{t} &= -  \nabla \cdot (\rho\bv)\label{eq:continuous}
 \end{align}
-\label{eq:continuous}が連続の式である。
+\eqref{eq:continuous}が連続の式である。
 また、非圧縮性流体では$\nabla \cdot \bv = 0$であるから、連続の式は
 \begin{equation}
     \pder[\rho]{t} = -  \rho \nabla \cdot \bv
@@ -118,17 +128,30 @@
 \begin{equation}
      \Dder[(\rho \delta V \bv)]{t} = - (\nabla p) \delta V - p \delta V \nabla \Phi
 \end{equation}
-左辺に質量保存則\eqref{eq:mass}を用いれば、運動方程式が導かれる。
+とかける。左辺に質量保存則\eqref{eq:mass}を用いれば、運動方程式が導かれる。
 \begin{equation}
     \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla\mathbf{\Phi}
 \end{equation}
 \subsubsection{運動エネルギーの保存則}
+運動方程式の両辺に$\rho\bv$をかける
+\beq
+    \rho\bv\Dder[\bv]{t} = - \bv\cdot\nabla{p} - \rho\bv\cdot\nabla\Phi
+\eeq
+左辺は
+\beq
+\rho\bv\Dder[\bv]{t} = \frac{\rho}{2}\Dder[(\bv \cdot \bv)]{t}= \frac{\rho}{2} \Dder[v^2]{t}
+\eeq
+と書き直されるので、
+\beq
+\frac{\rho}{2} \Dder[v^2]{t}= - \bv\cdot\nabla{p} - \rho\bv\cdot\nabla\Phi\label{eq:vsave}
+\eeq
 \subsubsection{TheRaynoldsTransportTheorem}
 \subsubsection{エネルギー方程式の導出}
-理想気体で孤立系を仮定して
+理想気体で断熱を仮定して
+外力は重力のみであるとする。
 エネルギー保存則
 \beq
-\Dder[]{t} \int \rho(e + \half v^2) dV = \int f \cdot v dV - \int pv \cdot n dS\label{eq:energysave}
+\Dder[]{t} \int \rho(e + \half v^2) dV = - \int \nabla\Phi \cdot v dV - \int pv \cdot n dS\label{eq:energysave}
 \eeq
 から出発する。
 左辺は内部エネルギーと運動エネルギーの和の変化率で
@@ -143,30 +166,31 @@ TheRaynoldsTransportTheoremを使って、
 \eeq
 である。したがってエネルギー保存の式\eqref{eq:energysave}は
 \beq
-\int \rho \Dder[]{t} (e + \half v^2)dV =\int f \cdot v dV -  \int \nabla \cdot (pv) dV
+\int \rho \Dder[]{t} (e + \half v^2)dV =-\int \nabla\Phi\cdot v dV -  \int \nabla \cdot (pv) dV
 \eeq
 積分をまとめると、
 \beq
-    \rho \Dder[]{t} (e + \half v^2) + \nabla \cdot (pv) = f \cdot v
+    \rho \Dder[]{t} (e + \half v^2) + \nabla \cdot (p\bv) = - \bv\cdot \nabla\Phi
 \eeq
-ここから、
+ここから運動エネルギーの保存則\eqref{eq:vsave}
 \beq
-    \rho \Dder[]{t} v^2 = v \cdot f - (v \cdot \nabla) p
+\frac{\rho}{2} \Dder[]{t} v^2 = -\bv \cdot \nabla\Phi - (\bv \cdot \nabla) p
 \eeq
 を引いて
 \beq
-    \rho \Dder[]{t} e + p (\nabla \cdot v) = 0
+    \rho \Dder[]{t} e + p (\nabla \cdot \bv) = 0
 \eeq
 を得る。
+\subsection{定性的な議論}
 \subsection{ビリアル定理}
 %http://jun-makino.sakura.ne.jp/kougi/stellar_dynamics_2009/note3/node3.html
 %http://th.nao.ac.jp/MEMBER/tomisaka/Lecture_Notes/StarFormation/6/node44.html#eqn:virial-2-5_3
-重力と圧力勾配がつりあっていて、力学平衡にある系において、系の全重力エネルギー$W$とそして全内部エネルギー$E_{th}$には簡単な関係があり、ビリアル定理と呼ばれる。
+重力と圧力勾配がつりあっていて、力学平衡にある系において、系の全重力エネルギー$W$とそして全内部エネルギー$E_{th}$には簡単な関係があり\eqref{eq:viriale}と表される。この関係はビリアル定理と呼ばれる。
 \begin{equation}
-     2E_{th} + W = 0
+    2E_{th} + W = 0\label{eq:viriale}
 \end{equation}
 ここでは、流体の自己重力系における力学平衡とは系の力学的性質が変化するタイムスケールが系の特徴的な時間である
-自由落下時間に比べて大きいときに系が力学的平衡にあるという。
+自由落下時間に比べて大きいときに系を力学的平衡にあるという。
 \subsubsection{ビリアル定理の導出}
 運動方程式\eqref{eq:euler}の両辺に$\rho$をかけて整理すると、
 \begin{align}
@@ -212,7 +236,7 @@ K_{ik} = T_{ik} + \half\Pi_{ik}
 \beq
 \half \ddder[I]{t} = 2T + \Pi + W = 2K + W
 \eeq
-いま、系の内部では静水圧平衡にあり$v=0$とみなせるとすれば、
+特に、星の内部で静水圧平衡にあり$v=0$とみなせる状況を考えると、
 $T \sim 0$である。
 ここで$\Pi$は全内部エネルギーを使って
 \begin{align}
@@ -222,7 +246,7 @@ $T \sim 0$である。
 &= 3(\gamma - 1)\ethe
 \end{align}
 と書けるから、
-系の全エネルギー$K$は系の全内部エネルギーを使って近似できる。
+系の全エネルギー$K = T  + \frac{\Pi}{2}$は系の全内部エネルギーを使って近似できる。
 すると重力エネルギーと熱エネルギーの関係式\eqref{eq:easyvirial2}を得る。
 静水圧平衡にある系のビリアル定理である。
 \beq
@@ -235,25 +259,22 @@ $T \sim 0$である。
 \subsubsection{境界での圧力が無視できないとき}
 \eqref{eq:pzero}で境界の圧力が0であるとしたが、系の境界での圧力が無視できないときのビリアル定理を考える。
 星形成においては、星形成領域である分子雲の外側の高温ガスの圧力が無視できない場合に相当する。
-
-\subsubsection{ビリアル質量}
-半径$R$の球対称なガス雲においてビリアル定理が成り立っているとする。
-ガス雲の境界での外圧$p_{ex}$を用いて、定常状態のビリアル定理は
-\begin{align}
-    p_{eq}V &= \frac{2}{3}K + (\gamma -1)E_{th} + \frac{W}{3}
-\end{align}
-内部熱エネルギーに対して運動エネルギーが小さい近似をする。
-ガス表面での圧力が小さいとすれば、単原子分子$\gamma = \frac{5}{3}$では、
-\begin{align}
-    (\gamma -1)E_{th} + \frac{W}{3} = 0\label{eq:easyvirial}\\
-    2E_{th} + W = 0
-\end{align}
+テンソルビリアル定理は、
+\beq
+\half \ddder[I_{ik}]{t} = 2T_{ik} + \Pi_{ik} + W_{ik} - \delta_{ik} p_{eq} \int d^3 x
+\eeq
+となって、定常状態では
+\beq
+3p_{ex} V = 2T + 3(\gamma - 1) + W\label{eq:virialpressure}
+\eeq
+これは状態方程式に補正が入った式だとも捉えられる。
 \subsubsection{負の比熱}
-内部エネルギー$K$と重力エネルギー$W$のにはビリアル定理から
+力学平衡にある系がエネルギーを失ったときに起こる特徴的な現象がある。
+内部エネルギー$E_{th}$と重力エネルギー$W$の関係はビリアル定理から
 \beq
 W = - 3(\gamma -1) \ethe
 \eeq
-の関係がある。系の全エネルギー$E = \ethe + W$が$\Delta E$だけ変化するとき、
+と書ける。系の全エネルギー$E = \ethe + W$が$\Delta E$だけ変化するとき、この関係を使って
 \beq
     \Delta E = \Delta \ethe + \Delta W = -  3(\gamma -1)\Delta \ethe
 \eeq
@@ -262,13 +283,77 @@ W = - 3(\gamma -1) \ethe
 この負のフィードバックによって、原始星では輻射によってエネルギーを失った結果コアの温度が上昇し熱核反応に至る。
 %天体物理の基礎
 %kipp 26.2
+\subsection{重力不安定性}
+重力不安定性が星形成に対して果たすことについて
+
+\subsubsection{定性的な議論}
 \subsubsection{ジーンズ不安定性}
-しかしこれはジーンズのまやかしと呼ばれる。
+まず、無限一様に広がって制しているガスを考える。
+密度と温度は至るところで均一であるとする。
+このとき、重力ポテンシャル$\Phi$もいたるところ一定でなくてはならないが、
+そのためにはポアソン方程式$\Delta \Phi = 4 \pi G \rho$によると$\rho=0$にならなくてはならない。
+したがってこれは適切な設定ではない。
+しかし、適切な設定のもとで考える結果とほとんど変わらない結果を簡単な設定のもとで得られるという意味で有用である。
+一定の圧力を$p_0$、密度を$\rho_0$、重力ポテンシャルを$\Phi_0$とする。静止しているから媒質の速度は至るところ$0$である。
+ここで、この媒質にゆらぎを加える。
+$p = p_0 + p_1,\rho = \rho_0 + \rho_1,\Phi = \Phi_0 + \Phi_1, v = v_1$として連続の式と運動方程式を考える。\\
+連続の式
+\begin{align}
+    \pder[\rho]{t} + \nabla \cdot (\rho \bv) = 0\label{eq:linearcon}
+\end{align}
+運動方程式
+\begin{align}
+    \Dder[\bv]{t} = - \frac{1}{\rho}\nabla p - \nabla \Phi\label{eq:lineareom}
+\end{align}
+これを線形化して、
+\begin{align}
+    \pder[\rho_1]{t} + \rho_0\nabla \cdot \bv_1 = 0\\
+    \pder[\bv_1]{t} = - \frac{1}{\rho_0}\nabla p_1 - \nabla \Phi_1
+\end{align}
+を得る。理想気体の状態方程式より$R_{gas}$を気体定数、$\mu$を平均分子量、$c_s$を音速であるとして、
+\beq
+P = \frac{R_{gas}}{\mu} \rho T = c_s^2 \rho
+\eeq
+であるから、線形化された運動方程式\eqref{eq:lineareom}は音速を使って書き直される。
+\beq
+    \pder[\bv_1]{t} = - \frac{c_s^2}{\rho_0}\nabla \rho_1 - \nabla \Phi_1
+\eeq
+さらにポアソン方程式$\Delta \Phi_1 = 4 \pi G\rho_1$を使って、線形化された連続の式\eqref{eq:linearcon}の時間微分を整理すると、
+\begin{align}
+    \ppder[\rho_1]{t} &= - \rho_0 \nabla \cdot \pder[\bv_1]{t}\\
+                      &= \rho_0 \nabla \cdot \left(\frac{c_s^2}{\rho_0}\nabla \rho_1 + \nabla \Phi\right)\\
+                      &= \nabla \cdot \left(c_s^2\nabla \rho_1 + \rho_0\nabla \Phi\right)\\
+                      &= c_s^2\Delta\rho_1 + 4\pi G\rho_0\rho_1
+\end{align}
+ここで一次元平面波を考えて、解が$exp(kx -\omega t)$の形であるとすると、
+分散関係は
+\beq
+    \omega^2 = c_s^2k^2 - 4\pi G \rho_0
+\eeq
+となる。$k^2 < 4 \pi G\rho_0 / c_s^2$のとき、$\xi$を実数として$\omega = \pm i \xi$の形の純虚数になって
+摂動が$exp(\pm \xi t)$となるのでゆらぎが時間とともに発達することがわかる。
+この特徴的な波数を$k_J$とすれば、
+\beq
+k_j^2 = \frac{4\pi G \rho_0}{c_s^2}
+\eeq
+と書ける。これを波長に直すと、
+\beq
+\lambda_J = \frac{2\pi}{k_J} = \left(\frac{\pi}{G\rho_0} \right)^\half c_s
+\eeq
+となる。
+これジーンズ波長と呼び、この波長より波長の長いゆらぎは発達し重力収縮を起こす。
+この波長を半径とする級の内部の質量を
+ジーンズ質量といい、
+\beq
+M_J = \frac{4}{3}\pi \lambda_J^3
+\eeq
+と書く。
 \subsubsection{等温球の重力不安定性}
+等温球の重力不安定性について考える。
 外圧$P_ex$の下に置かれた半径$R$で等温の球対称ガス球を考える。
 ガス球の全質量を$M$とする。
 ガス球の内部構造はLane-Emden方程式によって決まる。
-ビリアル定理より、
+外圧が無視できないときのビリアル定理より、
 \beq
 P_{ex} V = (\gamma -1)\ethe + \frac{W}{3}
 \eeq
@@ -276,30 +361,55 @@ $V = \frac{4}{3} \pi R^3$であるので、
 \beq
 P_{ex} = (\gamma -1)\frac{\ethe }{\frac{4}{3} \pi R^3}+ \frac{W}{4 \pi R^3}
 \eeq
-$\ethe = c_v MT , W = - \Theta \frac{GM^2}{R}$を使って
+質量あたりの定積比熱$c_v$を定義して$\ethe = c_v MT$、重力エネルギーの表式$ W = - \Theta \frac{GM^2}{R}$を使って
 \beq
-P_{ex} = \frac{c_v MT}{2\pi R^3} - \frac{\Theta GM^2}{4\pi R^4}
+P_{ex} = \frac{c_v MT}{2\pi R^3} - \frac{\Theta GM^2}{4\pi R^4}\label{eq:pex}
 \eeq
-この式を$\tilde{R} = , \tilde{P}$で無次元化する。
-$R = x \tilde{R}, P = y \tilde{P}$として、
+と書き換えられる。今球対称を考えているので$\Theta = \frac{5}{3}$である。
+この式を$\tilde{R} = \frac{\Theta G M}{2\pi R^3}, \tilde{P}=\frac{c_v MT}{2\pi \tilde{R}^3}$で無次元化する。
+$R = x \tilde{R}, P = y \tilde{P}$として、\eqref{eq:pex}は
 \beq
     y = \frac{1}{x^3} \left(1 - \frac{1}{x}\right)
 \eeq
+となる。
 この式を図示すると図\ref{fig:spherical}のようになる。
 \begin{figure}[H]
     \includegraphics[clip,width=10.0cm]{graph/spherical.png}
     \caption{}
     \label{fig:spherical}
 \end{figure}
-ピークは
+この式はピークを持ち、
+\begin{align}
+    \dder[y]{x} &= - \frac{3}{x^4}\left(1 - \frac{1}{x}\right) + \frac{1}{x^5}\\
+                &= \frac{1}{x^5}(x - 3x)
+\end{align}
+より$x = \frac{4}{3}$のところにピークがある。この点は
+$R$の式に代入すると、
 \beq
-\dder[y]{x} = 
+R_m = \frac{4}{3}\tilde{R} = \frac{4\Theta}{9} \frac{G\mu M}{R_{gas} T}\label{eq:rm}
 \eeq
-より$x = \frac{4}{3}$のところにある。
-$R$の式に代入すると、$R_m$
-クリティカルマスは$M_J$
-
-\subsubsection{自由落下時間}
+に対応する。
+ここで、外圧$P_{ex}$に等温球が置かれていて外圧と球の境界での圧力$P$が釣り合っていたとする。
+$R < R_m$の場合、球が何らかの理由で微小に圧縮され$P < P_{ex}$になったとすると$R$はすでにピークである$R_m$より小さいので、
+半径$R$を小さくすると圧力$P$も下がってしまい外圧と釣り合わせることができずに収縮を続ける。
+一方で$R> R_m$の場合は、$P < P_{ex}$となるような微小な圧縮に対して$R$を小さくすると圧力$P$を増やすことができるので$P_{ex}$と釣り合わせることができる。
+したがって、$R > R_m$のときは球は安定であることがわかる。
+次に、ジーンズ質量を求めるために$M = \frac{4\pi R_m^3 \rho}{3}$を\eqref{eq:rm}へ代入して、
+\beq
+R_m^2 = \frac{27}{16\pi\Theta} \frac{R_{gas} T}{G\mu \rho}
+\eeq
+得られた$R_m$の質量によらない表式を$M = \frac{4\pi R_m^3 \rho}{3}$へ代入して、ジーンズ質量
+\beq
+M_J 
+\eeq
+を得る。
+ジーンズ質量より大きな質量を持つ球に対しては外圧との釣り合いが取れる半径がないので不安定である。
+そして、ここへ実際のガス雲の代表的な数値を入れると、
+\beq
+M_J = 1.1 M_{sun}
+\eeq
+となる。ガス雲が太陽質量程度の総質量があれば重力不安定性が起こる。
+\subsection{自由落下時間}
 ジーンズ不安定性によって崩壊が始まると、圧力勾配の上昇に比べて重力による収縮の効果が支配的になる。
 一様球の崩壊において半径$r$の球殻の崩壊について考える。
 半径rの球殻の内部に$m$の質量があるとすれば、球殻の運動方程式は
@@ -333,9 +443,15 @@ $\cos^2\xi = \frac{r}{r_0}$と置き換えれば、
 \eeq
 $\xi = \frac{\pi}{2}$において球殻が中心に達するので、
 \beq
-t_{ff} = \left(\frac{3\pi}{32\pi G \rho_0} \right)^\half
+t_{ff} = \left(\frac{3\pi}{32 G \rho_0} \right)^\half
 \eeq
+と書かれる自由落下時間$t_{ff}$が崩壊のタイムスケールを表していることがわかる。
 %具体例
+ここへ例えばガス雲の代表的な密度$\rho = 10^{-19}$を代入してみると
+\beq
+t_{ff} = 7\times10^{12}s \simeq 10^5 \sim 10^6 year
+\eeq
+ガス雲の崩壊のタイムスケールが数十万年から数百万年のスケールであることがわかる。
 \subsection{Lane-Emden方程式}
 星は主系列星への進化の過程で星全体での対流を経るので、星の内部の組成は主系列星に至った際には一様である。
 また、星間ガスから自己重力収縮している過程も内部の組成は一様である。
@@ -353,12 +469,13 @@ $K = R_{gas}T/\mu$として、
 \begin{equation}
     P = K \rho^\gamma = K\rho^{1+1/n}\label{eq:polytropic}
 \end{equation}
-と書く。$\gamma$を比熱比、$n$をポリトロープ指数と呼ぶ。
+と書く。$\gamma$をポリトロープ指数、$n$をポリトロープ数と呼び、等温過程では$\gamma = 1, n = \infty$、断熱過程では$\gamma = \frac{5}{3}, n =\frac{3}{2}$である。
+また、ポリトロープ指数は気体の比熱比$\gamma_{ad}$と必ずしも同じではない。
 静水圧平衡の式\eqref{eq:static}にポリトロープ関係式を代入して、
 \begin{align}
     \dder[\Phi]{r} &= - \gamma K \rho^{\gamma -2} \dder[\rho]{r}\label{eq:staticpoly}
 \end{align}
-\subsubsection{non isothermal}
+\subsubsection{非等温の場合}
 $\gamma \neq 1, n\neq \infty$のときに\eqref{eq:staticpoly}を積分して、
 \begin{align}
     \Phi = \rho^{\gamma -1} (- \frac{\gamma}{\gamma -1}K)\\
@@ -388,7 +505,7 @@ r = a\xi, a = \left(\frac{4\pi G}{(n+1)^n K^n}(-\Phi_c)^{n-1}\right)^{1/2}
 \rho =  \frac{\rho_c}{(1 + \frac{1}{3}\xi^2)^\frac{5}{2}}
 \eeq
 となり、これをプラマーモデルという。
-\subsubsection{isothermal}
+\subsubsection{等温の場合}
 $\gamma=1,n=\infty$の等温の場合
 %&= -  K \rho^{-1} \dder[\rho]{r}
 \eqref{eq:staticpoly}を$\Phi=0$での密度を$\rho_c$として積分する。
@@ -411,29 +528,120 @@ $\gamma=1,n=\infty$の等温の場合
 \begin{equation}
     \theta(0) = 0,    \theta'(0) = 0
 \end{equation}
-とおけば、Lane-Emden方程式は解ける。
+とおけば、2階の微分方程式であるLane-Emden方程式は閉じている。
 \subsection{放射}
+\subsubsection{Fickの法則}
+物質の拡散についての簡単なモデルについて調べる。
+一次元の空間を考える。区間$[x, x +\delta)$の間の粒子数を$N(x)$とする。
+\begin{center}\begin{tikzpicture}[scale=2]
+       %ここにTikZのコマンドを記述します。
+     % 軸
+    \draw[thick, -stealth] (-1.2, 0)--(1.2, 0) node[right] {$x$};
+    \draw (-0.5, 0) node[below] {$N(x)$};
+    \fill (0.5, 0) circle (1pt);
+    \fill (-0.5, 0) circle (1pt);
+    \draw (0.5, 0) node[below] {$N(x+\delta)$};
+\end{tikzpicture}\label{tikz:fick}\end{center}
+
+各粒子は独立に運動していて、ある固定された時間間隔$\tau$ごとに正か負の方向へ$1/2$の確率で距離$\delta$だけ動くとする。
+すると、$x+\delta $の点を右に通過する粒子数は、
+\beq
+- \half \left[N(x + \delta) - N(x)\right]
+\eeq
+時間あたりの流束を$J$として
+\beq
+J = - \frac{N(x + \delta) - N(x)}{2\delta \tau}
+\eeq
+濃度を$n = \frac{N}{\delta}$として
+\begin{align}
+    J = - \frac{\delta^2}{2\tau} \pder[n]{x}\\
+    = - D \pder[n]{x}\label{eq:fick}
+\end{align}
+$D = \frac{\delta^2}{2\tau}$とした。
+粒子の速度は$v_x = \frac{\delta}{\tau}$と書けるが、
+粒子が三次元の速度$v$を持っていてそのうちの一次元のみを見ていると考えて、
+近似として$v = 3v_x$とする。
+すると係数は$D = frac{v\delta}{3}$と書き換えることもできる。
+これが物質の拡散についてのフィックの法則である。
+\subsubsection{輻射輸送}
+星の輻射輸送について考える。
+星の半径に比べて、平均自由行程$l_{ph}$は
+\beq
+\frac{l_{ph}}{R_{\odot}} \sim 3 \times 10^{-11}
+\eeq
+ととても小さい。このような状況では、輻射輸送は拡散過程として捉えられる。
+したがって、Fickの法則\eqref{eq:fick}からの類推をする。
+物質の場合の物理量を置き換える。
+物質の流れをエネルギーフラックスに$J \rightarrow F$、
+数密度を内部エネルギーに$n \rightarrow U$
+、速度を光速に$v \rightarrow c$
+そして物質の自由行程であった$\delta$を光の平均自由行程に$\delta \rightarrow l_{ph}$と取り替えると
+\beq
+F = - \frac{c l_{ph}}{3}\pder[U]{r}\label{eq:F}
+\eeq
+とFickの法則から輻射の式を得られる。
+ここへシュテファンボルツマン則
+\beq
+U = aT^4
+\eeq
+から
+\beq
+\pder[U]{r} = 4 aT^3\pder[T]{r}
+\eeq
+となる。$a=7.57\times10^{-15}\,\mathrm{ergcm^{-3}K^{-4}}$はシュテファンボルツマン係数と呼ばれる。
+これを\eqref{eq:F}へ使って
+\beq
+F = - \frac{4ac}{3} l_{ph}T^3\pder[T]{r}
+\eeq
+となる。平均自由行程$l_{ph}$は単位質量あたりの断面積$\kappa$と密度$\rho$を使って
+\beq
+l_{ph} = \frac{1}{\kappa\rho}
+\eeq
+と書ける。典型的な星では$\kappa \sim 1 \,\mathrm{cm^2g-1}$である。
+これを使えば最終的な表式は、
+\beq
+F =  - \frac{4ac}{3} \frac{T^3}{\kappa\rho}\pder[T]{r}\label{eq:Flast}
+\eeq
+となる。
 \subsection{第一コアの形成}
 重力不安定性によって重力収縮を起こしている分子雲について考える。
 分子雲は崩壊を起こす前は$T=10K$で分子雲全体が等温で、かつ光学的に薄い状態である。
 これは分子雲のガス粒子はダスト粒子と衝突していて、ダストの熱放射で冷却されている状態である。
 この一様な分子雲が重力不安定性によって崩壊するとき、崩壊の中心部の密度が小さくダスト冷却が効く間は崩壊はほとんど$10K$の等温で進化する。
-そして、中心部の密度が大きくなり、光学的に厚くなると中心部では断熱的になり急速に温度が上昇する。
+そして、中心部の密度が大きくなり$10^{-13}gcm^{-3}$に達すると中心部は不透明になる。
+中心部では輻射によってエネルギーが抜ず断熱的になる。
+落下の重力エネルギーを放射することができないので急速に温度が上昇する。
+また、温度の上昇とともに圧力も上昇する。
 輻射でエネルギーが抜けなくなった中心部のことをコアと呼ぶことにする。
 コアの高密度部分の進化が暴走的に進む一方で、それを取り囲むエンベロープは一定のままである。
-これは、エンベロープが中心部に質量を供給しただけ崩壊している領域の境界からエンベロープに対しても質量の流れがあることによって起きる見かけの効果とも言える。
+これは、エンベロープが中心部に質量を供給した分だけ崩壊している領域の境界からエンベロープに対しても質量の流れがあることによって起きる見かけの効果とも言える。
 コアの密度が上がると、自由落下時間は短くなると同時にジーンズ質量は小さくなるので
 コアの質量は小さくなる。
 また、コアの大きさはジーンズ長程度のまま収縮するので密度の上昇とともにエンベロープに取り残された質量の分布がわかる。
 ジーンズ長が$\lambda_J \propto \rho^{-\half}$であるから、エンベロープの質量分布は
 $\rho \propto r^{-2}$となる。
 \subsection{解離と電離の効果}
-形成された第一コアは不透明で輻射によってエネルギーが抜けない。
-しかし、エンベロープからの質量降着は続くのでその重力エネルギーはコアの内部エネルギーに変換され
-コアの内部の温度と圧力は上がり続ける。
-温度が$2000K$に達すると、水素分子の解離の効果が現れる。
-水素原子と分子の関係はSahaの式によって与えられる。
-\subsubsection{Sahaの式}
+形成された第一コアは不透明で輻射によってエネルギーが抜けないが
+エンベロープからの質量降着が続く。
+その重力エネルギーはコアの内部エネルギーに変換されコアの内部の温度と圧力は上がり続ける。
+$10K$ではガスの水素はすべて分子の状態であるとみなせるが、
+温度が$2000\,\mathrm{K}$に達すると、水素分子の解離の効果が現れる。そしてコアの温度が$4000\,\mathrm{K}$を超えると電離が現れる。
+このとき、
+水素原子と分子の関係、水素原子と水素イオンの関係は
+Sahaの式\eqref{eq:saha}によって得られる。
+解離が始まると、コアに入ってくるエネルギーの一部が吸熱反応に使われるようになる。
+この反応によって比熱比$\gamma$が下がり、$\gamma < \frac{4}{3}$になると重力不安定性によって第一コアの崩壊が起こる。
+\begin{figure}[t]
+    \includegraphics[clip,width=10.0cm]{graph/tomida.png}
+    \caption{ガス雲の成長と比熱比の$\rho - T$図における分布.Tomida 2013\cite{tomida}から引用}
+    \label{fig:tomida}
+\end{figure}
+
+コアの水素分子がすべて水素原子になり、
+解離による吸熱反応がなくなると、吸熱反応によって下がっていた比熱比が$\frac{4}{3}$より大きくなり重力収縮が止まり、第二コアが形成される。
+水素分子の比熱比が$\gamma = \frac{7}{5}$で水素分子の比熱比が$\gamma = \frac{5}{3}$であるから
+第二コアの方が比熱比は高くなる。
+\subsubsection{Sahaの式と電離}
 原子の励起状態には様々あるが、基底状態と励起状態の間の数密度の関係を考えるとき、熱平衡にあるガスを考えるのが良い。
 ガスの中では様々な状態の原子が分布していると考えられる。
 ここでは$s$番目の励起状態の統計的重みを$g_s$、状態$s$にある原子の数密度を$n_s$、基底状態からのエネルギーを$\psi_s$と書くこととする。
@@ -459,16 +667,15 @@ $\rho \propto r^{-2}$となる。
 電離した電子が運動量$p_e$を持っているとき、電離した電子のエネルギーは$E = \chi_r + \frac{p_e}{2m_e}$となる。
 ここで、$r$階電離原子と自由電子が$[p_e, p_e + dp_e]$の間の運動量を持つ$r+1$階電離原子との関係を考える。
 数密度はそれぞれ、$n_r, dn_{r+1}$と書く。統計的重みは、$g_r, g_{r+1}dg(p_e)$となる。
-ここで$dg(p_e)$は、
-プランク定数を使って
+ここで$dg(p_e)$は、スピンの自由度$\times$相空間での体積/$h^3$であるから
 \beq
 dg(p_e) = \frac{2dVd^3p_e}{h^3}
 \eeq
-と書かれる。ボルツマン公式は
+と書かれる。したがって、ボルツマン公式は
 \beq
 \frac{dn_{r+1}}{n_r} = \frac{g_{r+1}dg(p_e)}{g_r} \exp\left(- \frac{\chi_r + \frac{p_e^2}{2m_e}}{kT}\right)
 \eeq
-$dV = \frac{1}{n_e}$であること、$[p_e, p_e + dp_e]$の空間$d^3p_e = 4\pi p_e^2 dp_e$を使って
+また、$dV = \frac{1}{n_e}$であること、$[p_e, p_e + dp_e]$の空間$d^3p_e = 4\pi p_e^2 dp_e$を使って
 \beq
 dg(p_e) = \frac{8\pi p_e^2dp_e}{n_eh^3}
 \eeq
@@ -479,21 +686,74 @@ dg(p_e) = \frac{8\pi p_e^2dp_e}{n_eh^3}
 \eeq
 $p_e$について積分すれば
 \beq
-\frac{n_{r+1}}{n_r} n_e = \frac{g_{r+1}}{g_r} f_r(T)
+\frac{n_{r+1}}{n_r} n_e = \frac{g_{r+1}}{g_r} f_r(T)\label{eq:sahaeasy}
 \eeq
+ただし、
 \beq
 f_r(T) = 2 \frac{(2\pi m_e kT)^{\frac{3}{2}}}{h^3} e^{-\chi_r/kT}
 \eeq
-これをSahaの四季と呼ぶ
-\subsection{2nd}
-\section{衝撃波}
-\subsection{衝撃波}
-\subsubsection{ランキンユゴニオ}
-\subsection{衝撃波の性質}
-\subsection{エントロピージャンプ}
-\subsection{衝撃波の大きさ}
+この式は$r$階電離原子と$r+1$階電離原子の数密度の関係を与えるが、これは原子がすべて基底状態であるとしたときの表式である。
+$r$階電離原子が第$s$励起状態にあるとき、$g_{r, s}$と添字をつけると約束すれば
+\eqref{eq:sahaeasy}を正確に記すと、
+\beq
+\frac{n_{r+1,0}}{n_{r,0}}n_e = \frac{g_{r+1,0}}{g_{r,0}} f_r(T)\label{eq:sahacorrect}
+\eeq
+となる。$r$階電離原子のすべての励起状態の数密度を足して、
+\beq
+n_r = \sum n_{r,s}
+\eeq
+を定義する。ここにボルツマン公式
+\beq
+\frac{n_{r,s}}{n_{r,0}} = \frac{g_{r,s}}{g_{r,0}} e^{-\psi_s/kT}
+\eeq
+を使って、
+\begin{align}
+    \frac{n_r}{n_{r,0}} &=
+    \frac{1}{g_{r,0}}\left(g_{r,0} + g_{r, 1}e^{\psi_1/ kT}+ g_{r, 2}e^{\psi_2/ kT} + \cdots\right)\\
+                        &= \frac{u}{g_{r,0}}
+\end{align}
+の関係を得る。この関係を\eqref{eq:sahacorrect}へ使えば、
+\beq
+\frac{n_{r+1}}{n_r}n_e = \frac{u_{r+1}}{u_r}f_r(T)\label{eq:saha}
+\eeq
+すべての励起状態を考慮したSahaの式を得る。
+\subsection{解離}
+水素の解離について考える。
+\beq
+H^2 \longleftrightarrow 2H
+\eeq
+この反応は右向きに$\chi_d = 4.48\,\mathrm{eV}$の吸熱反応である。
+Tomida 2013\cite{tomida}によれば、解離の平衡定数$K_{dis}$は
+\begin{align}
+    K_{dis} = \frac{n^2_H}{n_{H^2}} = \frac{Z^2_H}{Z_{H^2}}
+\end{align}
+と数密度、分配関数を使って２通りに書ける。
+このうち分配関数についての表式を整理すると、
+\beq
+K_{dis} = 2 \frac{(\pi m_p)^{3/2}}{h^3}(k_B T)^{3/2} \exp(-\frac{\chi_d}{k_BT})
+\eeq
+原子核の個数が保存することから
+\beq
+2n_{H^2} + n_H = n_{total}\label{eq:n}
+\eeq
+の関係がある。ここに$K_{dis} = \frac{n^2_H}{n_{H^2}}$の関係を使い、$f_H = \frac{n_H}{n_{total}}$と原子核の中の水素原子の割合を置くと
+\eqref{eq:n}は
+\beq
+\frac{2n_{total}}{K_{dis}} f_H^2 + f_H = 1
+\eeq
+となる。これを解の公式を使って$f$について解くと
+\beq
+f_H = \frac{2}{1 + \sqrt{1 + \frac{4 n_{total}}{K_{dis}}}}
+\eeq
+解離度についての表式が得られた。
+この結果を電離の表式と合わせて数密度一定の下での温度変化に対する電離と解離の様子を図示したのが図\ref{fig:fh}である。
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/fh.png}
+    \caption{数密度$10^{15}$の設定で温度を変化させたときの電離度と解離度の変化}
+    \label{fig:fh}
+\end{figure}
+
 \section{計算手法}
-\subsection{差分方程式についての一般論}
 \subsection{クーラン条件}
 \begin{equation}
     \pder[u]{t} + c\pder[u]{x} = 0\label{eq:advection}
@@ -526,7 +786,7 @@ $1$ステップの情報の伝達距離が格子幅を超えないという条�
   c\frac{\Delta t}{\Delta x} \leq 2
 \end{equation}
 となることからわかるように、条件は必ずしも$1$ではないが$1$を使えば十分である。
-\subsubsection{フォン・ノイマンの安定性解析}
+\subsection{フォン・ノイマンの安定性解析}
 クーラン条件が満たされていることは、数値計算が安定であることを保障しない。
 風上差分法において、安定性を考える。
 %todo:波数空間の描画
@@ -567,84 +827,45 @@ $\alpha > 1$のとき不安定である。
 そこで1950年にvon NeumannとRichtmyer人工粘性を導入した。
 人工粘性は計算に圧縮されたときのみ働く非線形な粘性で、
 平均自由行程程度の大きさの衝撃波の厚みを格子の幅程度にまで大きくすることによって衝撃波を数値計算で捉えられるようにする。
-そして、エネルギー方程式にも組み込まれることで、運動エネルギーを熱エネルギーへ変換する役割も果たす。
-%todo:式
-人工粘性無しで衝撃波を扱う方法にはLax-Wendroff法などがあり広く使われているが、
-衝撃波面のまわりで解が振動するという問題も知られている。
+人工粘性係数は$\Dder[\rho]{t} > 0$のとき、
+\beq
+\mu_Q = l^2 \Dder[\rho]{t} 
+\eeq
+それ以外のとき$\mu_Q = 0$として、本当の粘性と同じ形で運動方程式とエネルギー方程式へ組み込めば良い。
+エネルギー方程式への組み込みによって運動エネルギーを熱エネルギーへ変換する役割も果たす。
 \subsection{一次元球対称ラグランジュ座標}
-\subsection{基礎方程式の差分化}
-一次元の球対称ラグランジアン流体計算において、独立変数は$M_r$である。
-ここで$M_r$は半径$r$の内部にある質量で定義され、媒質を外向きに大きくなる量である。
-（疑似粘性の選択は注意が必要である。）
-いま、解くべき方程式は
-\begin{align}
-    \Dder[v]{t} &= - \frac{GM_r}{r^2} - 4\pi r^2\pder[(p + Q)]{M_r}\\
-    \Dder[r]{t} &= v\\
-    V &= \frac{1}{\rho}=\frac{4}{3}\pder[r^3]{M_r}\\
-    Q &= \frac{4}{3}\rho l^2 (\pder[v]{r})^2\label{eq:q}
-\end{align}
-方程式は$\left\{M_i\right\};i = 1,...,I+1$によって離散化される。
-$i$番目の球殻の中の質量は
-\beq
-    \Delta M_{i+\half} = M_{i+1} - M_i
-\eeq
-陽的な差分方程式は、
-\begin{align}
-    \frac{v^{n+\half}_i - v^{n-\half}_i}{\Delta t^n} &= -\frac{GM_i}{(r^{n+\lambda}_i)^2}
-    -4\pi(r^{n+\lambda}_i)^2
-    \frac{p^{n+\lambda}_{i+\half} - p^{n+\lambda}_{i-\half}+Q^{n-\half}_{i+\half} - Q^{n-\half}_{i-\half}}{\Delta M_i}\\
-    r^{n+1}_i &= r^{n}_i + v^{\hpn}_i \Delta t^{\hpn}\\
-    V^{n+1}_{\hpi} &= \frac{1}{\rho^{n+1}_{\hpi}}=\frac{4}{3}\frac{(r^{n+1}_{i+1})^3 - (r^{n+1}_{i})^3}{\Delta M_{\hpi}}\\
-\end{align}
-途中で、
-\begin{align}
-    r^{n+\lambda}_i &= r^n_i + \frac{1}{4} (\Delta t^{n+\half} - \Delta t^{n-\half})v^{n-\half}_i\\
-    p^{n+\lambda}_{\hpi} &=  p^{n}_{\hpi} + \frac{1}{4} (\Delta t^{n+\half} - \Delta t^{n-\half})
-    \frac{p^{n}_{\hpi} - p^{n-1}_{\hpi}}{\Delta t^{\hmi}}
-\end{align}
-運動方程式は、
-\beq
-    \Dder[v]{t} = - \frac{GM_r}{r^2} - 4\pi r^2\pder[p]{M_r} - \frac{4\pi}{r}\pder[r^3Q]{M_r}
-\eeq
-差分化すれば、
-\beq
-    \frac{v^{n+\half}_i - v^{n-\half}_i}{\Delta t^n} =
-    -\frac{GM_i}{(r^{n+\lambda}_i)^2}
-    -4\pi(r^{n+\lambda}_i)^2
-    \frac{p^{n+\lambda}_{i+\half} - p^{n+\lambda}_{i-\half}}{\Delta M_i}
-    -\frac{4\pi}{r^{n}_i}
-    \frac{(r^{n}_{i+\half})^3Q^{n-\half}_{i+\half} - (r^{n}_{i-\half})^3Q^{n-\half}_{i-\half}}{\Delta M_i}
-\eeq
-ここで、$r_{i+\half}$は質量を半分持つように選ばれる。
-\begin{align}
-    r_{i+\half} = (r^3_i + r^3_{i+1})^{\frac{1}{3}}
-\end{align}
-$Q$の更新は、
-\beq
-    Q^{\hmn}_{\hpi} = - 2 (\mu_Q)^{\hmn}_{\hpi}
-     \left[\frac{v^{\hmn}_{i+1}-v^{\hmn}_{i}}{r^{\hmn}_{i+1}-r^{\hmn}_{i}}
-      +\frac{1}{3}\frac{\ln \rho^{n}_{\hpi} - \ln \rho^{n-1}_{\hpi}}{\Delta t^{\hpn}}\right]
-\eeq
-粘性係数は、
-\beq
-    (\mu_Q)^{n-\half}_{i+\half} = 
-    l^2 \frac{\left[ \rho^n_{\hpi} - \rho^{n-1}_{\hpi}\right]}{\Delta t^{\hpn}}
-\eeq
-ここで、$l$は
-\beq
-    l = k_q \Delta r
-\eeq
-\subsection{陰的計算}
-等温の仮定を外してエネルギーを計算入れる。
-放射による効果は、
+星形成のシミュレーションでは、計算に必要ね密度と長さの桁のレンジが大きい。
+例えば長さのスケールについて考えると、初期条件では$1000AU$程度の分布が第２コアでは$1R_{sun}$程度の領域の計算が必要になる。
+ここには$6$桁の違いがある。
+密度は初期条件では$10^{-19}\,\mathrm{gcm^{-3}}$であるが、最終的には$10^{-2}\,\mathrm{gcm^{-3}}$に至る。$17$桁のレンジがある。
+長さのスケールだけを考えても、空間を格子によって均等に切るだけでは計算量が膨大になってうまく計算できないことがわかる。
+そこで、一次元球対称ラグランジアン座標を導入する。
+それは、半径ではなく質量について座標を切る方法である。
+計算の過程で最初に分割された媒質の質量は変わらずに
+媒質の空間座標が時間によって変化することでコアの密度が上がると媒質が中央に集まって計算が細かくなるという利点がある。
+
+\subsection{エネルギー方程式と陰的計算}
+ここではエネルギー方程式を解くことを考える。
+半径$r$の球殻全体のエネルギーフラックス$l$はエネルギーフラックス$F$を使って
 \begin{align}
     l = 4\pi r^2 F\\
-    F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
 \end{align}
-エネルギー方程式は、
+と書ける。ここへエネルギーフラックスの表式\eqref{eq:Flast}
+\beq
+    F = - \frac{4ac}{3} \frac{T^3}{\kappa \rho}\pder[T]{r}
+\eeq
+を使えば単位質量あたりのエネルギー方程式は、
 \begin{align}
-\Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) = \dot{q} + \Phi\\
-\Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) = - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi
+    \Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) &= - \frac{1}{4\pi\rho r^2}\pder[l]{r}\\
+                                                          &= 
+                                                          \frac{ac}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right)
+\end{align}    
+と書ける。
+さらに、人工粘性によって運動エネルギーが内部エネルギーに変換される項を$\Phi$と書いて、
+\begin{align}
+    \Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) &= - \frac{1}{4\pi\rho r^2}\pder[l]{r} + \Phi\\
+                                                          &= 
+                                                          \frac{ac}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right) + \Phi
 \end{align}    
 ここで、エネルギー方程式を差分化することを考えるが、単に差分化すると２階微分が入っているので
 クーラン条件が$\Delta t < \frac{\Delta x^2}{c}$となる。
@@ -653,13 +874,177 @@ $Q$の更新は、
 したがって、クーラン条件は崩壊の経過とともに一層厳しい条件となってしまう。
 そこで、この問題を解決するために陰的な手法を導入する。
 陰的な手法では、クーラン条件についての考えなくて良いのでエネルギー方程式に関するクーラン条件の問題が解決される。
-
+\begin{align}
+    \Dder[e]{t} + p \Dder[]{t}\left(\frac{1}{\rho}\right) 
+= \frac{4ac}{3k\rho r^2}\pder[]{r}\left(\frac{r^2}{\rho} \pder[T^4]{r} \right) + \Phi\\
+e^{n+1}_j - e^{n}_j + \half (p^n_j + p^{n+1}_j)(V^{n+1}_j - V^n_j) 
+= \Delta t^n \dot{q}^{n+1}_j+\Delta t^n \Phi^{n+\half}_j\label{eq:sabun}
+\end{align}    
+差分化した結果は\eqref{eq:sabun}のようになる。
+いま、$\dot{q}$を放射による効果として以下のように差分化する。
+\begin{align}
+    \dot{q}^\pnn_j = \frac{ac}{3k}\frac{1}{\rho^\pnn_j (r^\pnn_j)^2}\frac{1}{\Delta r_\hpj}
+    \left(\frac{(r^\pnn_\pjj)^2}{\rho^\pnn_\pjj}\frac{T^\pnn_\pjj - T^\pnn_j}{\Delta r^\pnn_\pjj} -
+    \frac{(r^\pnn_j)^2}{\rho^\pnn_j}\frac{T^\pnn_j - T^\pnn_\mjj}{\Delta r^\pnn_j}\right)
+\end{align}
+この式では右の肩の時刻が$\pnn$になっている。これは陰解法と呼ばれる手法である。
+ここで例えば\eqref{eq:sabun}の右辺に$\dot{q}^n$を使うと陽解法であり、クーラン条件を考える必要がある方法であった。
+また、ここでは採用しなかったが$\half(\dot{q}^n + \dot{q}^\pnn)$を使うCrank-Nicolson法も陰的な解法である。
+いま、$\delta T^n = T^\pnn - T^n$として\eqref{eq:sabun}を$\delta T^n$について解くことを考える。
+\beq
+T = \frac{RT}{\gamma -1}
+\eeq
+\beq
+p = R\rho T
+\eeq
+の関係式を使うと$T$に関する式にできる。つまり\eqref{eq:sabun}は
+\beq
+- a_j \delta T^n_\mjj+ b_j \delta T^n_j- c_j \delta T^n_\pjj =r_j
+\eeq
+ここで$a, b, c, r$は時刻$n$までに決定される項である。
+したがって、すべての$j ={1\cdots J}$の$J$個の方程式を解けば良い。これは行列を使って
+\beq
+\begin{pmatrix}
+    b_{0} & -c_{0} &  && \\
+    -a_{1} & b_{1} & -c_{1} &&\\
+    &-a_{2} & b_{2} & -c_{2} &&\\
+&  &  \ddots      &  \ddots      & \ddots \\
+&&&-a_{J-1}  & b_{J-1} &-c_{J-1}\\
+&&&&-a_{J}  & b_{J} 
+\end{pmatrix}
+\begin{pmatrix}
+\delta T_{0} \\
+\vdots  \\
+\delta T_{j}  \\
+\vdots \\
+\delta T_{J}
+\end{pmatrix}
+=
+\begin{pmatrix}
+r_{0} \\
+\vdots  \\
+r_{j}  \\
+\\
+r_{J}
+\end{pmatrix}
+\label{eq:mat}
+\eeq
+と表される。ここに境界での温度が一定である条件$\delta T_J = 0$を与えればこれは解ける。
+先にこれは陰解法であると述べたが、陰解法の重要な性質として\eqref{eq:mat}からわかるように
+時刻$n$での解の変化が時刻$n+1$のすべての点に影響を与えるという点がある。
+これは情報が無限の速さで伝わることを意味して、この性質によってクーラン条件をエネルギー方程式については考える必要がなくなる。
 \section{結果}
+\subsection{初期条件}
+初期条件として、ガス雲の全質量を$1M_\odot$としてガス雲全体が$T=10\,\mathrm{K}$で等温であるとする。
+不安定性によって起きる重力収縮を見るためには十分に密度が大きく、半径が小さくなくてはならない。
+Larson\cite{Larson}によれば
+\beq
+R < 0.46 \frac{GM\mu}{R_{gas}T}
+\eeq
+のときに崩壊が起きるので、臨界値から少し圧縮した$R = 1.63 \times 10^{17}cm$を使う。
+このとき、計算される密度は$\rho = 1.02 \times 10^{-19}\,\mathrm{gcm^{-3}}$で、
+自由落下時間は$t_{ff} = 7.0 \times 10^{12} \,\mathrm{s} \sim 210000 \,\mathrm{year}$である。
+また、初期時刻ではほぼすべての水素が分子の形をしている。境界条件として外圧は小さな定数と置いて時間によらない値とする。
+さらに、より大きな構造の中にあるガス雲が崩壊する過程を計算していることを考えれば
+境界での温度は時間によらず$T=10\,\mathrm{K}$で、境界は動かないから速度は$0$であるとする。
 \subsection{等温過程における崩壊}
-\subsection{断熱過程におけるコアの形成}
+まず、重力収縮が起きているものの輻射による冷却によってガス雲全体が$T=10\,\mathrm{K}$の等温で収縮する場合を考える。
+図\ref{fig:rho_r_iso}のように
+中心部の進化が加速して、中心を取り囲むエンベロープを取り残している。
+中心部の大きさは常にジーンズ長程度であることから予想されたようにエンベロープの分布は$\rho \propto r^{-2}$になっている。
+崩壊は$9.57 \times 10^{12}\,\mathrm{s}$程度で起きているが、
+これは$t_{ff}$よりも$1.37$倍程度
+長い。
+ここから等温崩壊において重力が$1/1.37 = 0.72$倍の大きさしかないと捉えると圧力が重力の$1 - 0.72 =0.28$倍程度の大きさを持っていると読み取ることができる。
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/rho_r_iso.png}
+    \caption{等温収縮の様子を$r-\rho$平面でプロットした図。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:rho_r_iso}
+\end{figure}
+
 \subsection{輻射の効果を入れてエネルギー方程式を解く}
+図\ref{fig:rho_r_iso}では強制的に等温にした状況のもとでの重力収縮を計算した。
+しかし、実際にはダスト冷却の効果によってコアが不透明になるまで広い範囲で等温進化している。
+したがって、輻射輸送の効果を入れたエネルギー方程式を計算に取り入れて計算した。
+密度分布は\ref{fig:rho_r_noion}のようになる。
+\ref{fig:rho_r_iso}と同じようにエンベロープの分布は$\rho \propto r^{-2}$であることがわかる。
+さらに、中心部分の温度と密度を図示した結果である図\ref{fig:core_noion}から$\rho \sim 10^{-13}$程度で中心部分が光学的に
+厚くなって断熱的に進化している様子がわかる。そして断熱進化の傾きが$0.39$程度であることから、比熱比$\gamma \sim 1.4$で断熱進化していることがわかる。
+これは水素分子の比熱比と一致している。
+また、速度分布\ref{fig:v_r_noion}からはコアの表面で次第に衝撃波面が形成されていく様子がわかる。
+コアへ降着する質量は衝撃波面で運動エネルギーを失い、内部エネルギーに変換される。
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/rho_r_noion.png}
+    \caption{第一コアの形成を$r-\rho$平面でプロットした図。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:rho_r_noion}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/core_noion.png}
+    \caption{中心部分の密度と温度の発達をを$T-\rho$平面でプロットした図。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:core_noion}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/v_r_noion.png}
+    \caption{速度分布を$v-\rho$平面でプロットした図。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:v_r_noion}
+\end{figure}
+\subsection{粘性なしの計算の例}
+衝撃波の取り扱いは圧縮性流体の数値計算には欠かせないと述べたが、実際に人工粘性の効果を取り除いて計算した結果を調べる。
+輻射の効果を考えてエネルギー方程式を解いた結果の図\ref{fig:rho_r_noion}はすでに人工粘性を実装していた。
+そこから、人工粘性を取り除いた結果が図\ref{fig:noQ}である。
+形成された第一コアの中で数値不安定が時刻$9.572392\times10^{12}\,\mathrm{s}$から$9.572755\times10^{12}\,\mathrm{s}$へ発達している過程が見て取れる。
+このとき速度プロファイルは図\ref{fig:v_r_noQ}のようになっている。
+時刻$9.572392\times10^{12}\,\mathrm{s}$とその$1$ステップ前の流速と音速の分布はそれぞれ
+\ref{fig:1879}と\ref{fig:2392}である。
+人工粘性を入れて計算した分布が図\ref{fig:v_r_noion}であるからこれと比べると、
+この一連のプロファイルから時刻$9.571879\times10^{12}\,\mathrm{s}$において第二コアの境界部分で
+自由落下速度が音速を超えるが、
+衝撃波を扱うことができないために$9.572755\times10^{12}\,\mathrm{s}$へかけて数値的不安定性が発達していくことがわかる。
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/noQ.png}
+    \caption{人工粘性なしの計算を$r-\rho$平面でプロットした図。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:noQ}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/v_r_noQ.png}
+    \caption{人工粘性なしの計算の速度分布。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:v_r_noQ}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/v_r_cs_9571879.png}
+    \caption{時刻$9.571879\times10^{12}\,\mathrm{s}$での速度と音速の$r-\rho$平面での分布}
+
+    \label{fig:1879}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/v_r_cs_9572392.png}
+    \caption{時刻$9.572392\times10^{12}\,\mathrm{s}$での速度と音速の$r-\rho$平面での分布}
+    \label{fig:2392}
+\end{figure}
+
 \subsection{解離の効果による第一コアの崩壊と第二コアの形成}
-\section{結論}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/rho_r.png}
+    \caption{。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:rho_r}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/core.png}
+    \caption{}
+    \label{fig:core2nd}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=10.0cm]{graph/v_r.png}
+    \caption{。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:v_r}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[clip,width=17.0cm]{graph/f_r.png}
+    \caption{。ラベルは時間で単位は$10^{12}s$}
+    \label{fig:f_r}
+\end{figure}
+
 \bibliographystyle{junsrt}
 \bibliography{cite}
 \end{document}
